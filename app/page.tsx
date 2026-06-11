@@ -197,16 +197,7 @@ function ReportView({
           </div>
         </section>
 
-        <section className="cta-card mobile-early-cta">
-          <p className="eyebrow-white">CXTY LIMITS CREATIVES</p>
-          <h2 className="cta-title">Build the world around this song.</h2>
-          <p className="cta-body">
-            Your song does not need more random posts. It needs a release world:
-            visuals, narrative, short-form moments, and a rollout system built
-            around the emotion people will remember.
-          </p>
-          <button className="black-button">Build The World Around This Song</button>
-        </section>
+      
 
         <section className="red-card">
           <p className="eyebrow-white">THE LINE THAT CARRIES THE ROLLOUT</p>
