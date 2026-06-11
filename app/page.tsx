@@ -324,9 +324,7 @@ function ReportView({
           </div>
         </section>
 
-        <button onClick={onReset} className="mobile-reset">
-          Analyze Another Track
-        </button>
+        
       </section>
 
       <style jsx global>{`
