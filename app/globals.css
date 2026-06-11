@@ -511,12 +511,12 @@ body {
   }
 
   .mobile-early-cta {
-    display: block;
-  }
+  display: none;
+}
 
-  .desktop-bottom-cta {
-    display: none;
-  }
+ .desktop-bottom-cta {
+  display: block;
+}
 
   .mobile-reset {
     display: block;
