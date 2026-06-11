@@ -130,12 +130,12 @@ export default function Home() {
           <label className="label">Upload Song File</label>
 
           <input
-            name="songFile"
-            required
-            type="file"
-            accept="audio/*"
-            className="file-input"
-          />
+  name="songFile"
+  required
+  type="file"
+  accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+  className="file-input"
+/>
 
           <textarea
             name="lyrics"
