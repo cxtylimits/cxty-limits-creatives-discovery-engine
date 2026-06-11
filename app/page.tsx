@@ -93,30 +93,30 @@ export default function Home() {
   }
 
   return (
-    <main style={mainStyle}>
-      <section style={containerStyle}>
-        <p style={brandStyle}>CXTY LIMITS CREATIVES</p>
+    <main className="page-shell">
+      <section className="container">
+        <p className="brand">CXTY LIMITS CREATIVES</p>
 
-        <h1 style={heroHeadlineStyle}>DISCOVERY ENGINE</h1>
+        <h1 className="hero-title">DISCOVERY ENGINE</h1>
 
-        <p style={heroTextStyle}>
+        <p className="hero-copy">
           Upload your unreleased song and get the story, the angle, and the
           rollout world before release day.
         </p>
 
-        <p style={supportTextStyle}>
+        <p className="support-copy">
           No long intake. Drop the track. We&apos;ll find what people are
           supposed to feel — and how the release should be built around it.
         </p>
 
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <h2 style={formTitleStyle}>DROP THE TRACK</h2>
+        <form onSubmit={handleSubmit} className="form-card">
+          <h2 className="form-title">DROP THE TRACK</h2>
 
           <input
             name="artistName"
             required
             placeholder="Artist Name"
-            style={inputStyle}
+            className="input"
           />
 
           <input
@@ -124,31 +124,31 @@ export default function Home() {
             required
             placeholder="Email Address"
             type="email"
-            style={inputStyle}
+            className="input"
           />
 
-          <label style={labelStyle}>Upload Song File</label>
+          <label className="label">Upload Song File</label>
 
           <input
             name="songFile"
             required
             type="file"
             accept="audio/*"
-            style={{ color: "#ffffff" }}
+            className="file-input"
           />
 
           <textarea
             name="lyrics"
             placeholder="Optional: Paste lyrics for a more accurate report"
-            style={textAreaStyle}
+            className="textarea"
           />
 
-          <button disabled={loading} type="submit" style={buttonStyle}>
+          <button disabled={loading} type="submit" className="primary-button">
             {loading ? "Building The World..." : "Create My Rollout"}
           </button>
 
           {loading && (
-            <div style={loadingStyle}>
+            <div className="loading">
               <p>Listening for the emotional signal…</p>
               <p>Finding the lyric that carries the rollout…</p>
               <p>Mapping the audience psychology…</p>
@@ -156,7 +156,7 @@ export default function Home() {
             </div>
           )}
 
-          {error && <p style={{ color: "#f87171" }}>{error}</p>}
+          {error && <p className="error">{error}</p>}
         </form>
       </section>
     </main>
@@ -182,29 +182,38 @@ function ReportView({
   ];
 
   return (
-    <main style={reportMainStyle}>
-      <section style={reportContainerStyle}>
-        <p style={brandStyle}>CXTY LIMITS CREATIVES</p>
+    <main className="report-shell">
+      <section className="report-container">
+        <p className="brand">CXTY LIMITS CREATIVES</p>
 
-        <section style={wrappedHeroStyle}>
-          <p style={eyebrowStyle}>THE DISCOVERY MOMENT</p>
-          <h1 style={wrappedHeadlineStyle}>{report.strategy.discoveryMoment}</h1>
+        <section className="wrapped-hero">
+          <p className="eyebrow">THE DISCOVERY MOMENT</p>
+          <h1 className="wrapped-headline">{report.strategy.discoveryMoment}</h1>
 
-          <div style={wrappedStatsStyle}>
+          <div className="stats-grid">
             <Stat label="Archetype" value={report.strategy.artistArchetype} />
             <Stat label="Rollout" value={report.strategy.rolloutType} />
             <Stat label="Score" value={`${report.scores.discoveryScore}/100`} />
           </div>
         </section>
 
-        <section style={bigRedCardStyle}>
-          <p style={eyebrowWhiteStyle}>THE LINE THAT CARRIES THE ROLLOUT</p>
-          <h2 style={lyricStyle}>
-            “{cleanQuote(report.evidence.mostShareableLyric)}”
-          </h2>
+        <section className="cta-card mobile-early-cta">
+          <p className="eyebrow-white">CXTY LIMITS CREATIVES</p>
+          <h2 className="cta-title">Build the world around this song.</h2>
+          <p className="cta-body">
+            Your song does not need more random posts. It needs a release world:
+            visuals, narrative, short-form moments, and a rollout system built
+            around the emotion people will remember.
+          </p>
+          <button className="black-button">Build The World Around This Song</button>
         </section>
 
-        <section style={splitGridStyle}>
+        <section className="red-card">
+          <p className="eyebrow-white">THE LINE THAT CARRIES THE ROLLOUT</p>
+          <h2 className="lyric">“{cleanQuote(report.evidence.mostShareableLyric)}”</h2>
+        </section>
+
+        <section className="split-grid">
           <WrappedCard
             label="IF IT CONNECTS"
             title={`“${cleanQuote(report.evidence.listenerComment)}”`}
@@ -218,12 +227,12 @@ function ReportView({
           />
         </section>
 
-        <section style={fanbasePanelStyle}>
-          <p style={eyebrowStyle}>FANBASE MATCH</p>
-          <h2 style={sectionTitleStyle}>Where this song could live.</h2>
-          <p style={panelBodyStyle}>{report.fanbaseMatch?.fanbaseReason}</p>
+        <section className="panel fanbase-panel">
+          <p className="eyebrow">FANBASE MATCH</p>
+          <h2 className="section-title">Where this song could live.</h2>
+          <p className="panel-body">{report.fanbaseMatch?.fanbaseReason}</p>
 
-          <div style={threeGridStyle}>
+          <div className="three-grid">
             <ListBlock
               title="Closest Artist Lanes"
               items={report.fanbaseMatch?.closestArtists || []}
@@ -239,23 +248,23 @@ function ReportView({
           </div>
         </section>
 
-        <section style={scorePanelStyle}>
-          <p style={eyebrowStyle}>DISCOVERY SCORECARD</p>
+        <section className="panel">
+          <p className="eyebrow">DISCOVERY SCORECARD</p>
 
-          <div style={scoreGridStyle}>
+          <div className="score-grid">
             {scores.map(([label, value]) => (
-              <div key={label} style={scoreCardStyle}>
-                <p style={scoreLabelStyle}>{label}</p>
-                <p style={scoreNumberStyle}>
+              <div key={label} className="score-card">
+                <p className="score-label">{label}</p>
+                <p className="score-number">
                   {value}
-                  <span style={scoreOutOfStyle}>/100</span>
+                  <span className="score-outof">/100</span>
                 </p>
               </div>
             ))}
           </div>
         </section>
 
-        <section style={splitGridStyle}>
+        <section className="split-grid">
           <WrappedCard
             label="THE ANGLE"
             title={report.strategy.discoveryAngle}
@@ -269,96 +278,634 @@ function ReportView({
           />
         </section>
 
-        <section style={evidencePanelStyle}>
-          <p style={eyebrowStyle}>WHAT WE PULLED FROM THE SONG</p>
+        <section className="panel">
+          <p className="eyebrow">WHAT WE PULLED FROM THE SONG</p>
 
-          <div style={evidenceGridStyle}>
+          <div className="evidence-grid">
             <PillList title="Themes" items={report.evidence.coreThemes} />
             <PillList title="Emotions" items={report.evidence.emotionalStates} />
             <PillList title="Imagery" items={report.evidence.imagery} />
-            <PillList
-              title="Repeated Ideas"
-              items={report.evidence.repeatedIdeas}
-            />
+            <PillList title="Repeated Ideas" items={report.evidence.repeatedIdeas} />
           </div>
         </section>
 
-        <section style={blueprintStyle}>
-          <p style={eyebrowStyle}>THE ROLLOUT BLUEPRINT</p>
+        <section className="panel">
+          <p className="eyebrow">THE ROLLOUT BLUEPRINT</p>
 
-          <div style={splitGridStyle}>
-            <ListBlock
-              title="Content Pillars"
-              items={report.rollout.contentPillars}
-            />
+          <div className="split-grid inner-grid">
+            <ListBlock title="Content Pillars" items={report.rollout.contentPillars} />
             <ListBlock title="Video Ideas" items={report.rollout.videoIdeas} />
           </div>
 
-          <div style={threeGridStyle}>
-            <ListBlock
-              title="Pre-Release"
-              items={report.rollout.preReleasePlan}
-            />
-            <ListBlock
-              title="Release Week"
-              items={report.rollout.releaseWeekPlan}
-            />
-            <ListBlock
-              title="30 Days After"
-              items={report.rollout.postReleasePlan}
-            />
+          <div className="three-grid">
+            <ListBlock title="Pre-Release" items={report.rollout.preReleasePlan} />
+            <ListBlock title="Release Week" items={report.rollout.releaseWeekPlan} />
+            <ListBlock title="30 Days After" items={report.rollout.postReleasePlan} />
           </div>
         </section>
 
-        <section style={splitGridStyle}>
-          <WrappedCard
-            label="VISUAL WORLD"
-            title={report.creative.visualDirection}
-            body=""
-          />
-
-          <WrappedCard
-            label="BIGGEST RISK"
-            title={report.creative.biggestRisk}
-            body=""
-          />
+        <section className="split-grid">
+          <WrappedCard label="VISUAL WORLD" title={report.creative.visualDirection} body="" />
+          <WrappedCard label="BIGGEST RISK" title={report.creative.biggestRisk} body="" />
         </section>
 
-        <section style={finalCardStyle}>
-          <p style={eyebrowStyle}>FINAL READ</p>
-          <h2 style={finalTitleStyle}>{report.creative.finalRecommendation}</h2>
+        <section className="final-card">
+          <p className="eyebrow">FINAL READ</p>
+          <h2 className="final-title">{report.creative.finalRecommendation}</h2>
         </section>
 
-        <section style={ctaStyle}>
-          <p style={eyebrowWhiteStyle}>CXTY LIMITS CREATIVES</p>
-          <h2 style={ctaTitleStyle}>
+        <section className="cta-card desktop-bottom-cta">
+          <p className="eyebrow-white">CXTY LIMITS CREATIVES</p>
+          <h2 className="cta-title">
             We found the story. Now build the world around it.
           </h2>
-          <p style={ctaBodyStyle}>
+          <p className="cta-body">
             Your song does not need more random posts. It needs a release world:
             visuals, narrative, short-form moments, and a rollout system built
             around the emotion people will actually remember.
           </p>
 
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <button style={blackButtonStyle}>
-              Build The World Around This Song
-            </button>
-            <button onClick={onReset} style={outlineButtonStyle}>
+          <div className="button-row">
+            <button className="black-button">Build The World Around This Song</button>
+            <button onClick={onReset} className="outline-button">
               Analyze Another Track
             </button>
           </div>
         </section>
+
+        <button onClick={onReset} className="mobile-reset">
+          Analyze Another Track
+        </button>
       </section>
+
+      <style jsx global>{`
+        * {
+          box-sizing: border-box;
+        }
+
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          background: #000;
+          overflow-x: hidden;
+        }
+
+        .page-shell {
+          min-height: 100vh;
+          background: #000;
+          color: #fff;
+          padding: 56px 20px;
+          font-family: var(--font-source-sans);
+          overflow-x: hidden;
+        }
+
+        .report-shell {
+          min-height: 100vh;
+          background: radial-gradient(
+              circle at top left,
+              rgba(220, 38, 38, 0.24),
+              transparent 30%
+            ),
+            #000;
+          color: #fff;
+          padding: 44px 20px;
+          font-family: var(--font-source-sans);
+          overflow-x: hidden;
+        }
+
+        .container,
+        .report-container {
+          width: 100%;
+          max-width: 940px;
+          margin: 0 auto;
+        }
+
+        .brand,
+        .eyebrow {
+          color: #dc2626;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          font-size: 12px;
+          font-weight: 900;
+          margin: 0;
+        }
+
+        .eyebrow-white {
+          color: #fff;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          font-size: 12px;
+          font-weight: 900;
+          margin: 0;
+        }
+
+        .hero-title {
+          font-family: var(--font-bebas);
+          font-size: clamp(66px, 12vw, 96px);
+          line-height: 0.86;
+          margin: 14px 0 0;
+          letter-spacing: 2px;
+          max-width: 760px;
+        }
+
+        .hero-copy {
+          max-width: 760px;
+          font-size: clamp(20px, 4vw, 23px);
+          font-weight: 900;
+          line-height: 1.35;
+          margin-top: 28px;
+        }
+
+        .support-copy {
+          max-width: 760px;
+          font-size: 18px;
+          line-height: 1.55;
+          color: #a1a1aa;
+          margin-top: 16px;
+        }
+
+        .form-card {
+          margin-top: 40px;
+          padding: 30px;
+          border: 1px solid #27272a;
+          border-radius: 22px;
+          width: 100%;
+          max-width: 720px;
+          background: rgba(9, 9, 11, 0.92);
+          display: grid;
+          gap: 16px;
+        }
+
+        .form-title {
+          font-family: var(--font-bebas);
+          font-size: 48px;
+          margin: 0;
+          letter-spacing: 1px;
+        }
+
+        .input,
+        .textarea {
+          width: 100%;
+          padding: 16px;
+          background: #fff;
+          border: 1px solid #27272a;
+          border-radius: 12px;
+          color: #000;
+          font-size: 16px;
+          font-family: var(--font-source-sans);
+        }
+
+        .textarea {
+          min-height: 130px;
+          resize: vertical;
+        }
+
+        .label {
+          color: #a1a1aa;
+          font-size: 15px;
+          margin-top: 8px;
+        }
+
+        .file-input {
+          color: #fff;
+          max-width: 100%;
+        }
+
+        .primary-button,
+        .black-button,
+        .outline-button,
+        .mobile-reset {
+          border: none;
+          padding: 15px 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-size: 14px;
+        }
+
+        .primary-button {
+          margin-top: 14px;
+          background: #dc2626;
+          color: #fff;
+        }
+
+        .loading {
+          color: #a1a1aa;
+          font-size: 15px;
+          line-height: 1.25;
+        }
+
+        .error {
+          color: #f87171;
+        }
+
+        .wrapped-hero,
+        .panel,
+        .wrapped-card,
+        .final-card,
+        .cta-card,
+        .red-card {
+          width: 100%;
+          overflow: hidden;
+        }
+
+        .wrapped-hero {
+          margin-top: 24px;
+          padding: 32px;
+          border: 1px solid #dc2626;
+          border-radius: 28px;
+          background: linear-gradient(
+            135deg,
+            rgba(220, 38, 38, 0.24),
+            rgba(9, 9, 11, 1) 55%,
+            rgba(255, 255, 255, 0.05)
+          );
+        }
+
+        .wrapped-headline {
+          font-size: clamp(25px, 5vw, 34px);
+          line-height: 1.12;
+          margin: 18px 0 0;
+          max-width: 820px;
+          font-weight: 900;
+        }
+
+        .stats-grid,
+        .score-grid,
+        .split-grid,
+        .three-grid,
+        .evidence-grid {
+          display: grid;
+          gap: 12px;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          margin-top: 24px;
+        }
+
+        .stat,
+        .score-card,
+        .list-block {
+          background: #000;
+          border: 1px solid #27272a;
+          border-radius: 16px;
+          padding: 16px;
+        }
+
+        .stat-label,
+        .score-label {
+          color: #a1a1aa;
+          font-size: 13px;
+          margin: 0;
+        }
+
+        .stat-value {
+          color: #fff;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1.25;
+          margin: 8px 0 0;
+        }
+
+        .red-card {
+          margin-top: 18px;
+          padding: 28px;
+          border-radius: 24px;
+          background: #dc2626;
+        }
+
+        .lyric {
+          font-size: clamp(27px, 6vw, 36px);
+          line-height: 1.05;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .split-grid {
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          margin-top: 18px;
+        }
+
+        .three-grid {
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          margin-top: 18px;
+        }
+
+        .wrapped-card,
+        .panel {
+          background: rgba(9, 9, 11, 0.92);
+          border: 1px solid #27272a;
+          border-radius: 22px;
+          padding: 24px;
+        }
+
+        .fanbase-panel {
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(9, 9, 11, 0.96)
+          );
+        }
+
+        .wrapped-card-title {
+          font-size: 24px;
+          line-height: 1.15;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .wrapped-card-body,
+        .panel-body {
+          color: #a1a1aa;
+          font-size: 16px;
+          line-height: 1.5;
+          margin-top: 12px;
+        }
+
+        .panel {
+          margin-top: 18px;
+        }
+
+        .section-title {
+          font-size: 28px;
+          line-height: 1.1;
+          margin: 12px 0 0;
+          font-weight: 900;
+        }
+
+        .score-grid {
+          margin-top: 18px;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 10px;
+        }
+
+        .score-card {
+          min-height: 88px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .score-number {
+          font-size: 28px;
+          font-weight: 900;
+          margin: 6px 0 0;
+        }
+
+        .score-outof {
+          color: #a1a1aa;
+          font-size: 15px;
+          margin-left: 3px;
+          font-weight: 800;
+        }
+
+        .evidence-grid {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          margin-top: 18px;
+        }
+
+        .small-title {
+          font-size: 18px;
+          margin: 0 0 10px;
+          font-weight: 900;
+        }
+
+        .pill-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .pill {
+          border: 1px solid #27272a;
+          border-radius: 999px;
+          padding: 8px 11px;
+          color: #d4d4d8;
+          font-size: 14px;
+          background: #000;
+        }
+
+        .inner-grid {
+          margin-top: 18px;
+        }
+
+        .list-title {
+          font-size: 23px;
+          margin: 0 0 12px;
+          font-weight: 900;
+        }
+
+        .list {
+          color: #d4d4d8;
+          font-size: 16px;
+          line-height: 1.45;
+          padding-left: 18px;
+          margin: 0;
+        }
+
+        .final-card {
+          margin-top: 18px;
+          background: #fff;
+          color: #000;
+          border-radius: 24px;
+          padding: 28px;
+        }
+
+        .final-title {
+          font-size: 26px;
+          line-height: 1.15;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .cta-card {
+          margin-top: 20px;
+          background: #dc2626;
+          color: #fff;
+          border-radius: 28px;
+          padding: 30px;
+        }
+
+        .mobile-early-cta {
+          display: none;
+        }
+
+        .cta-title {
+          font-size: clamp(30px, 6vw, 38px);
+          line-height: 1.05;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .cta-body {
+          font-size: 17px;
+          line-height: 1.5;
+          max-width: 820px;
+        }
+
+        .button-row {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .black-button {
+          margin-top: 16px;
+          background: #000;
+          color: #fff;
+        }
+
+        .outline-button,
+        .mobile-reset {
+          margin-top: 16px;
+          background: transparent;
+          color: #fff;
+          border: 1px solid #fff;
+        }
+
+        .mobile-reset {
+          display: none;
+          width: 100%;
+        }
+
+        @media (max-width: 640px) {
+          .page-shell,
+          .report-shell {
+            padding: 32px 14px;
+          }
+
+          .container,
+          .report-container {
+            max-width: 100%;
+          }
+
+          .brand,
+          .eyebrow,
+          .eyebrow-white {
+            letter-spacing: 3px;
+            font-size: 11px;
+          }
+
+          .hero-title {
+            font-size: 58px;
+            line-height: 0.9;
+            max-width: 100%;
+            word-break: normal;
+          }
+
+          .hero-copy {
+            font-size: 19px;
+            line-height: 1.35;
+            margin-top: 22px;
+          }
+
+          .support-copy {
+            font-size: 16px;
+            line-height: 1.5;
+          }
+
+          .form-card {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 18px;
+          }
+
+          .form-title {
+            font-size: 38px;
+          }
+
+          .input,
+          .textarea {
+            font-size: 15px;
+            padding: 14px;
+          }
+
+          .wrapped-hero,
+          .panel,
+          .wrapped-card,
+          .red-card,
+          .final-card,
+          .cta-card {
+            padding: 20px;
+            border-radius: 20px;
+          }
+
+          .wrapped-headline {
+            font-size: 25px;
+          }
+
+          .stats-grid,
+          .score-grid,
+          .split-grid,
+          .three-grid,
+          .evidence-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .stat-value {
+            font-size: 17px;
+          }
+
+          .lyric {
+            font-size: 28px;
+          }
+
+          .wrapped-card-title {
+            font-size: 21px;
+          }
+
+          .score-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .score-card {
+            min-height: 78px;
+            padding: 14px;
+          }
+
+          .score-number {
+            font-size: 24px;
+          }
+
+          .list-title {
+            font-size: 21px;
+          }
+
+          .final-title {
+            font-size: 22px;
+          }
+
+          .mobile-early-cta {
+            display: block;
+          }
+
+          .desktop-bottom-cta {
+            display: none;
+          }
+
+          .mobile-reset {
+            display: block;
+          }
+
+          .black-button,
+          .outline-button {
+            width: 100%;
+          }
+        }
+      `}</style>
     </main>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div style={statStyle}>
-      <p style={statLabelStyle}>{label}</p>
-      <p style={statValueStyle}>{value}</p>
+    <div className="stat">
+      <p className="stat-label">{label}</p>
+      <p className="stat-value">{value}</p>
     </div>
   );
 }
@@ -373,10 +920,10 @@ function WrappedCard({
   body: string;
 }) {
   return (
-    <section style={wrappedCardStyle}>
-      <p style={eyebrowStyle}>{label}</p>
-      <h3 style={wrappedCardTitleStyle}>{title}</h3>
-      {body && <p style={wrappedCardBodyStyle}>{body}</p>}
+    <section className="wrapped-card">
+      <p className="eyebrow">{label}</p>
+      <h3 className="wrapped-card-title">{title}</h3>
+      {body && <p className="wrapped-card-body">{body}</p>}
     </section>
   );
 }
@@ -384,10 +931,10 @@ function WrappedCard({
 function PillList({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h3 style={smallTitleStyle}>{title}</h3>
-      <div style={pillWrapStyle}>
+      <h3 className="small-title">{title}</h3>
+      <div className="pill-wrap">
         {items?.slice(0, 5).map((item, index) => (
-          <span key={index} style={pillStyle}>
+          <span key={index} className="pill">
             {item}
           </span>
         ))}
@@ -398,9 +945,9 @@ function PillList({ title, items }: { title: string; items: string[] }) {
 
 function ListBlock({ title, items }: { title: string; items: string[] }) {
   return (
-    <section style={listBlockStyle}>
-      <h3 style={listTitleStyle}>{title}</h3>
-      <ul style={listStyle}>
+    <section className="list-block">
+      <h3 className="list-title">{title}</h3>
+      <ul className="list">
         {items?.slice(0, 5).map((item, index) => (
           <li key={index} style={{ marginBottom: "10px" }}>
             {item}
@@ -414,437 +961,3 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
 function cleanQuote(text: string) {
   return String(text || "").replace(/^["“]+|["”]+$/g, "");
 }
-
-const mainStyle = {
-  minHeight: "100vh",
-  background: "#000000",
-  color: "#ffffff",
-  padding: "60px 24px",
-  fontFamily: "var(--font-source-sans)",
-  overflow: "hidden",
-};
-
-const reportMainStyle = {
-  minHeight: "100vh",
-  background:
-    "radial-gradient(circle at top left, rgba(220,38,38,0.24), transparent 30%), #000000",
-  color: "#ffffff",
-  padding: "48px 20px",
-  fontFamily: "var(--font-source-sans)",
-};
-
-const containerStyle = {
-  maxWidth: "980px",
-  margin: "0 auto",
-};
-
-const reportContainerStyle = {
-  maxWidth: "940px",
-  margin: "0 auto",
-};
-
-const brandStyle = {
-  color: "#dc2626",
-  letterSpacing: "6px",
-  textTransform: "uppercase" as const,
-  fontSize: "13px",
-};
-
-const heroHeadlineStyle = {
-  fontFamily: "var(--font-bebas)",
-  fontSize: "96px",
-  lineHeight: "0.86",
-  margin: "12px 0 0",
-  letterSpacing: "2px",
-};
-
-const heroTextStyle = {
-  maxWidth: "760px",
-  fontSize: "23px",
-  fontWeight: 800,
-  lineHeight: "1.35",
-  marginTop: "28px",
-};
-
-const supportTextStyle = {
-  maxWidth: "760px",
-  fontSize: "18px",
-  lineHeight: "1.55",
-  color: "#a1a1aa",
-  marginTop: "16px",
-};
-
-const formStyle = {
-  marginTop: "44px",
-  padding: "32px",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  maxWidth: "720px",
-  background: "rgba(9,9,11,0.92)",
-  display: "grid",
-  gap: "16px",
-};
-
-const formTitleStyle = {
-  fontFamily: "var(--font-bebas)",
-  fontSize: "48px",
-  margin: 0,
-  letterSpacing: "1px",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "16px",
-  background: "#ffffff",
-  border: "1px solid #27272a",
-  borderRadius: "12px",
-  color: "#000000",
-  fontSize: "16px",
-};
-
-const textAreaStyle = {
-  width: "100%",
-  minHeight: "140px",
-  padding: "16px",
-  background: "#ffffff",
-  border: "1px solid #27272a",
-  borderRadius: "12px",
-  color: "#000000",
-  fontSize: "16px",
-  fontFamily: "var(--font-source-sans)",
-  resize: "vertical" as const,
-};
-
-const labelStyle = {
-  color: "#a1a1aa",
-  fontSize: "15px",
-  marginTop: "8px",
-};
-
-const buttonStyle = {
-  marginTop: "16px",
-  background: "#dc2626",
-  color: "#ffffff",
-  border: "none",
-  padding: "17px 26px",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: 900,
-  textTransform: "uppercase" as const,
-  letterSpacing: "1px",
-  fontSize: "15px",
-};
-
-const loadingStyle = {
-  color: "#a1a1aa",
-  fontSize: "15px",
-  lineHeight: "1.25",
-};
-
-const wrappedHeroStyle = {
-  marginTop: "24px",
-  padding: "34px",
-  border: "1px solid #dc2626",
-  borderRadius: "28px",
-  background:
-    "linear-gradient(135deg, rgba(220,38,38,0.24), rgba(9,9,11,1) 55%, rgba(255,255,255,0.05))",
-};
-
-const eyebrowStyle = {
-  color: "#dc2626",
-  letterSpacing: "4px",
-  textTransform: "uppercase" as const,
-  fontSize: "12px",
-  margin: 0,
-  fontWeight: 800,
-};
-
-const eyebrowWhiteStyle = {
-  color: "#ffffff",
-  letterSpacing: "4px",
-  textTransform: "uppercase" as const,
-  fontSize: "12px",
-  margin: 0,
-  fontWeight: 800,
-};
-
-const wrappedHeadlineStyle = {
-  fontSize: "34px",
-  lineHeight: "1.12",
-  margin: "18px 0 0",
-  maxWidth: "820px",
-  fontWeight: 900,
-};
-
-const wrappedStatsStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-  gap: "12px",
-  marginTop: "26px",
-};
-
-const statStyle = {
-  background: "rgba(0,0,0,0.45)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: "18px",
-  padding: "18px",
-};
-
-const statLabelStyle = {
-  color: "#a1a1aa",
-  fontSize: "13px",
-  margin: 0,
-};
-
-const statValueStyle = {
-  color: "#ffffff",
-  fontSize: "19px",
-  fontWeight: 900,
-  lineHeight: "1.25",
-  margin: "8px 0 0",
-};
-
-const bigRedCardStyle = {
-  marginTop: "20px",
-  padding: "30px",
-  borderRadius: "24px",
-  background: "#dc2626",
-};
-
-const lyricStyle = {
-  fontSize: "36px",
-  lineHeight: "1.05",
-  margin: "14px 0 0",
-  fontWeight: 900,
-};
-
-const splitGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: "18px",
-  marginTop: "18px",
-};
-
-const wrappedCardStyle = {
-  background: "rgba(9,9,11,0.92)",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  padding: "26px",
-};
-
-const wrappedCardTitleStyle = {
-  fontSize: "25px",
-  lineHeight: "1.15",
-  margin: "14px 0 0",
-  fontWeight: 900,
-};
-
-const wrappedCardBodyStyle = {
-  color: "#a1a1aa",
-  fontSize: "16px",
-  lineHeight: "1.5",
-  marginTop: "12px",
-};
-
-const fanbasePanelStyle = {
-  marginTop: "18px",
-  background:
-    "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(9,9,11,0.96))",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  padding: "26px",
-};
-
-const sectionTitleStyle = {
-  fontSize: "30px",
-  lineHeight: "1.1",
-  margin: "12px 0 0",
-  fontWeight: 900,
-};
-
-const panelBodyStyle = {
-  color: "#a1a1aa",
-  fontSize: "16px",
-  lineHeight: "1.5",
-  maxWidth: "760px",
-  marginTop: "10px",
-};
-
-const scorePanelStyle = {
-  marginTop: "18px",
-  background: "rgba(9,9,11,0.92)",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  padding: "26px",
-};
-
-const scoreGridStyle = {
-  marginTop: "18px",
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))",
-  gap: "10px",
-};
-
-const scoreCardStyle = {
-  background: "#000000",
-  border: "1px solid #27272a",
-  borderRadius: "16px",
-  padding: "16px",
-  minHeight: "92px",
-  display: "flex",
-  flexDirection: "column" as const,
-  justifyContent: "center",
-};
-
-const scoreLabelStyle = {
-  color: "#a1a1aa",
-  margin: 0,
-  fontSize: "13px",
-};
-
-const scoreNumberStyle = {
-  fontSize: "28px",
-  fontWeight: 900,
-  margin: "6px 0 0",
-};
-
-const scoreOutOfStyle = {
-  color: "#a1a1aa",
-  fontSize: "15px",
-  marginLeft: "3px",
-  fontWeight: 800,
-};
-
-const evidencePanelStyle = {
-  marginTop: "18px",
-  background: "rgba(9,9,11,0.92)",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  padding: "26px",
-};
-
-const evidenceGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-  gap: "18px",
-  marginTop: "18px",
-};
-
-const smallTitleStyle = {
-  fontSize: "18px",
-  margin: "0 0 10px",
-  fontWeight: 900,
-};
-
-const pillWrapStyle = {
-  display: "flex",
-  flexWrap: "wrap" as const,
-  gap: "8px",
-};
-
-const pillStyle = {
-  border: "1px solid #27272a",
-  borderRadius: "999px",
-  padding: "8px 11px",
-  color: "#d4d4d8",
-  fontSize: "14px",
-  background: "#000000",
-};
-
-const blueprintStyle = {
-  marginTop: "18px",
-  background: "rgba(9,9,11,0.92)",
-  border: "1px solid #27272a",
-  borderRadius: "22px",
-  padding: "26px",
-};
-
-const threeGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "18px",
-  marginTop: "18px",
-};
-
-const listBlockStyle = {
-  background: "#000000",
-  border: "1px solid #27272a",
-  borderRadius: "18px",
-  padding: "22px",
-};
-
-const listTitleStyle = {
-  fontSize: "24px",
-  margin: "0 0 12px",
-  fontWeight: 900,
-};
-
-const listStyle = {
-  color: "#d4d4d8",
-  fontSize: "16px",
-  lineHeight: "1.45",
-  paddingLeft: "18px",
-  margin: 0,
-};
-
-const finalCardStyle = {
-  marginTop: "18px",
-  background: "#ffffff",
-  color: "#000000",
-  borderRadius: "24px",
-  padding: "30px",
-};
-
-const finalTitleStyle = {
-  fontSize: "28px",
-  lineHeight: "1.15",
-  margin: "14px 0 0",
-  fontWeight: 900,
-};
-
-const ctaStyle = {
-  marginTop: "20px",
-  background: "#dc2626",
-  color: "#ffffff",
-  borderRadius: "28px",
-  padding: "34px",
-};
-
-const ctaTitleStyle = {
-  fontSize: "38px",
-  lineHeight: "1.05",
-  margin: "14px 0 0",
-  fontWeight: 900,
-};
-
-const ctaBodyStyle = {
-  fontSize: "18px",
-  lineHeight: "1.5",
-  maxWidth: "820px",
-};
-
-const blackButtonStyle = {
-  marginTop: "18px",
-  background: "#000000",
-  color: "#ffffff",
-  border: "none",
-  padding: "15px 22px",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: 900,
-  textTransform: "uppercase" as const,
-  letterSpacing: "1px",
-};
-
-const outlineButtonStyle = {
-  marginTop: "18px",
-  background: "transparent",
-  color: "#ffffff",
-  border: "1px solid #ffffff",
-  padding: "15px 22px",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: 900,
-  textTransform: "uppercase" as const,
-  letterSpacing: "1px",
-};
