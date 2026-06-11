@@ -874,9 +874,7 @@ function ReportView({
             display: block;
           }
 
-          .desktop-bottom-cta {
-            display: none;
-          }
+        
 
           .mobile-reset {
             display: block;
