@@ -87,7 +87,8 @@ Return ONLY valid JSON in this exact structure:
       "likelyOutcome": "",
       "theUnlock": "",
       "contentTrigger": ""
-    }
+    },
+    "futureRolloutPrediction": ""
   },
   "fanbaseMatch": {
     "closestArtists": [],
@@ -139,6 +140,8 @@ WRITING RULES:
 - Everything must be based on evidence from the lyrics/transcript.
 - If lyrics came from transcription, do not quote long lyric passages as if guaranteed exact.
 - If lyrics were pasted by the artist, you may quote exact lyrics.
+- Do not guarantee streams, virality, followers, playlisting, or revenue.
+- Use realistic opportunity language, not certainty language.
 
 SECTION RULES:
 - discoveryMoment: max 1 sentence.
@@ -153,6 +156,7 @@ SECTION RULES:
 - ifReleasedToday.likelyOutcome: max 1 sentence. Make it feel like a prediction, not a score.
 - ifReleasedToday.theUnlock: max 1 sentence. Mention the specific lyric, phrase, emotional moment, or recurring idea that unlocks the rollout.
 - ifReleasedToday.contentTrigger: max 1 sentence. Make it feel like a repeatable short-form content idea.
+- futureRolloutPrediction: max 2 sentences. Explain what could realistically happen if the artist builds a stronger rollout around this song over the next 30–60 days. Make it specific to the song's tone, message, artist archetype, discovery moment, fanbase lane, and rollout type. Do not say the song will go viral.
 - platformPriority: concise ranked recommendation.
 - contentPillars: max 4 items.
 - videoIdeas: max 5 items.
@@ -335,6 +339,7 @@ async function sendLeadToWebhook(data: {
   mostShareableLyric: string;
   fanbaseMatchArtists: string;
   ifReleasedToday: string;
+  futureRolloutPrediction: string;
   ctaClicked: string;
 }) {
   const webhookUrl = process.env.DISCOVERY_LEADS_WEBHOOK_URL;
@@ -478,6 +483,8 @@ export async function POST(req: Request) {
       fanbaseMatchArtists:
         report?.fanbaseMatch?.closestArtists?.join(", ") || "",
       ifReleasedToday: predictionText,
+      futureRolloutPrediction:
+        report?.strategy?.futureRolloutPrediction || "",
       ctaClicked: "No",
     });
 
