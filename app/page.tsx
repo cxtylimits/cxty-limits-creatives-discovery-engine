@@ -183,23 +183,30 @@ fetch("/api/track-cta", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    eventType: "submission",
-    artistName: String(formData.get("artistName") || ""),
-    email: String(formData.get("email") || ""),
-    songTitle: String(formData.get("songTitle") || ""),
-    songLink: String(formData.get("songLink") || ""),
-    releaseStatus: String(formData.get("releaseStatus") || ""),
-    discoveryScore: data.report?.discoveryScore || "",
-    discoveryMoment: data.report?.discoveryMoment || "",
-    artistArchetype: data.report?.artistArchetype || "",
-    rolloutType: data.report?.rolloutType || "",
-    mostShareableLyric: data.report?.mostShareableLyric || "",
-    fanbaseMatchArtists: Array.isArray(data.report?.fanbaseMatchArtists)
-      ? data.report.fanbaseMatchArtists.join(", ")
-      : data.report?.fanbaseMatchArtists || "",
-    ifReleasedToday: data.report?.ifReleasedToday || "",
-    futureRolloutPrediction: data.report?.futureRolloutPrediction || "",
-  }),
+  eventType: "submission",
+  artistName: String(formData.get("artistName") || ""),
+  email: String(formData.get("email") || ""),
+  songTitle: String(formData.get("songTitle") || ""),
+  songLink: String(formData.get("songLink") || ""),
+  releaseStatus: String(formData.get("releaseStatus") || ""),
+
+  discoveryScore: data.report?.scores?.discoveryScore || "",
+  discoveryMoment: data.report?.strategy?.discoveryMoment || "",
+  artistArchetype: data.report?.strategy?.artistArchetype || "",
+  rolloutType: data.report?.strategy?.rolloutType || "",
+  mostShareableLyric: data.report?.evidence?.mostShareableLyric || "",
+
+  fanbaseMatchArtists: Array.isArray(data.report?.fanbaseMatch?.closestArtists)
+    ? data.report.fanbaseMatch.closestArtists.join(", ")
+    : "",
+
+  ifReleasedToday: data.report?.strategy?.ifReleasedToday
+    ? `${data.report.strategy.ifReleasedToday.likelyOutcome} ${data.report.strategy.ifReleasedToday.theUnlock} ${data.report.strategy.ifReleasedToday.contentTrigger}`
+    : "",
+
+  futureRolloutPrediction:
+    data.report?.strategy?.futureRolloutPrediction || "",
+}),
 }).catch((error) => {
   console.error("Submission tracking failed:", error);
 });
