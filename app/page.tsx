@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
 type Report = {
@@ -96,6 +96,7 @@ export default function Home() {
   songTitle: string;
   songLink: string;
 } | null>(null);
+const isSubmittingRef = useRef(false);
   useEffect(() => {
   if (!report) return;
 
@@ -123,7 +124,11 @@ export default function Home() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
+if (isSubmittingRef.current) {
+  return;
+}
 
+isSubmittingRef.current = true;
   setLoading(true);
   setError("");
 
@@ -207,8 +212,9 @@ fetch("/api/track-cta", {
 
     setError(message);
   } finally {
-    setLoading(false);
-  }
+  setLoading(false);
+  isSubmittingRef.current = false;
+}
 }
 async function handleBuildMyRolloutClick() {
   if (leadInfo) {
