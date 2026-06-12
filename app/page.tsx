@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Report = {
   evidence: {
@@ -79,6 +79,26 @@ export default function Home() {
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!report) return;
+
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      window.parent.postMessage({ type: "CXTY_SCROLL_TO_TOP" }, "*");
+    };
+
+    const firstScroll = setTimeout(scrollToTop, 50);
+    const secondScroll = setTimeout(scrollToTop, 300);
+
+    return () => {
+      clearTimeout(firstScroll);
+      clearTimeout(secondScroll);
+    };
+  }, [report]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -100,13 +120,6 @@ export default function Home() {
       }
 
       setReport(data.report);
-
-setTimeout(() => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-}, 150);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     } finally {
@@ -174,6 +187,7 @@ setTimeout(() => {
             placeholder="Spotify, YouTube, or SoundCloud link"
             className="input"
           />
+
           <p className="field-note">
             Links are used for context only and may be less accurate. For the
             best report, upload the song file or paste the lyrics.
