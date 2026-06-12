@@ -7,9 +7,20 @@ if (!apiKey) {
   throw new Error("OPENAI_API_KEY is missing.");
 }
 
-const openai = new OpenAI({
-  apiKey,
-});
+const openai = new OpenAI({ apiKey });
+
+type SpotifyArtist = {
+  name: string;
+  image: string;
+  url: string;
+};
+
+type SpotifyTrack = {
+  name: string;
+  artist: string;
+  image: string;
+  url: string;
+};
 
 function buildDiscoveryPrompt(data: {
   artistName: string;
@@ -72,7 +83,11 @@ Return ONLY valid JSON in this exact structure:
     "discoveryAngle": "",
     "rolloutType": "",
     "audienceMap": "",
-    "ifReleasedToday": ""
+    "ifReleasedToday": {
+      "likelyOutcome": "",
+      "theUnlock": "",
+      "contentTrigger": ""
+    }
   },
   "fanbaseMatch": {
     "closestArtists": [],
@@ -135,7 +150,9 @@ SECTION RULES:
 - strongestMessage: max 1 sentence.
 - discoveryAngle: max 2 sentences.
 - audienceMap: max 2 sentences.
-- ifReleasedToday: exactly 2 sentences. Make it feel like a prediction, not a score. The second sentence should explain the unlock using the most specific lyric, phrase, emotional moment, or recurring idea.
+- ifReleasedToday.likelyOutcome: max 1 sentence. Make it feel like a prediction, not a score.
+- ifReleasedToday.theUnlock: max 1 sentence. Mention the specific lyric, phrase, emotional moment, or recurring idea that unlocks the rollout.
+- ifReleasedToday.contentTrigger: max 1 sentence. Make it feel like a repeatable short-form content idea.
 - platformPriority: concise ranked recommendation.
 - contentPillars: max 4 items.
 - videoIdeas: max 5 items.
@@ -159,6 +176,151 @@ FANBASE MATCH RULES:
 `;
 }
 
+async function getSpotifyAccessToken() {
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) return null;
+
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      Authorization:
+        "Basic " +
+        Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!response.ok) {
+    console.error("Spotify token error:", await response.text());
+    return null;
+  }
+
+  const data = await response.json();
+  return data.access_token as string;
+}
+
+async function searchSpotifyArtist(
+  token: string,
+  artistName: string
+): Promise<SpotifyArtist | null> {
+  const query = encodeURIComponent(artistName);
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const artist = data?.artists?.items?.[0];
+
+  if (!artist) return null;
+
+  return {
+    name: artist.name,
+    image: artist.images?.[0]?.url || "",
+    url: artist.external_urls?.spotify || "",
+  };
+}
+
+function parseSongArtist(value: string) {
+  const parts = String(value || "").split("—");
+
+  if (parts.length >= 2) {
+    return {
+      song: parts[0].trim(),
+      artist: parts.slice(1).join("—").trim(),
+    };
+  }
+
+  return {
+    song: value,
+    artist: "",
+  };
+}
+
+async function searchSpotifyTrack(
+  token: string,
+  songValue: string
+): Promise<SpotifyTrack | null> {
+  const parsed = parseSongArtist(songValue);
+
+  const query = parsed.artist
+    ? encodeURIComponent(`track:${parsed.song} artist:${parsed.artist}`)
+    : encodeURIComponent(parsed.song);
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/search?q=${query}&type=track&limit=1`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const track = data?.tracks?.items?.[0];
+
+  if (!track) return null;
+
+  return {
+    name: track.name,
+    artist: track.artists?.[0]?.name || "",
+    image: track.album?.images?.[0]?.url || "",
+    url: track.external_urls?.spotify || "",
+  };
+}
+
+async function enrichWithSpotify(report: any) {
+  try {
+    const token = await getSpotifyAccessToken();
+
+    if (!token) {
+      return {
+        artists: [],
+        tracks: [],
+      };
+    }
+
+    const closestArtists = report?.fanbaseMatch?.closestArtists || [];
+    const similarSongs = report?.fanbaseMatch?.similarSongs || [];
+
+    const artists = await Promise.all(
+      closestArtists.slice(0, 3).map((artist: string) =>
+        searchSpotifyArtist(token, artist)
+      )
+    );
+
+    const tracks = await Promise.all(
+      similarSongs.slice(0, 3).map((track: string) =>
+        searchSpotifyTrack(token, track)
+      )
+    );
+
+    return {
+      artists: artists.filter(Boolean),
+      tracks: tracks.filter(Boolean),
+    };
+  } catch (error) {
+    console.error("Spotify enrichment failed:", error);
+
+    return {
+      artists: [],
+      tracks: [],
+    };
+  }
+}
+
 async function sendLeadToWebhook(data: {
   date: string;
   artistName: string;
@@ -177,10 +339,7 @@ async function sendLeadToWebhook(data: {
 }) {
   const webhookUrl = process.env.DISCOVERY_LEADS_WEBHOOK_URL;
 
-  if (!webhookUrl) {
-    console.log("DISCOVERY_LEADS_WEBHOOK_URL is not set. Skipping lead capture.");
-    return;
-  }
+  if (!webhookUrl) return;
 
   try {
     await fetch(webhookUrl, {
@@ -234,7 +393,6 @@ export async function POST(req: Request) {
     });
 
     const transcript = transcription.text || "";
-
     const lyricsToAnalyze = providedLyrics || transcript;
 
     const lyricsSource = providedLyrics
@@ -286,6 +444,25 @@ export async function POST(req: Request) {
 
     const report = JSON.parse(raw);
 
+    const spotify = await enrichWithSpotify(report);
+
+    const enrichedReport = {
+      ...report,
+      spotify,
+    };
+
+    const prediction = report?.strategy?.ifReleasedToday;
+    const predictionText =
+      typeof prediction === "string"
+        ? prediction
+        : [
+            prediction?.likelyOutcome,
+            prediction?.theUnlock,
+            prediction?.contentTrigger,
+          ]
+            .filter(Boolean)
+            .join(" ");
+
     await sendLeadToWebhook({
       date: new Date().toISOString(),
       artistName,
@@ -300,14 +477,14 @@ export async function POST(req: Request) {
       mostShareableLyric: report?.evidence?.mostShareableLyric || "",
       fanbaseMatchArtists:
         report?.fanbaseMatch?.closestArtists?.join(", ") || "",
-      ifReleasedToday: report?.strategy?.ifReleasedToday || "",
+      ifReleasedToday: predictionText,
       ctaClicked: "No",
     });
 
     return NextResponse.json({
       transcript,
       lyricsSource,
-      report,
+      report: enrichedReport,
     });
   } catch (error) {
     console.error(error);

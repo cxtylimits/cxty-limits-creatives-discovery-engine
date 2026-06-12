@@ -20,7 +20,11 @@ type Report = {
     discoveryAngle: string;
     rolloutType: string;
     audienceMap: string;
-    ifReleasedToday: string;
+    ifReleasedToday: {
+  likelyOutcome: string;
+  theUnlock: string;
+  contentTrigger: string;
+};
   };
   fanbaseMatch: {
     closestArtists: string[];
@@ -53,6 +57,20 @@ type Report = {
     finalRecommendation: string;
     cta: string;
   };
+  
+  spotify?: {
+  artists: {
+    name: string;
+    image: string;
+    url: string;
+  }[];
+  tracks: {
+    name: string;
+    artist: string;
+    image: string;
+    url: string;
+  }[];
+};
 };
 
 export default function Home() {
@@ -232,9 +250,29 @@ function ReportView({
         </section>
 
         <section className="final-card dark-final">
-          <p className="eyebrow">IF RELEASED TODAY...</p>
-          <h2 className="final-title">{report.strategy.ifReleasedToday}</h2>
-        </section>
+  <p className="eyebrow">IF RELEASED TODAY...</p>
+
+  <div style={{ marginTop: "16px" }}>
+    <p className="eyebrow">LIKELY OUTCOME</p>
+    <h3 className="wrapped-card-title">
+      {report.strategy.ifReleasedToday?.likelyOutcome}
+    </h3>
+  </div>
+
+  <div style={{ marginTop: "24px" }}>
+    <p className="eyebrow">THE UNLOCK</p>
+    <h3 className="wrapped-card-title">
+      {report.strategy.ifReleasedToday?.theUnlock}
+    </h3>
+  </div>
+
+  <div style={{ marginTop: "24px" }}>
+    <p className="eyebrow">CONTENT TRIGGER</p>
+    <h3 className="wrapped-card-title">
+      {report.strategy.ifReleasedToday?.contentTrigger}
+    </h3>
+  </div>
+</section>
 
         <section className="split-grid">
           <WrappedCard
