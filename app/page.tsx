@@ -120,8 +120,7 @@ export default function Home() {
       throw new Error(data.error || "Something went wrong.");
     }
 
-    setTranscript(data.transcript || "");
-    setLyricsSource(data.lyricsSource || "");
+    
     setReport(data.report);
   } catch (err) {
     const message =
