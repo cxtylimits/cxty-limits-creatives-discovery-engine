@@ -115,23 +115,28 @@ export default function Home() {
     const formData = new FormData(form);
 
     const songFile = formData.get("songFile") as File | null;
+    const songLink = String(formData.get("songLink") || "").trim();
 
-    if (!songFile) {
-      throw new Error("Please upload a song file.");
+    if ((!songFile || songFile.size === 0) && !songLink) {
+      throw new Error("Please upload a song or paste a song link.");
     }
 
-    const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const uploadPath = `songs/${Date.now()}-${safeFileName}`;
+    if (songFile && songFile.size > 0) {
+      const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+      const uploadPath = `songs/${Date.now()}-${safeFileName}`;
 
-    const uploadedSong = await upload(uploadPath, songFile, {
-      access: "private",
-      handleUploadUrl: "/api/upload-song",
-    });
+      const uploadedSong = await upload(uploadPath, songFile, {
+        access: "private",
+        handleUploadUrl: "/api/upload-song",
+      });
 
-    formData.delete("songFile");
-    formData.append("songBlobPathname", uploadedSong.pathname);
-    formData.append("songFileName", songFile.name);
-    formData.append("songFileType", songFile.type || "audio/mpeg");
+      formData.delete("songFile");
+      formData.append("songBlobPathname", uploadedSong.pathname);
+      formData.append("songFileName", songFile.name);
+      formData.append("songFileType", songFile.type || "audio/mpeg");
+    } else {
+      formData.delete("songFile");
+    }
 
     const response = await fetch("/api/analyze-song", {
       method: "POST",
@@ -144,7 +149,6 @@ export default function Home() {
       throw new Error(data.error || "Something went wrong.");
     }
 
-    
     setReport(data.report);
   } catch (err) {
     const message =
@@ -227,7 +231,7 @@ export default function Home() {
 
           <input
             name="songFile"
-            required
+        
             type="file"
             accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
             className="file-input"
