@@ -199,7 +199,6 @@ async function handleBuildMyRolloutClick() {
         songLink: leadInfo.songLink,
         ctaClicked: "Yes",
       }),
-      keepalive: true,
     }).catch((error) => {
       console.error("CTA tracking failed:", error);
     });
