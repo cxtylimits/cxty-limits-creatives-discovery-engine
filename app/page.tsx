@@ -390,7 +390,7 @@ function ReportView({
         <img
           src={report.spotify.submittedTrack.image}
           alt={report.spotify.submittedTrack.name}
-          className="h-20 w-20 rounded-xl object-cover"
+          className="submitted-track-img"
         />
       )}
 

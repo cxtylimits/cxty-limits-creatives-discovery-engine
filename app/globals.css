@@ -522,4 +522,21 @@ body {
   .outline-button {
     width: 100%;
   }
+}.submitted-track-img {
+  width: 96px;
+  height: 96px;
+  max-width: 96px;
+  max-height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .submitted-track-img {
+    width: 88px;
+    height: 88px;
+    max-width: 88px;
+    max-height: 88px;
+  }
 }
