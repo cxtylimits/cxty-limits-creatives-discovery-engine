@@ -61,18 +61,29 @@ type Report = {
   };
 
   spotify?: {
-    artists: {
-      name: string;
-      image: string;
-      url: string;
-    }[];
-    tracks: {
-      name: string;
-      artist: string;
-      image: string;
-      url: string;
-    }[];
-  };
+  submittedTrack?: {
+    name: string;
+    artist: string;
+    image: string;
+    url: string;
+    album?: string;
+    releaseDate?: string;
+    popularity?: number;
+  } | null;
+
+  artists: {
+    name: string;
+    image: string;
+    url: string;
+  }[];
+
+  tracks: {
+    name: string;
+    artist: string;
+    image: string;
+    url: string;
+  }[];
+};
 };
 
 export default function Home() {
