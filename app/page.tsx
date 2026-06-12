@@ -57,7 +57,7 @@ type Report = {
     finalRecommendation: string;
     cta: string;
   };
-  
+
   spotify?: {
   artists: {
     name: string;
@@ -307,6 +307,56 @@ function ReportView({
               items={report.fanbaseMatch?.playlistLanes || []}
             />
           </div>
+          {report.spotify?.artists?.length ? (
+  <div className="spotify-section">
+    <h3 className="spotify-heading">Spotify Artist Lanes</h3>
+    <div className="spotify-grid">
+      {report.spotify.artists.map((artist, index) => (
+        <a
+          key={index}
+          className="spotify-card"
+          href={artist.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {artist.image && (
+            <img src={artist.image} alt={artist.name} className="spotify-img" />
+          )}
+          <div>
+            <p className="spotify-name">{artist.name}</p>
+            <p className="spotify-link">Open in Spotify</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+) : null}
+
+{report.spotify?.tracks?.length ? (
+  <div className="spotify-section">
+    <h3 className="spotify-heading">Spotify Song References</h3>
+    <div className="spotify-grid">
+      {report.spotify.tracks.map((track, index) => (
+        <a
+          key={index}
+          className="spotify-card"
+          href={track.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {track.image && (
+            <img src={track.image} alt={track.name} className="spotify-img" />
+          )}
+          <div>
+            <p className="spotify-name">{track.name}</p>
+            <p className="spotify-sub">{track.artist}</p>
+            <p className="spotify-link">Open in Spotify</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+) : null}
         </section>
 
         <section className="panel">
@@ -861,7 +911,63 @@ function ReportView({
           display: none;
           width: 100%;
         }
+.spotify-section {
+  margin-top: 22px;
+}
 
+.spotify-heading {
+  font-size: 22px;
+  margin: 0 0 12px;
+  font-weight: 900;
+}
+
+.spotify-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.spotify-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #000;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 12px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.spotify-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.spotify-name {
+  font-size: 16px;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.spotify-sub {
+  color: #a1a1aa;
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
+.spotify-link {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 900;
+  margin: 6px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
         @media (max-width: 640px) {
           .page-shell,
           .report-shell {
