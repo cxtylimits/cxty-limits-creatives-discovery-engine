@@ -234,9 +234,8 @@ export default function Home() {
             className="input"
           />
           <p className="field-note">
-            Links are used for context only and may be less accurate. For the
-            best report, upload the song file or paste the lyrics.
-          </p>
+  Links are used for context only and may be less accurate. For Spotify links, add lyrics or key context for a more accurate rollout. For the best report, upload the song file.
+</p>
 
           <label className="label">Upload Song File</label>
 
