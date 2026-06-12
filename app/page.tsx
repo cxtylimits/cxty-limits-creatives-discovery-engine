@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
 type Report = {
@@ -79,6 +79,30 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
+  useEffect(() => {
+  if (!report) return;
+
+  const scrollToReportTop = () => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    window.parent.postMessage(
+      { type: "CXTY_DISCOVERY_REPORT_READY" },
+      "*"
+    );
+  };
+
+  const firstScroll = window.setTimeout(scrollToReportTop, 100);
+  const secondScroll = window.setTimeout(scrollToReportTop, 500);
+  const thirdScroll = window.setTimeout(scrollToReportTop, 1000);
+
+  return () => {
+    window.clearTimeout(firstScroll);
+    window.clearTimeout(secondScroll);
+    window.clearTimeout(thirdScroll);
+  };
+}, [report]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
