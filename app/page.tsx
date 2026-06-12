@@ -1,20 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { upload } from "@vercel/blob/client";
-
-type SpotifyArtist = {
-  name: string;
-  image: string;
-  url: string;
-};
-
-type SpotifyTrack = {
-  name: string;
-  artist: string;
-  image: string;
-  url: string;
-};
 
 type Report = {
   evidence: {
@@ -34,14 +20,12 @@ type Report = {
     discoveryAngle: string;
     rolloutType: string;
     audienceMap: string;
-    ifReleasedToday:
-      | string
-      | {
-          likelyOutcome?: string;
-          theUnlock?: string;
-          contentTrigger?: string;
-        };
-    futureRolloutPrediction?: string;
+    ifReleasedToday: {
+      likelyOutcome: string;
+      theUnlock: string;
+      contentTrigger: string;
+    };
+    futureRolloutPrediction: string;
   };
   fanbaseMatch: {
     closestArtists: string[];
@@ -74,1169 +58,1132 @@ type Report = {
     finalRecommendation: string;
     cta: string;
   };
+
   spotify?: {
-    artists?: SpotifyArtist[];
-    tracks?: SpotifyTrack[];
+    artists: {
+      name: string;
+      image: string;
+      url: string;
+    }[];
+    tracks: {
+      name: string;
+      artist: string;
+      image: string;
+      url: string;
+    }[];
   };
 };
 
-function ScoreCard({
-  label,
-  score,
-}: {
-  label: string;
-  score: number | string;
-}) {
-  const safeScore = Number(score) || 0;
+export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState<Report | null>(null);
+  const [error, setError] = useState("");
 
-  return (
-    <div className="score-card">
-      <div className="score-top">
-        <span>{label}</span>
-        <strong>{safeScore}</strong>
-      </div>
-      <div className="score-bar">
-        <div style={{ width: `${Math.min(safeScore, 100)}%` }} />
-      </div>
-    </div>
-  );
-}
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setReport(null);
 
-function Section({
-  eyebrow,
-  title,
-  children,
-}: {
-  eyebrow?: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="report-section">
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h2>{title}</h2>
-      {children}
-    </section>
-  );
-}
+    const formData = new FormData(event.currentTarget);
 
-function ListBlock({ items }: { items?: string[] }) {
-  if (!items || items.length === 0) return null;
+    try {
+      const response = await fetch("/api/analyze-song", {
+        method: "POST",
+        body: formData,
+      });
 
-  return (
-    <ul className="clean-list">
-      {items.map((item, index) => (
-        <li key={`${item}-${index}`}>{item}</li>
-      ))}
-    </ul>
-  );
-}
+      const data = await response.json();
 
-function getIfReleasedTodayText(report: Report) {
-  const prediction = report.strategy.ifReleasedToday;
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
 
-  if (!prediction) return "";
-
-  if (typeof prediction === "string") return prediction;
-
-  return [
-    prediction.likelyOutcome,
-    prediction.theUnlock,
-    prediction.contentTrigger,
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function getIfReleasedTodayParts(report: Report) {
-  const prediction = report.strategy.ifReleasedToday;
-
-  if (!prediction) {
-    return {
-      likelyOutcome: "",
-      theUnlock: "",
-      contentTrigger: "",
-    };
+      setReport(data.report);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err: any) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  if (typeof prediction === "string") {
-    return {
-      likelyOutcome: prediction,
-      theUnlock: "",
-      contentTrigger: "",
-    };
+  if (report) {
+    return <ReportView report={report} onReset={() => setReport(null)} />;
   }
 
-  return {
-    likelyOutcome: prediction.likelyOutcome || "",
-    theUnlock: prediction.theUnlock || "",
-    contentTrigger: prediction.contentTrigger || "",
-  };
-}
-
-function SpotifyArtists({ artists }: { artists?: SpotifyArtist[] }) {
-  if (!artists || artists.length === 0) return null;
-
   return (
-    <div className="spotify-grid">
-      {artists.map((artist, index) => (
-        <a
-          className="spotify-card"
-          href={artist.url}
-          target="_blank"
-          rel="noreferrer"
-          key={`${artist.name}-${index}`}
-        >
-          {artist.image && <img src={artist.image} alt={artist.name} />}
-          <div>
-            <span>Artist Lane</span>
-            <strong>{artist.name}</strong>
-          </div>
-        </a>
-      ))}
-    </div>
-  );
-}
+    <main className="page-shell">
+      <section className="container">
+        <p className="brand">CXTY LIMITS CREATIVES</p>
 
-function SpotifyTracks({ tracks }: { tracks?: SpotifyTrack[] }) {
-  if (!tracks || tracks.length === 0) return null;
+        <h1 className="hero-title">DISCOVERY ENGINE</h1>
 
-  return (
-    <div className="spotify-grid">
-      {tracks.map((track, index) => (
-        <a
-          className="spotify-card"
-          href={track.url}
-          target="_blank"
-          rel="noreferrer"
-          key={`${track.name}-${index}`}
-        >
-          {track.image && <img src={track.image} alt={track.name} />}
-          <div>
-            <span>Song Reference</span>
-            <strong>{track.name}</strong>
-            <p>{track.artist}</p>
-          </div>
-        </a>
-      ))}
-    </div>
+        <p className="hero-copy">
+          Upload your song and get the story, the angle, and the rollout world
+          that gives it the best chance to be discovered.
+        </p>
+
+        <p className="support-copy">
+          Built for unreleased songs, new releases, and songs that already came
+          out but still need a stronger discovery strategy.
+        </p>
+
+        <form onSubmit={handleSubmit} className="form-card">
+          <h2 className="form-title">DROP THE TRACK</h2>
+
+          <input
+            name="artistName"
+            required
+            placeholder="Artist Name"
+            className="input"
+          />
+
+          <input
+            name="email"
+            required
+            placeholder="Email Address"
+            type="email"
+            className="input"
+          />
+
+          <input
+            name="songTitle"
+            placeholder="Song Title optional"
+            className="input"
+          />
+
+          <select name="releaseStatus" defaultValue="" className="input">
+            <option value="" disabled>
+              Is the song released?
+            </option>
+            <option value="Unreleased">Unreleased</option>
+            <option value="Already Released">Already Released</option>
+            <option value="Not Sure">Not Sure</option>
+          </select>
+
+          <label className="label">Song Link optional</label>
+          <input
+            name="songLink"
+            placeholder="Spotify, YouTube, or SoundCloud link"
+            className="input"
+          />
+          <p className="field-note">
+            Links are used for context only and may be less accurate. For the
+            best report, upload the song file or paste the lyrics.
+          </p>
+
+          <label className="label">Upload Song File</label>
+
+          <input
+            name="songFile"
+            required
+            type="file"
+            accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+            className="file-input"
+          />
+
+          <textarea
+            name="lyrics"
+            placeholder="Optional: Paste lyrics for a more accurate report"
+            className="textarea"
+          />
+
+          <button disabled={loading} type="submit" className="primary-button">
+            {loading ? "Building The World..." : "Create My Rollout"}
+          </button>
+
+          {loading && (
+            <div className="loading">
+              <p>Listening for the emotional signal…</p>
+              <p>Finding the lyric that carries the rollout…</p>
+              <p>Mapping the audience psychology…</p>
+              <p>Building the world around the song…</p>
+            </div>
+          )}
+
+          {error && <p className="error">{error}</p>}
+        </form>
+      </section>
+    </main>
   );
 }
 
 function ReportView({
   report,
-  transcript,
-  lyricsSource,
   onReset,
 }: {
   report: Report;
-  transcript: string;
-  lyricsSource: string;
   onReset: () => void;
 }) {
-  const prediction = getIfReleasedTodayParts(report);
+  const scores = [
+    ["Discovery", report.scores.discoveryScore],
+    ["Viral", report.scores.viralPotentialScore],
+    ["Hook", report.scores.hookStrengthScore],
+    ["Playlist", report.scores.playlistFitScore],
+    ["UGC", report.scores.ugcTikTokScore],
+    ["Emotion", report.scores.emotionalResonanceScore],
+    ["Brand", report.scores.brandFitScore],
+    ["Rollout", report.scores.rolloutReadinessScore],
+  ];
 
   return (
-    <main className="page report-page">
-      <section className="report-hero">
-        <div>
-          <p className="eyebrow">CXTY LIMITS DISCOVERY ENGINE</p>
-          <h1>Your Song Discovery Report</h1>
-          <p className="hero-copy">
-            A strategic read on the song&apos;s emotional center, discovery
-            angle, fanbase lane, rollout path, and creative world.
-          </p>
-        </div>
+    <main className="report-shell">
+      <section className="report-container">
+        <p className="brand">CXTY LIMITS CREATIVES</p>
 
-        <div className="hero-score">
-          <span>Discovery Score</span>
-          <strong>{report.scores.discoveryScore}</strong>
-          <p>Out of 100</p>
-        </div>
-      </section>
+        <section className="wrapped-hero">
+          <p className="eyebrow">THE DISCOVERY MOMENT</p>
+          <h1 className="wrapped-headline">{report.strategy.discoveryMoment}</h1>
 
-      <Section eyebrow="Prediction" title="If Released Today">
-        <div className="prediction-grid">
-          {prediction.likelyOutcome && (
-            <div className="prediction-card">
-              <span>Likely Outcome</span>
-              <p>{prediction.likelyOutcome}</p>
-            </div>
-          )}
-
-          {prediction.theUnlock && (
-            <div className="prediction-card">
-              <span>The Unlock</span>
-              <p>{prediction.theUnlock}</p>
-            </div>
-          )}
-
-          {prediction.contentTrigger && (
-            <div className="prediction-card">
-              <span>Content Trigger</span>
-              <p>{prediction.contentTrigger}</p>
-            </div>
-          )}
-        </div>
-      </Section>
-
-      {report.strategy.futureRolloutPrediction && (
-        <Section eyebrow="Future Upgrade" title="Future Rollout Prediction">
-          <div className="big-callout">
-            <p>{report.strategy.futureRolloutPrediction}</p>
+          <div className="stats-grid">
+            <Stat label="Archetype" value={report.strategy.artistArchetype} />
+            <Stat label="Rollout" value={report.strategy.rolloutType} />
+            <Stat label="Score" value={`${report.scores.discoveryScore}/100`} />
           </div>
-        </Section>
-      )}
+        </section>
 
-      <Section eyebrow="Core Read" title="The Discovery Moment">
-        <div className="two-col">
-          <div className="callout">
-            <span>Discovery Moment</span>
-            <p>{report.strategy.discoveryMoment}</p>
+        <section className="red-card">
+          <p className="eyebrow-white">THE LINE THAT CARRIES THE ROLLOUT</p>
+          <h2 className="lyric">
+            “{cleanQuote(report.evidence.mostShareableLyric)}”
+          </h2>
+        </section>
+
+        <section className="final-card dark-final">
+          <p className="eyebrow">IF RELEASED TODAY...</p>
+
+          <div style={{ marginTop: "16px" }}>
+            <p className="eyebrow">LIKELY OUTCOME</p>
+            <h3 className="wrapped-card-title">
+              {report.strategy.ifReleasedToday?.likelyOutcome}
+            </h3>
           </div>
 
-          <div className="callout">
-            <span>Artist Archetype</span>
-            <p>{report.strategy.artistArchetype}</p>
-            <small>{report.strategy.archetypeExplanation}</small>
+          <div style={{ marginTop: "24px" }}>
+            <p className="eyebrow">THE UNLOCK</p>
+            <h3 className="wrapped-card-title">
+              {report.strategy.ifReleasedToday?.theUnlock}
+            </h3>
           </div>
-        </div>
-      </Section>
 
-      <Section eyebrow="Scores" title="Discovery Scorecard">
-        <div className="score-grid">
-          <ScoreCard
-            label="Discovery Score"
-            score={report.scores.discoveryScore}
+          <div style={{ marginTop: "24px" }}>
+            <p className="eyebrow">CONTENT TRIGGER</p>
+            <h3 className="wrapped-card-title">
+              {report.strategy.ifReleasedToday?.contentTrigger}
+            </h3>
+          </div>
+        </section>
+
+        <section className="final-card dark-final">
+          <p className="eyebrow">FUTURE ROLLOUT PREDICTION</p>
+          <h3 className="wrapped-card-title">
+            {report.strategy.futureRolloutPrediction}
+          </h3>
+        </section>
+
+        <section className="split-grid">
+          <WrappedCard
+            label="IF IT CONNECTS"
+            title={`“${cleanQuote(report.evidence.listenerComment)}”`}
+            body="This is the emotional reaction the rollout should be built to trigger."
           />
-          <ScoreCard
-            label="Viral Potential"
-            score={report.scores.viralPotentialScore}
+
+          <WrappedCard
+            label="WHAT IT'S REALLY SELLING"
+            title={report.evidence.strongestMessage}
+            body="The song is not just a sound. It is a feeling people need to recognize in themselves."
           />
-          <ScoreCard
-            label="Hook Strength"
-            score={report.scores.hookStrengthScore}
-          />
-          <ScoreCard
-            label="Playlist Fit"
-            score={report.scores.playlistFitScore}
-          />
-          <ScoreCard
-            label="UGC / TikTok"
-            score={report.scores.ugcTikTokScore}
-          />
-          <ScoreCard
-            label="Emotional Resonance"
-            score={report.scores.emotionalResonanceScore}
-          />
-          <ScoreCard label="Brand Fit" score={report.scores.brandFitScore} />
-          <ScoreCard
-            label="Rollout Readiness"
-            score={report.scores.rolloutReadinessScore}
-          />
-        </div>
-      </Section>
+        </section>
 
-      <Section eyebrow="Evidence" title="What The Song Is Really Built Around">
-        <div className="two-col">
-          <div>
-            <h3>Core Themes</h3>
-            <ListBlock items={report.evidence.coreThemes} />
-          </div>
+        <section className="panel fanbase-panel">
+          <p className="eyebrow">FANBASE MATCH</p>
+          <h2 className="section-title">Where this song could live.</h2>
+          <p className="panel-body">{report.fanbaseMatch?.fanbaseReason}</p>
 
-          <div>
-            <h3>Emotional States</h3>
-            <ListBlock items={report.evidence.emotionalStates} />
-          </div>
-
-          <div>
-            <h3>Repeated Ideas</h3>
-            <ListBlock items={report.evidence.repeatedIdeas} />
-          </div>
-
-          <div>
-            <h3>Imagery</h3>
-            <ListBlock items={report.evidence.imagery} />
-          </div>
-        </div>
-
-        <div className="insight-stack">
-          <div>
-            <span>Core Tension</span>
-            <p>{report.evidence.coreTension}</p>
-          </div>
-
-          <div>
-            <span>Strongest Message</span>
-            <p>{report.evidence.strongestMessage}</p>
-          </div>
-
-          <div>
-            <span>Most Shareable Lyric</span>
-            <p className="quote">&quot;{report.evidence.mostShareableLyric}&quot;</p>
-          </div>
-
-          <div>
-            <span>Fan Comment Energy</span>
-            <p>{report.evidence.listenerComment}</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section eyebrow="Strategy" title="Audience & Rollout Direction">
-        <div className="two-col">
-          <div className="text-card">
-            <h3>Discovery Angle</h3>
-            <p>{report.strategy.discoveryAngle}</p>
-          </div>
-
-          <div className="text-card">
-            <h3>Rollout Type</h3>
-            <p>{report.strategy.rolloutType}</p>
-          </div>
-
-          <div className="text-card">
-            <h3>Audience Map</h3>
-            <p>{report.strategy.audienceMap}</p>
-          </div>
-
-          <div className="text-card">
-            <h3>Platform Priority</h3>
-            <p>{report.rollout.platformPriority}</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section eyebrow="Fanbase Match" title="Who This Could Reach">
-        <p className="section-copy">{report.fanbaseMatch.fanbaseReason}</p>
-
-        <div className="two-col">
-          <div>
-            <h3>Closest Artist Lanes</h3>
-            <ListBlock items={report.fanbaseMatch.closestArtists} />
-          </div>
-
-          <div>
-            <h3>Similar Song References</h3>
-            <ListBlock items={report.fanbaseMatch.similarSongs} />
-          </div>
-
-          <div>
-            <h3>Playlist Lanes</h3>
-            <ListBlock items={report.fanbaseMatch.playlistLanes} />
-          </div>
-        </div>
-
-        <SpotifyArtists artists={report.spotify?.artists} />
-        <SpotifyTracks tracks={report.spotify?.tracks} />
-      </Section>
-
-      <Section eyebrow="Rollout Blueprint" title="How To Build Around The Song">
-        <div className="three-col">
-          <div>
-            <h3>Content Pillars</h3>
-            <ListBlock items={report.rollout.contentPillars} />
-          </div>
-
-          <div>
-            <h3>Video Ideas</h3>
-            <ListBlock items={report.rollout.videoIdeas} />
-          </div>
-
-          <div>
-            <h3>Pre-Release Plan</h3>
-            <ListBlock items={report.rollout.preReleasePlan} />
-          </div>
-
-          <div>
-            <h3>Release Week Plan</h3>
-            <ListBlock items={report.rollout.releaseWeekPlan} />
-          </div>
-
-          <div>
-            <h3>Post-Release Plan</h3>
-            <ListBlock items={report.rollout.postReleasePlan} />
-          </div>
-        </div>
-      </Section>
-
-      <Section eyebrow="Creative Direction" title="The World Around The Record">
-        <div className="insight-stack">
-          <div>
-            <span>Visual Direction</span>
-            <p>{report.creative.visualDirection}</p>
-          </div>
-
-          <div>
-            <span>Biggest Opportunity</span>
-            <p>{report.creative.biggestOpportunity}</p>
-          </div>
-
-          <div>
-            <span>Biggest Risk</span>
-            <p>{report.creative.biggestRisk}</p>
-          </div>
-
-          <div>
-            <span>Final Recommendation</span>
-            <p>{report.creative.finalRecommendation}</p>
-          </div>
-        </div>
-      </Section>
-
-      <section className="cta-section">
-        <p className="eyebrow">NEXT STEP</p>
-        <h2>Build The World Around This Song</h2>
-        <p>{report.creative.cta}</p>
-
-        <a
-          className="cta-button"
-          href="https://cxtylimits.co/build-my-rollout"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Build The World Around This Song
-        </a>
-
-        <button className="secondary-button" type="button" onClick={onReset}>
-          Analyze Another Song
-        </button>
-      </section>
-
-      {transcript && (
-        <details className="transcript-box">
-          <summary>Transcript Source: {lyricsSource}</summary>
-          <p>{transcript}</p>
-        </details>
-      )}
-
-      <GlobalStyles />
-    </main>
-  );
-}
-
-export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<Report | null>(null);
-  const [transcript, setTranscript] = useState("");
-  const [lyricsSource, setLyricsSource] = useState("");
-  const [error, setError] = useState("");
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-
-  setLoading(true);
-  setError("");
-
-  try {
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-
-    const songFile = formData.get("songFile") as File | null;
-
-    if (!songFile) {
-      throw new Error("Please upload a song file.");
-    }
-
-    const uploadedSong = await upload(songFile.name, songFile, {
-      access: "private",
-      handleUploadUrl: "/api/upload-song",
-    });
-
-    formData.delete("songFile");
-    formData.append("songBlobPathname", uploadedSong.pathname);
-    formData.append("songFileName", songFile.name);
-    formData.append("songFileType", songFile.type || "audio/mpeg");
-
-    const response = await fetch("/api/analyze-song", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong.");
-    }
-
-    setTranscript(data.transcript || "");
-    setLyricsSource(data.lyricsSource || "");
-    setReport(data.report);
-  } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Something went wrong analyzing the song.";
-
-    setError(message);
-  } finally {
-    setLoading(false);
-  }
-}
-
-  if (report) {
-    return (
-      <ReportView
-        report={report}
-        transcript={transcript}
-        lyricsSource={lyricsSource}
-        onReset={() => {
-          setReport(null);
-          setTranscript("");
-          setLyricsSource("");
-          setError("");
-        }}
-      />
-    );
-  }
-
-  return (
-    <main className="page">
-      <section className="hero">
-        <p className="eyebrow">CXTY LIMITS DISCOVERY ENGINE</p>
-        <h1>Find the world inside your song.</h1>
-        <p className="hero-copy">
-          Upload a song and get a strategic discovery report built around the
-          lyrics, emotion, audience lane, rollout direction, and content moments
-          that can help the record move.
-        </p>
-      </section>
-
-      <section className="form-shell">
-        <form onSubmit={handleSubmit} className="song-form">
-          <div className="field-grid">
-            <label>
-              Artist Name
-              <input
-                name="artistName"
-                required
-                placeholder="Artist Name"
-                className="input"
-              />
-            </label>
-
-            <label>
-              Email Address
-              <input
-                name="email"
-                required
-                placeholder="Email Address"
-                type="email"
-                className="input"
-              />
-            </label>
-
-            <label>
-              Song Title
-              <input
-                name="songTitle"
-                placeholder="Song Title"
-                className="input"
-              />
-            </label>
-
-            <label>
-              Song Link
-              <input
-                name="songLink"
-                placeholder="Spotify, SoundCloud, YouTube, Dropbox, etc."
-                className="input"
-              />
-            </label>
-          </div>
-
-          <label>
-            Release Status
-            <select name="releaseStatus" className="input" defaultValue="">
-              <option value="" disabled>
-                Select release status
-              </option>
-              <option value="Unreleased">Unreleased</option>
-              <option value="Released recently">Released recently</option>
-              <option value="Older song / needs new rollout">
-                Older song / needs new rollout
-              </option>
-              <option value="Demo / work in progress">
-                Demo / work in progress
-              </option>
-            </select>
-          </label>
-
-          <label>
-            Upload Song File
-            <input
-              name="songFile"
-              required
-              type="file"
-              className="file-input"
+          <div className="three-grid">
+            <ListBlock
+              title="Closest Artist Lanes"
+              items={report.fanbaseMatch?.closestArtists || []}
             />
-          </label>
-
-          <label>
-            Lyrics
-            <textarea
-              name="lyrics"
-              placeholder="Optional but recommended. Paste lyrics here for a cleaner report."
-              className="textarea"
-              rows={8}
+            <ListBlock
+              title="Similar Song Energy"
+              items={report.fanbaseMatch?.similarSongs || []}
             />
-          </label>
+            <ListBlock
+              title="Playlist Lanes"
+              items={report.fanbaseMatch?.playlistLanes || []}
+            />
+          </div>
 
-          {error && <div className="error-box">{error}</div>}
+          {report.spotify?.artists?.length ? (
+            <div className="spotify-section">
+              <h3 className="spotify-heading">Spotify Artist Lanes</h3>
+              <div className="spotify-grid">
+                {report.spotify.artists.map((artist, index) => (
+                  <a
+                    key={index}
+                    className="spotify-card"
+                    href={artist.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {artist.image && (
+                      <img
+                        src={artist.image}
+                        alt={artist.name}
+                        className="spotify-img"
+                      />
+                    )}
+                    <div>
+                      <p className="spotify-name">{artist.name}</p>
+                      <p className="spotify-link">Open in Spotify</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
-          <button className="submit-button" type="submit" disabled={loading}>
-            {loading ? "Uploading & Analyzing Song..." : "Analyze My Song"}
-          </button>
+          {report.spotify?.tracks?.length ? (
+            <div className="spotify-section">
+              <h3 className="spotify-heading">Spotify Song References</h3>
+              <div className="spotify-grid">
+                {report.spotify.tracks.map((track, index) => (
+                  <a
+                    key={index}
+                    className="spotify-card"
+                    href={track.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {track.image && (
+                      <img
+                        src={track.image}
+                        alt={track.name}
+                        className="spotify-img"
+                      />
+                    )}
+                    <div>
+                      <p className="spotify-name">{track.name}</p>
+                      <p className="spotify-sub">{track.artist}</p>
+                      <p className="spotify-link">Open in Spotify</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
 
-          <p className="micro-copy">
-            Your report may take a minute. Keep this page open while the
-            Discovery Engine reads the song.
+        <section className="panel">
+          <p className="eyebrow">DISCOVERY SCORECARD</p>
+
+          <div className="score-grid">
+            {scores.map(([label, value]) => (
+              <div key={label} className="score-card">
+                <p className="score-label">{label}</p>
+                <p className="score-number">
+                  {value}
+                  <span className="score-outof">/100</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="split-grid">
+          <WrappedCard
+            label="THE ANGLE"
+            title={report.strategy.discoveryAngle}
+            body={report.strategy.archetypeExplanation}
+          />
+
+          <WrappedCard
+            label="THE AUDIENCE"
+            title={report.strategy.audienceMap}
+            body="These are the people most likely to hear themselves inside the record."
+          />
+        </section>
+
+        <section className="panel">
+          <p className="eyebrow">WHAT WE PULLED FROM THE SONG</p>
+
+          <div className="evidence-grid">
+            <PillList title="Themes" items={report.evidence.coreThemes} />
+            <PillList title="Emotions" items={report.evidence.emotionalStates} />
+            <PillList title="Imagery" items={report.evidence.imagery} />
+            <PillList
+              title="Repeated Ideas"
+              items={report.evidence.repeatedIdeas}
+            />
+          </div>
+        </section>
+
+        <section className="panel">
+          <p className="eyebrow">THE ROLLOUT BLUEPRINT</p>
+
+          <div className="split-grid inner-grid">
+            <ListBlock
+              title="Content Pillars"
+              items={report.rollout.contentPillars}
+            />
+            <ListBlock title="Video Ideas" items={report.rollout.videoIdeas} />
+          </div>
+
+          <div className="three-grid">
+            <ListBlock
+              title="Pre-Release"
+              items={report.rollout.preReleasePlan}
+            />
+            <ListBlock
+              title="Release Week"
+              items={report.rollout.releaseWeekPlan}
+            />
+            <ListBlock
+              title="30 Days After"
+              items={report.rollout.postReleasePlan}
+            />
+          </div>
+        </section>
+
+        <section className="split-grid">
+          <WrappedCard
+            label="VISUAL WORLD"
+            title={report.creative.visualDirection}
+            body=""
+          />
+          <WrappedCard
+            label="BIGGEST RISK"
+            title={report.creative.biggestRisk}
+            body=""
+          />
+        </section>
+
+        <section className="final-card">
+          <p className="eyebrow">FINAL READ</p>
+          <h2 className="final-title">{report.creative.finalRecommendation}</h2>
+        </section>
+
+        <section className="cta-card desktop-bottom-cta">
+          <p className="eyebrow-white">CXTY LIMITS CREATIVES</p>
+          <h2 className="cta-title">
+            We found the story. Now build the world around it.
+          </h2>
+          <p className="cta-body">
+            Your song does not need more random posts. It needs a release world:
+            visuals, narrative, short-form moments, and a rollout system built
+            around the emotion people will actually remember.
           </p>
-        </form>
+
+          <div className="button-row">
+            <a
+              className="black-button"
+              href="https://cxtylimits.co/build-my-rollout"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Build The World Around This Song
+            </a>
+
+            <button onClick={onReset} className="outline-button">
+              Analyze Another Track
+            </button>
+          </div>
+        </section>
       </section>
 
-      <GlobalStyles />
-    </main>
-  );
-}
-
-function GlobalStyles() {
-  return (
-    <style jsx global>{`
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        background: #050505;
-        color: #ffffff;
-        font-family: Inter, Arial, sans-serif;
-      }
-
-      .page {
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at top left, rgba(237, 28, 36, 0.2), transparent 34%),
-          linear-gradient(180deg, #050505 0%, #111111 100%);
-        padding: 56px 20px;
-      }
-
-      .hero,
-      .report-hero,
-      .form-shell,
-      .report-section,
-      .cta-section,
-      .transcript-box {
-        width: min(1120px, 100%);
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .hero {
-        text-align: center;
-        padding: 32px 0 28px;
-      }
-
-      .eyebrow {
-        margin: 0 0 14px;
-        color: #ed1c24;
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(42px, 8vw, 92px);
-        line-height: 0.92;
-        letter-spacing: -0.06em;
-        text-transform: uppercase;
-      }
-
-      .hero-copy {
-        max-width: 760px;
-        margin: 22px auto 0;
-        color: rgba(255, 255, 255, 0.78);
-        font-size: 18px;
-        line-height: 1.6;
-      }
-
-      .form-shell {
-        margin-top: 28px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 26px;
-        padding: 28px;
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
-      }
-
-      .song-form {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .field-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
-      }
-
-      label {
-        display: flex;
-        flex-direction: column;
-        gap: 9px;
-        color: rgba(255, 255, 255, 0.86);
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
-
-      .input,
-      .textarea,
-      .file-input {
-        width: 100%;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 14px;
-        background: rgba(0, 0, 0, 0.42);
-        color: #ffffff;
-        font-size: 16px;
-        outline: none;
-        padding: 15px 16px;
-      }
-
-      .textarea {
-        resize: vertical;
-        line-height: 1.5;
-      }
-
-      .input::placeholder,
-      .textarea::placeholder {
-        color: rgba(255, 255, 255, 0.42);
-      }
-
-      .submit-button,
-      .cta-button,
-      .secondary-button {
-        border: 0;
-        border-radius: 999px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        text-decoration: none;
-      }
-
-      .submit-button {
-        width: 100%;
-        background: #ed1c24;
-        color: #ffffff;
-        min-height: 58px;
-        font-size: 15px;
-      }
-
-      .submit-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.7;
-      }
-
-      .micro-copy {
-        margin: -4px 0 0;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.52);
-        font-size: 13px;
-      }
-
-      .error-box {
-        background: rgba(237, 28, 36, 0.14);
-        border: 1px solid rgba(237, 28, 36, 0.42);
-        color: #ffffff;
-        border-radius: 14px;
-        padding: 14px 16px;
-        line-height: 1.5;
-      }
-
-      .report-page {
-        padding-top: 40px;
-      }
-
-      .report-hero {
-        display: grid;
-        grid-template-columns: 1fr 220px;
-        gap: 24px;
-        align-items: center;
-        padding: 28px 0 24px;
-      }
-
-      .hero-score {
-        min-height: 190px;
-        background: #ed1c24;
-        border-radius: 28px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 24px;
-      }
-
-      .hero-score span {
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-      }
-
-      .hero-score strong {
-        font-size: 76px;
-        line-height: 1;
-      }
-
-      .hero-score p {
-        margin: 6px 0 0;
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      .report-section {
-        margin-top: 26px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 26px;
-        padding: 28px;
-      }
-
-      .report-section h2,
-      .cta-section h2 {
-        margin: 0 0 20px;
-        font-size: clamp(28px, 4vw, 52px);
-        line-height: 0.98;
-        letter-spacing: -0.04em;
-        text-transform: uppercase;
-      }
-
-      .report-section h3 {
-        margin: 0 0 12px;
-        font-size: 15px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .section-copy {
-        margin: 0 0 22px;
-        color: rgba(255, 255, 255, 0.78);
-        line-height: 1.6;
-      }
-
-      .two-col {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
-      }
-
-      .three-col {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-      }
-
-      .callout,
-      .text-card,
-      .prediction-card,
-      .insight-stack > div {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 20px;
-      }
-
-      .callout span,
-      .prediction-card span,
-      .insight-stack span {
-        color: #ed1c24;
-        display: block;
-        font-size: 11px;
-        font-weight: 900;
-        letter-spacing: 0.16em;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-      }
-
-      .callout p,
-      .text-card p,
-      .prediction-card p,
-      .insight-stack p {
-        margin: 0;
-        color: rgba(255, 255, 255, 0.84);
-        line-height: 1.55;
-      }
-
-      .callout p {
-        color: #ffffff;
-        font-size: 24px;
-        font-weight: 900;
-        letter-spacing: -0.03em;
-      }
-
-      .callout small {
-        display: block;
-        color: rgba(255, 255, 255, 0.64);
-        line-height: 1.5;
-        margin-top: 10px;
-      }
-
-      .big-callout {
-        background: #ffffff;
-        color: #111111;
-        border-radius: 24px;
-        padding: 26px;
-      }
-
-      .big-callout p {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 850;
-        line-height: 1.35;
-        letter-spacing: -0.03em;
-      }
-
-      .prediction-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-      }
-
-      .score-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      .score-card {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 18px;
-        padding: 18px;
-      }
-
-      .score-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .score-top span {
-        color: rgba(255, 255, 255, 0.78);
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-
-      .score-top strong {
-        font-size: 28px;
-      }
-
-      .score-bar {
-        height: 9px;
-        border-radius: 999px;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.12);
-      }
-
-      .score-bar div {
-        height: 100%;
-        background: #ed1c24;
-        border-radius: 999px;
-      }
-
-      .clean-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .clean-list li {
-        color: rgba(255, 255, 255, 0.78);
-        line-height: 1.45;
-        padding-left: 18px;
-        position: relative;
-      }
-
-      .clean-list li::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #ed1c24;
-        position: absolute;
-        left: 0;
-        top: 0.55em;
-      }
-
-      .insight-stack {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        margin-top: 20px;
-      }
-
-      .quote {
-        color: #ffffff !important;
-        font-size: 22px;
-        font-weight: 900;
-        letter-spacing: -0.03em;
-      }
-
-      .spotify-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-        margin-top: 18px;
-      }
-
-      .spotify-card {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.32);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 18px;
-        padding: 12px;
-        color: #ffffff;
-        text-decoration: none;
-      }
-
-      .spotify-card img {
-        width: 62px;
-        height: 62px;
-        object-fit: cover;
-        border-radius: 12px;
-      }
-
-      .spotify-card span {
-        display: block;
-        color: #ed1c24;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-      }
-
-      .spotify-card strong {
-        display: block;
-        font-size: 14px;
-        line-height: 1.2;
-      }
-
-      .spotify-card p {
-        margin: 4px 0 0;
-        color: rgba(255, 255, 255, 0.58);
-        font-size: 12px;
-      }
-
-      .cta-section {
-        margin-top: 26px;
-        background: #ffffff;
-        color: #111111;
-        border-radius: 28px;
-        padding: 32px;
-        text-align: center;
-      }
-
-      .cta-section p {
-        max-width: 720px;
-        margin: 0 auto 22px;
-        color: rgba(17, 17, 17, 0.72);
-        line-height: 1.6;
-      }
-
-      .cta-button {
-        background: #ed1c24;
-        color: #ffffff;
-        min-height: 54px;
-        padding: 0 26px;
-        margin: 4px 8px;
-      }
-
-      .secondary-button {
-        background: #111111;
-        color: #ffffff;
-        min-height: 54px;
-        padding: 0 22px;
-        margin: 4px 8px;
-      }
-
-      .transcript-box {
-        margin-top: 24px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 18px;
-        padding: 18px;
-      }
-
-      .transcript-box summary {
-        cursor: pointer;
-        font-weight: 800;
-      }
-
-      .transcript-box p {
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.6;
-        white-space: pre-wrap;
-      }
-
-      @media screen and (max-width: 800px) {
-        .page {
-          padding: 34px 14px;
+      <style jsx global>{`
+        * {
+          box-sizing: border-box;
         }
 
-        .field-grid,
-        .two-col,
-        .three-col,
-        .prediction-grid,
-        .score-grid,
-        .spotify-grid,
-        .report-hero {
-          grid-template-columns: 1fr;
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          background: #000;
+          overflow-x: hidden;
         }
 
-        .form-shell,
-        .report-section,
-        .cta-section {
-          padding: 20px;
-          border-radius: 22px;
+        .page-shell {
+          min-height: 100vh;
+          background: #000;
+          color: #fff;
+          padding: 56px 20px;
+          font-family: var(--font-source-sans);
+          overflow-x: hidden;
         }
 
-        .hero-score {
-          min-height: 150px;
+        .report-shell {
+          min-height: 100vh;
+          background: radial-gradient(
+              circle at top left,
+              rgba(220, 38, 38, 0.24),
+              transparent 30%
+            ),
+            #000;
+          color: #fff;
+          padding: 44px 20px;
+          font-family: var(--font-source-sans);
+          overflow-x: hidden;
         }
 
-        .hero-score strong {
-          font-size: 60px;
-        }
-
-        .big-callout p {
-          font-size: 20px;
-        }
-
-        .cta-button,
-        .secondary-button {
+        .container,
+        .report-container {
           width: 100%;
-          margin: 6px 0;
+          max-width: 940px;
+          margin: 0 auto;
         }
-      }
-    `}</style>
+
+        .brand,
+        .eyebrow {
+          color: #dc2626;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          font-size: 12px;
+          font-weight: 900;
+          margin: 0;
+        }
+
+        .eyebrow-white {
+          color: #fff;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          font-size: 12px;
+          font-weight: 900;
+          margin: 0;
+        }
+
+        .hero-title {
+          font-family: var(--font-bebas);
+          font-size: clamp(66px, 12vw, 96px);
+          line-height: 0.86;
+          margin: 14px 0 0;
+          letter-spacing: 2px;
+          max-width: 760px;
+        }
+
+        .hero-copy {
+          max-width: 760px;
+          font-size: clamp(20px, 4vw, 23px);
+          font-weight: 900;
+          line-height: 1.35;
+          margin-top: 28px;
+        }
+
+        .support-copy {
+          max-width: 760px;
+          font-size: 18px;
+          line-height: 1.55;
+          color: #a1a1aa;
+          margin-top: 16px;
+        }
+
+        .form-card {
+          margin-top: 40px;
+          padding: 30px;
+          border: 1px solid #27272a;
+          border-radius: 22px;
+          width: 100%;
+          max-width: 720px;
+          background: rgba(9, 9, 11, 0.92);
+          display: grid;
+          gap: 16px;
+        }
+
+        .form-title {
+          font-family: var(--font-bebas);
+          font-size: 48px;
+          margin: 0;
+          letter-spacing: 1px;
+        }
+
+        .input,
+        .textarea {
+          width: 100%;
+          padding: 16px;
+          background: #fff;
+          border: 1px solid #27272a;
+          border-radius: 12px;
+          color: #000;
+          font-size: 16px;
+          font-family: var(--font-source-sans);
+        }
+
+        .textarea {
+          min-height: 130px;
+          resize: vertical;
+        }
+
+        .label {
+          color: #a1a1aa;
+          font-size: 15px;
+          margin-top: 8px;
+        }
+
+        .field-note {
+          color: #a1a1aa;
+          font-size: 14px;
+          line-height: 1.35;
+          margin: -6px 0 2px;
+        }
+
+        .file-input {
+          color: #fff;
+          max-width: 100%;
+        }
+
+        .primary-button,
+        .black-button,
+        .outline-button,
+        .mobile-reset {
+          border: none;
+          padding: 15px 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-size: 14px;
+        }
+
+        .primary-button {
+          margin-top: 14px;
+          background: #dc2626;
+          color: #fff;
+        }
+
+        .loading {
+          color: #a1a1aa;
+          font-size: 15px;
+          line-height: 1.25;
+        }
+
+        .error {
+          color: #f87171;
+        }
+
+        .wrapped-hero,
+        .panel,
+        .wrapped-card,
+        .final-card,
+        .cta-card,
+        .red-card {
+          width: 100%;
+          overflow: hidden;
+        }
+
+        .wrapped-hero {
+          margin-top: 24px;
+          padding: 32px;
+          border: 1px solid #dc2626;
+          border-radius: 28px;
+          background: linear-gradient(
+            135deg,
+            rgba(220, 38, 38, 0.24),
+            rgba(9, 9, 11, 1) 55%,
+            rgba(255, 255, 255, 0.05)
+          );
+        }
+
+        .wrapped-headline {
+          font-size: clamp(25px, 5vw, 34px);
+          line-height: 1.12;
+          margin: 18px 0 0;
+          max-width: 820px;
+          font-weight: 900;
+        }
+
+        .stats-grid,
+        .score-grid,
+        .split-grid,
+        .three-grid,
+        .evidence-grid {
+          display: grid;
+          gap: 12px;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          margin-top: 24px;
+        }
+
+        .stat,
+        .score-card,
+        .list-block {
+          background: #000;
+          border: 1px solid #27272a;
+          border-radius: 16px;
+          padding: 16px;
+        }
+
+        .stat-label,
+        .score-label {
+          color: #a1a1aa;
+          font-size: 13px;
+          margin: 0;
+        }
+
+        .stat-value {
+          color: #fff;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1.25;
+          margin: 8px 0 0;
+        }
+
+        .red-card {
+          margin-top: 18px;
+          padding: 28px;
+          border-radius: 24px;
+          background: #dc2626;
+        }
+
+        .lyric {
+          font-size: clamp(27px, 6vw, 36px);
+          line-height: 1.05;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .split-grid {
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          margin-top: 18px;
+        }
+
+        .three-grid {
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          margin-top: 18px;
+        }
+
+        .wrapped-card,
+        .panel {
+          background: rgba(9, 9, 11, 0.92);
+          border: 1px solid #27272a;
+          border-radius: 22px;
+          padding: 24px;
+        }
+
+        .fanbase-panel {
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(9, 9, 11, 0.96)
+          );
+        }
+
+        .wrapped-card-title {
+          font-size: 24px;
+          line-height: 1.15;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .wrapped-card-body,
+        .panel-body {
+          color: #a1a1aa;
+          font-size: 16px;
+          line-height: 1.5;
+          margin-top: 12px;
+        }
+
+        .panel {
+          margin-top: 18px;
+        }
+
+        .section-title {
+          font-size: 28px;
+          line-height: 1.1;
+          margin: 12px 0 0;
+          font-weight: 900;
+        }
+
+        .score-grid {
+          margin-top: 18px;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 10px;
+        }
+
+        .score-card {
+          min-height: 88px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .score-number {
+          font-size: 28px;
+          font-weight: 900;
+          margin: 6px 0 0;
+        }
+
+        .score-outof {
+          color: #a1a1aa;
+          font-size: 15px;
+          margin-left: 3px;
+          font-weight: 800;
+        }
+
+        .evidence-grid {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          margin-top: 18px;
+        }
+
+        .small-title {
+          font-size: 18px;
+          margin: 0 0 10px;
+          font-weight: 900;
+        }
+
+        .pill-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .pill {
+          border: 1px solid #27272a;
+          border-radius: 999px;
+          padding: 8px 11px;
+          color: #d4d4d8;
+          font-size: 14px;
+          background: #000;
+        }
+
+        .inner-grid {
+          margin-top: 18px;
+        }
+
+        .list-title {
+          font-size: 23px;
+          margin: 0 0 12px;
+          font-weight: 900;
+        }
+
+        .list {
+          color: #d4d4d8;
+          font-size: 16px;
+          line-height: 1.45;
+          padding-left: 18px;
+          margin: 0;
+        }
+
+        .final-card {
+          margin-top: 18px;
+          background: #fff;
+          color: #000;
+          border-radius: 24px;
+          padding: 28px;
+        }
+
+        .dark-final {
+          background: #09090b;
+          color: #fff;
+          border: 1px solid #27272a;
+        }
+
+        .final-title {
+          font-size: 26px;
+          line-height: 1.15;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .cta-card {
+          margin-top: 20px;
+          background: #dc2626;
+          color: #fff;
+          border-radius: 28px;
+          padding: 30px;
+        }
+
+        .mobile-early-cta {
+          display: none;
+        }
+
+        .cta-title {
+          font-size: clamp(30px, 6vw, 38px);
+          line-height: 1.05;
+          margin: 14px 0 0;
+          font-weight: 900;
+        }
+
+        .cta-body {
+          font-size: 17px;
+          line-height: 1.5;
+          max-width: 820px;
+        }
+
+        .button-row {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .black-button {
+          margin-top: 16px;
+          background: #000;
+          color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+        }
+
+        .outline-button,
+        .mobile-reset {
+          margin-top: 16px;
+          background: transparent;
+          color: #fff;
+          border: 1px solid #fff;
+        }
+
+        .mobile-reset {
+          display: none;
+          width: 100%;
+        }
+
+        .spotify-section {
+          margin-top: 22px;
+        }
+
+        .spotify-heading {
+          font-size: 22px;
+          margin: 0 0 12px;
+          font-weight: 900;
+        }
+
+        .spotify-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+          gap: 12px;
+        }
+
+        .spotify-card {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          background: #000;
+          border: 1px solid #27272a;
+          border-radius: 16px;
+          padding: 12px;
+          text-decoration: none;
+          color: #fff;
+        }
+
+        .spotify-img {
+          width: 58px;
+          height: 58px;
+          border-radius: 12px;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+
+        .spotify-name {
+          font-size: 16px;
+          font-weight: 900;
+          margin: 0;
+          line-height: 1.15;
+        }
+
+        .spotify-sub {
+          color: #a1a1aa;
+          font-size: 14px;
+          margin: 4px 0 0;
+        }
+
+        .spotify-link {
+          color: #dc2626;
+          font-size: 13px;
+          font-weight: 900;
+          margin: 6px 0 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 640px) {
+          .page-shell,
+          .report-shell {
+            padding: 32px 14px;
+          }
+
+          .container,
+          .report-container {
+            max-width: 100%;
+          }
+
+          .brand,
+          .eyebrow,
+          .eyebrow-white {
+            letter-spacing: 3px;
+            font-size: 11px;
+          }
+
+          .hero-title {
+            font-size: 58px;
+            line-height: 0.9;
+            max-width: 100%;
+            word-break: normal;
+          }
+
+          .hero-copy {
+            font-size: 19px;
+            line-height: 1.35;
+            margin-top: 22px;
+          }
+
+          .support-copy {
+            font-size: 16px;
+            line-height: 1.5;
+          }
+
+          .form-card {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 18px;
+          }
+
+          .form-title {
+            font-size: 38px;
+          }
+
+          .input,
+          .textarea {
+            font-size: 15px;
+            padding: 14px;
+          }
+
+          .wrapped-hero,
+          .panel,
+          .wrapped-card,
+          .red-card,
+          .final-card,
+          .cta-card {
+            padding: 20px;
+            border-radius: 20px;
+          }
+
+          .wrapped-headline {
+            font-size: 25px;
+          }
+
+          .stats-grid,
+          .score-grid,
+          .split-grid,
+          .three-grid,
+          .evidence-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .stat-value {
+            font-size: 17px;
+          }
+
+          .lyric {
+            font-size: 28px;
+          }
+
+          .wrapped-card-title {
+            font-size: 21px;
+          }
+
+          .score-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .score-card {
+            min-height: 78px;
+            padding: 14px;
+          }
+
+          .score-number {
+            font-size: 24px;
+          }
+
+          .list-title {
+            font-size: 21px;
+          }
+
+          .final-title {
+            font-size: 22px;
+          }
+
+          .mobile-early-cta {
+            display: block;
+          }
+
+          .mobile-reset {
+            display: block;
+          }
+
+          .black-button,
+          .outline-button {
+            width: 100%;
+          }
+        }
+      `}</style>
+    </main>
   );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="stat">
+      <p className="stat-label">{label}</p>
+      <p className="stat-value">{value}</p>
+    </div>
+  );
+}
+
+function WrappedCard({
+  label,
+  title,
+  body,
+}: {
+  label: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <section className="wrapped-card">
+      <p className="eyebrow">{label}</p>
+      <h3 className="wrapped-card-title">{title}</h3>
+      {body && <p className="wrapped-card-body">{body}</p>}
+    </section>
+  );
+}
+
+function PillList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <h3 className="small-title">{title}</h3>
+      <div className="pill-wrap">
+        {items?.slice(0, 5).map((item, index) => (
+          <span key={index} className="pill">
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ListBlock({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="list-block">
+      <h3 className="list-title">{title}</h3>
+      <ul className="list">
+        {items?.slice(0, 5).map((item, index) => (
+          <li key={index} style={{ marginBottom: "10px" }}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function cleanQuote(text: string) {
+  return String(text || "").replace(/^["“]+|["”]+$/g, "");
 }
