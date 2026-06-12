@@ -90,6 +90,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
+  const [leadInfo, setLeadInfo] = useState<{
+  artistName: string;
+  email: string;
+  songTitle: string;
+} | null>(null);
   useEffect(() => {
   if (!report) return;
 
@@ -160,6 +165,12 @@ export default function Home() {
       throw new Error(data.error || "Something went wrong.");
     }
 
+    setLeadInfo({
+  artistName: String(formData.get("artistName") || ""),
+  email: String(formData.get("email") || ""),
+  songTitle: String(formData.get("songTitle") || ""),
+});
+
     setReport(data.report);
   } catch (err) {
     const message =
@@ -172,9 +183,35 @@ export default function Home() {
     setLoading(false);
   }
 }
+async function handleBuildMyRolloutClick() {
+  if (leadInfo) {
+    fetch("/api/track-cta", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        artistName: leadInfo.artistName,
+        email: leadInfo.email,
+        songTitle: leadInfo.songTitle,
+        ctaClicked: "Yes",
+      }),
+      keepalive: true,
+    }).catch((error) => {
+      console.error("CTA tracking failed:", error);
+    });
+  }
 
+  window.open("https://cxtylimits.co/build-my-rollout", "_blank");
+}
   if (report) {
-    return <ReportView report={report} onReset={() => setReport(null)} />;
+    return (
+  <ReportView
+    report={report}
+    onReset={() => setReport(null)}
+    onBuildMyRolloutClick={handleBuildMyRolloutClick}
+  />
+);
   }
 
   return (
@@ -276,9 +313,11 @@ export default function Home() {
 function ReportView({
   report,
   onReset,
+  onBuildMyRolloutClick,
 }: {
   report: Report;
   onReset: () => void;
+  onBuildMyRolloutClick: () => void;
 }) {
   const scores = [
     ["Discovery", report.scores.discoveryScore],
@@ -590,14 +629,13 @@ function ReportView({
           </p>
 
           <div className="button-row">
-            <a
-              className="black-button"
-              href="https://cxtylimits.co/build-my-rollout"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Build The World Around This Song
-            </a>
+            <button
+  type="button"
+  className="black-button"
+  onClick={onBuildMyRolloutClick}
+>
+  Build The World Around This Song
+</button>
 
             <button onClick={onReset} className="outline-button">
               Analyze Another Track
