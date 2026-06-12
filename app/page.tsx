@@ -20,6 +20,7 @@ type Report = {
     discoveryAngle: string;
     rolloutType: string;
     audienceMap: string;
+    ifReleasedToday: string;
   };
   fanbaseMatch: {
     closestArtists: string[];
@@ -100,13 +101,13 @@ export default function Home() {
         <h1 className="hero-title">DISCOVERY ENGINE</h1>
 
         <p className="hero-copy">
-          Upload your unreleased song and get the story, the angle, and the
-          rollout world before release day.
+          Upload your song and get the story, the angle, and the rollout world
+          that gives it the best chance to be discovered.
         </p>
 
         <p className="support-copy">
-          No long intake. Drop the track. We&apos;ll find what people are
-          supposed to feel — and how the release should be built around it.
+          Built for unreleased songs, new releases, and songs that already came
+          out but still need a stronger discovery strategy.
         </p>
 
         <form onSubmit={handleSubmit} className="form-card">
@@ -127,15 +128,38 @@ export default function Home() {
             className="input"
           />
 
+          <input
+            name="songTitle"
+            placeholder="Song Title optional"
+            className="input"
+          />
+
+          <select name="releaseStatus" defaultValue="Not Sure" className="input">
+            <option value="Unreleased">Unreleased</option>
+            <option value="Already Released">Already Released</option>
+            <option value="Not Sure">Not Sure</option>
+          </select>
+
+          <label className="label">Song Link optional</label>
+          <input
+            name="songLink"
+            placeholder="Spotify, YouTube, or SoundCloud link"
+            className="input"
+          />
+          <p className="field-note">
+            Links are used for context only and may be less accurate. For the
+            best report, upload the song file or paste the lyrics.
+          </p>
+
           <label className="label">Upload Song File</label>
 
           <input
-  name="songFile"
-  required
-  type="file"
-  accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
-  className="file-input"
-/>
+            name="songFile"
+            required
+            type="file"
+            accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+            className="file-input"
+          />
 
           <textarea
             name="lyrics"
@@ -197,11 +221,16 @@ function ReportView({
           </div>
         </section>
 
-      
-
         <section className="red-card">
           <p className="eyebrow-white">THE LINE THAT CARRIES THE ROLLOUT</p>
-          <h2 className="lyric">“{cleanQuote(report.evidence.mostShareableLyric)}”</h2>
+          <h2 className="lyric">
+            “{cleanQuote(report.evidence.mostShareableLyric)}”
+          </h2>
+        </section>
+
+        <section className="final-card dark-final">
+          <p className="eyebrow">IF RELEASED TODAY...</p>
+          <h2 className="final-title">{report.strategy.ifReleasedToday}</h2>
         </section>
 
         <section className="split-grid">
@@ -296,8 +325,16 @@ function ReportView({
         </section>
 
         <section className="split-grid">
-          <WrappedCard label="VISUAL WORLD" title={report.creative.visualDirection} body="" />
-          <WrappedCard label="BIGGEST RISK" title={report.creative.biggestRisk} body="" />
+          <WrappedCard
+            label="VISUAL WORLD"
+            title={report.creative.visualDirection}
+            body=""
+          />
+          <WrappedCard
+            label="BIGGEST RISK"
+            title={report.creative.biggestRisk}
+            body=""
+          />
         </section>
 
         <section className="final-card">
@@ -317,14 +354,20 @@ function ReportView({
           </p>
 
           <div className="button-row">
-            <button className="black-button">Build The World Around This Song</button>
+            <a
+              className="black-button"
+              href="https://cxtylimits.co/build-my-rollout"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Build The World Around This Song
+            </a>
+
             <button onClick={onReset} className="outline-button">
               Analyze Another Track
             </button>
           </div>
         </section>
-
-        
       </section>
 
       <style jsx global>{`
@@ -454,6 +497,13 @@ function ReportView({
           color: #a1a1aa;
           font-size: 15px;
           margin-top: 8px;
+        }
+
+        .field-note {
+          color: #a1a1aa;
+          font-size: 14px;
+          line-height: 1.35;
+          margin: -6px 0 2px;
         }
 
         .file-input {
@@ -704,6 +754,12 @@ function ReportView({
           padding: 28px;
         }
 
+        .dark-final {
+          background: #09090b;
+          color: #fff;
+          border: 1px solid #27272a;
+        }
+
         .final-title {
           font-size: 26px;
           line-height: 1.15;
@@ -746,6 +802,10 @@ function ReportView({
           margin-top: 16px;
           background: #000;
           color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
         }
 
         .outline-button,
@@ -871,8 +931,6 @@ function ReportView({
           .mobile-early-cta {
             display: block;
           }
-
-        
 
           .mobile-reset {
             display: block;

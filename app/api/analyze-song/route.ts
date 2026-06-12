@@ -13,22 +13,44 @@ const openai = new OpenAI({
 
 function buildDiscoveryPrompt(data: {
   artistName: string;
+  songTitle: string;
+  songLink: string;
+  releaseStatus: string;
   lyrics: string;
   lyricsSource: string;
 }) {
   return `
 You are an elite A&R strategist, creative director, rollout strategist, and music psychologist working for CXTY LIMITS CREATIVES.
 
-Analyze the uploaded unreleased song using the lyrics/transcript below.
+Analyze this song for discovery potential, audience positioning, rollout direction, and creative world-building.
+
+This tool is for unreleased songs, newly released songs, and older songs that need a better discovery strategy.
 
 Artist Name:
 ${data.artistName}
+
+Song Title:
+${data.songTitle || "Not provided"}
+
+Song Link Context:
+${data.songLink || "Not provided"}
+
+Release Status:
+${data.releaseStatus || "Not Sure"}
 
 Lyrics Source:
 ${data.lyricsSource}
 
 Lyrics / Transcript:
 ${data.lyrics}
+
+Important:
+- Uploaded audio and pasted lyrics are the primary analysis sources.
+- Song links are optional context only.
+- Do not claim you analyzed full audio from Spotify, YouTube, SoundCloud, or any pasted link.
+- If only limited link context is available, make the report more cautious.
+- If lyrics are pasted, treat them as more accurate than transcription.
+- If lyrics are not pasted, use the uploaded audio transcription.
 
 Return ONLY valid JSON in this exact structure:
 
@@ -49,7 +71,8 @@ Return ONLY valid JSON in this exact structure:
     "archetypeExplanation": "",
     "discoveryAngle": "",
     "rolloutType": "",
-    "audienceMap": ""
+    "audienceMap": "",
+    "ifReleasedToday": ""
   },
   "fanbaseMatch": {
     "closestArtists": [],
@@ -112,6 +135,7 @@ SECTION RULES:
 - strongestMessage: max 1 sentence.
 - discoveryAngle: max 2 sentences.
 - audienceMap: max 2 sentences.
+- ifReleasedToday: exactly 2 sentences. Make it feel like a prediction, not a score. The second sentence should explain the unlock using the most specific lyric, phrase, emotional moment, or recurring idea.
 - platformPriority: concise ranked recommendation.
 - contentPillars: max 4 items.
 - videoIdeas: max 5 items.
@@ -135,18 +159,60 @@ FANBASE MATCH RULES:
 `;
 }
 
+async function sendLeadToWebhook(data: {
+  date: string;
+  artistName: string;
+  email: string;
+  songTitle: string;
+  songLink: string;
+  releaseStatus: string;
+  discoveryScore: string | number;
+  discoveryMoment: string;
+  artistArchetype: string;
+  rolloutType: string;
+  mostShareableLyric: string;
+  fanbaseMatchArtists: string;
+  ifReleasedToday: string;
+  ctaClicked: string;
+}) {
+  const webhookUrl = process.env.DISCOVERY_LEADS_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    console.log("DISCOVERY_LEADS_WEBHOOK_URL is not set. Skipping lead capture.");
+    return;
+  }
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (error) {
+    console.error("Lead webhook failed:", error);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const artistName = String(formData.get("artistName") || "");
-    const email = String(formData.get("email") || "");
-    const providedLyrics = String(formData.get("lyrics") || "");
+    const artistName = String(formData.get("artistName") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const songTitle = String(formData.get("songTitle") || "").trim();
+    const songLink = String(formData.get("songLink") || "").trim();
+    const releaseStatus = String(formData.get("releaseStatus") || "Not Sure").trim();
+    const providedLyrics = String(formData.get("lyrics") || "").trim();
     const file = formData.get("songFile") as File | null;
 
     if (!artistName || !email || !file) {
       return NextResponse.json(
-        { error: "Please add your artist name, email, and song file." },
+        {
+          error:
+            "Please add your artist name, email, and upload the song file. Song links are optional context only.",
+        },
         { status: 400 }
       );
     }
@@ -169,10 +235,21 @@ export async function POST(req: Request) {
 
     const transcript = transcription.text || "";
 
-    const lyricsToAnalyze = providedLyrics.trim() || transcript;
-    const lyricsSource = providedLyrics.trim()
+    const lyricsToAnalyze = providedLyrics || transcript;
+
+    const lyricsSource = providedLyrics
       ? "artist-provided lyrics"
       : "AI transcription from uploaded audio";
+
+    if (!lyricsToAnalyze) {
+      return NextResponse.json(
+        {
+          error:
+            "We could not detect lyrics from the upload. Please paste the lyrics and try again.",
+        },
+        { status: 400 }
+      );
+    }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
@@ -186,6 +263,9 @@ export async function POST(req: Request) {
           role: "user",
           content: buildDiscoveryPrompt({
             artistName,
+            songTitle,
+            songLink,
+            releaseStatus,
             lyrics: lyricsToAnalyze,
             lyricsSource,
           }),
@@ -205,6 +285,24 @@ export async function POST(req: Request) {
     }
 
     const report = JSON.parse(raw);
+
+    await sendLeadToWebhook({
+      date: new Date().toISOString(),
+      artistName,
+      email,
+      songTitle,
+      songLink,
+      releaseStatus,
+      discoveryScore: report?.scores?.discoveryScore || "",
+      discoveryMoment: report?.strategy?.discoveryMoment || "",
+      artistArchetype: report?.strategy?.artistArchetype || "",
+      rolloutType: report?.strategy?.rolloutType || "",
+      mostShareableLyric: report?.evidence?.mostShareableLyric || "",
+      fanbaseMatchArtists:
+        report?.fanbaseMatch?.closestArtists?.join(", ") || "",
+      ifReleasedToday: report?.strategy?.ifReleasedToday || "",
+      ctaClicked: "No",
+    });
 
     return NextResponse.json({
       transcript,
