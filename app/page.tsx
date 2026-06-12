@@ -134,11 +134,14 @@ export default function Home() {
             className="input"
           />
 
-          <select name="releaseStatus" defaultValue="Not Sure" className="input">
-            <option value="Unreleased">Unreleased</option>
-            <option value="Already Released">Already Released</option>
-            <option value="Not Sure">Not Sure</option>
-          </select>
+          <select name="releaseStatus" defaultValue="" className="input">
+  <option value="" disabled>
+    Is the song released?
+  </option>
+  <option value="Unreleased">Unreleased</option>
+  <option value="Already Released">Already Released</option>
+  <option value="Not Sure">Not Sure</option>
+</select>
 
           <label className="label">Song Link optional</label>
           <input

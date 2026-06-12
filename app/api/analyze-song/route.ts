@@ -36,7 +36,7 @@ Song Link Context:
 ${data.songLink || "Not provided"}
 
 Release Status:
-${data.releaseStatus || "Not Sure"}
+${data.releaseStatus || "Not provided"}
 
 Lyrics Source:
 ${data.lyricsSource}
@@ -203,7 +203,7 @@ export async function POST(req: Request) {
     const email = String(formData.get("email") || "").trim();
     const songTitle = String(formData.get("songTitle") || "").trim();
     const songLink = String(formData.get("songLink") || "").trim();
-    const releaseStatus = String(formData.get("releaseStatus") || "Not Sure").trim();
+    const releaseStatus = String(formData.get("releaseStatus") || "").trim();
     const providedLyrics = String(formData.get("lyrics") || "").trim();
     const file = formData.get("songFile") as File | null;
 
