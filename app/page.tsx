@@ -94,6 +94,7 @@ export default function Home() {
   artistName: string;
   email: string;
   songTitle: string;
+  songLink: string;
 } | null>(null);
   useEffect(() => {
   if (!report) return;
@@ -169,6 +170,7 @@ export default function Home() {
   artistName: String(formData.get("artistName") || ""),
   email: String(formData.get("email") || ""),
   songTitle: String(formData.get("songTitle") || ""),
+  songLink: String(formData.get("songLink") || ""),
 });
 
     setReport(data.report);
@@ -194,6 +196,7 @@ async function handleBuildMyRolloutClick() {
         artistName: leadInfo.artistName,
         email: leadInfo.email,
         songTitle: leadInfo.songTitle,
+        songLink: leadInfo.songLink,
         ctaClicked: "Yes",
       }),
       keepalive: true,

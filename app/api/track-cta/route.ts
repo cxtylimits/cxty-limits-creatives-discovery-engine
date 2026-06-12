@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         artistName: body.artistName || "",
         email: body.email || "",
         songTitle: body.songTitle || "",
-        songLink: "",
+        songLink: body.songLink || "",
         releaseStatus: "",
         discoveryScore: "",
         discoveryMoment: "",
