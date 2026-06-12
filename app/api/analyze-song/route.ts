@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { get } from "@vercel/blob";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -411,7 +412,32 @@ export async function POST(req: Request) {
     const songLink = String(formData.get("songLink") || "").trim();
     const releaseStatus = String(formData.get("releaseStatus") || "").trim();
     const providedLyrics = String(formData.get("lyrics") || "").trim();
-    const file = formData.get("songFile") as File | null;
+
+const songBlobPathname = String(
+  formData.get("songBlobPathname") || ""
+).trim();
+
+const songFileName = String(formData.get("songFileName") || "song.mp3").trim();
+const songFileType = String(formData.get("songFileType") || "audio/mpeg").trim();
+
+let file = formData.get("songFile") as File | null;
+
+if (songBlobPathname) {
+  const result = await get(songBlobPathname, { access: "private" });
+
+  if (result?.statusCode !== 200 || !result.stream) {
+    return NextResponse.json(
+      { error: "We could not access the uploaded song file. Please try again." },
+      { status: 400 }
+    );
+  }
+
+  const audioBlob = await new Response(result.stream).blob();
+
+  file = new File([audioBlob], songFileName, {
+    type: result.blob.contentType || songFileType || "audio/mpeg",
+  });
+}
 
     if (!artistName || !email || !file) {
       return NextResponse.json(
@@ -423,7 +449,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const maxFileSize = 25 * 1024 * 1024;
+    const maxFileSize = 50 * 1024 * 1024;
 
     if (file.size > maxFileSize) {
       return NextResponse.json(
