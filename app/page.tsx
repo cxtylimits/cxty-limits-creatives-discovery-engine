@@ -88,9 +88,9 @@ export default function Home() {
     document.body.scrollTop = 0;
   };
 
-  const firstScroll = setTimeout(scrollToTop, 50);
-  const secondScroll = setTimeout(scrollToTop, 300);
-  const thirdScroll = setTimeout(scrollToTop, 800);
+  const firstScroll = setTimeout(scrollToTop, 100);
+  const secondScroll = setTimeout(scrollToTop, 400);
+  const thirdScroll = setTimeout(scrollToTop, 900);
 
   return () => {
     clearTimeout(firstScroll);
@@ -199,7 +199,7 @@ export default function Home() {
             name="songFile"
             required
             type="file"
-            accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+            accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"
             className="file-input"
           />
 
