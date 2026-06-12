@@ -439,48 +439,47 @@ if (songBlobPathname) {
   });
 }
 
-    if (!artistName || !email || !file) {
-      return NextResponse.json(
-        {
-          error:
-            "Please add your artist name, email, and upload the song file. Song links are optional context only.",
-        },
-        { status: 400 }
-      );
-    }
+    if (!artistName || !email || (!file && !songLink)) {
+  return NextResponse.json(
+    {
+      error: "Please add your artist name, email, and upload a song or paste a song link.",
+    },
+    { status: 400 }
+  );
+}
 
-    const maxFileSize = 50 * 1024 * 1024;
+   let transcript = "";
+let lyricsToAnalyze = providedLyrics;
+let lyricsSource = providedLyrics
+  ? "artist-provided lyrics"
+  : file
+    ? "AI transcription from uploaded audio"
+    : "song link context only";
 
-    if (file.size > maxFileSize) {
-      return NextResponse.json(
-        { error: "File is too large. Please upload a song under 25MB." },
-        { status: 400 }
-      );
-    }
+if (file) {
+  const maxFileSize = 50 * 1024 * 1024;
 
-    const transcription = await openai.audio.transcriptions.create({
-      file,
-      model: "gpt-4o-transcribe",
-      prompt:
-        "This is a song. Transcribe the vocals as accurately as possible. Preserve repeated hooks, chorus lines, ad-libs, slang, emotional phrasing, and unusual lyric choices. Do not summarize. Do not rewrite. If words are unclear, transcribe the most likely lyric without inventing extra lines.",
-    });
+  if (file.size > maxFileSize) {
+    return NextResponse.json(
+      { error: "File is too large. Please upload a song under 50MB." },
+      { status: 400 }
+    );
+  }
 
-    const transcript = transcription.text || "";
-    const lyricsToAnalyze = providedLyrics || transcript;
+  const transcription = await openai.audio.transcriptions.create({
+    file,
+    model: "gpt-4o-transcribe",
+    prompt:
+      "This is a song. Transcribe the vocals as accurately as possible. Preserve repeated hooks, chorus lines, ad-libs, slang, emotional phrasing, and unusual lyric choices. Do not summarize. Do not rewrite. If words are unclear, transcribe the most likely lyric without inventing extra lines.",
+  });
 
-    const lyricsSource = providedLyrics
-      ? "artist-provided lyrics"
-      : "AI transcription from uploaded audio";
+  transcript = transcription.text || "";
+  lyricsToAnalyze = providedLyrics || transcript;
+}
 
-    if (!lyricsToAnalyze) {
-      return NextResponse.json(
-        {
-          error:
-            "We could not detect lyrics from the upload. Please paste the lyrics and try again.",
-        },
-        { status: 400 }
-      );
-    }
+if (!lyricsToAnalyze && songLink) {
+  lyricsToAnalyze = `No lyrics were provided. Analyze cautiously using only this song link/context: ${songLink}`;
+}
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",

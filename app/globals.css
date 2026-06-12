@@ -375,9 +375,7 @@ body {
   padding: 30px;
 }
 
-.mobile-early-cta {
-  display: none;
-}
+
 
 .cta-title {
   font-size: clamp(30px, 6vw, 38px);
@@ -510,9 +508,7 @@ body {
     font-size: 22px;
   }
 
-  .mobile-early-cta {
-  display: none;
-}
+
 
  .desktop-bottom-cta {
   display: block;
