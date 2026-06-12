@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 
 type SpotifyArtist = {
   name: string;
@@ -522,40 +523,56 @@ export default function Home() {
   const [error, setError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  event.preventDefault();
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      const form = event.currentTarget;
-      const formData = new FormData(form);
+  try {
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
-      const response = await fetch("/api/analyze-song", {
-        method: "POST",
-        body: formData,
-      });
+    const songFile = formData.get("songFile") as File | null;
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong.");
-      }
-
-      setTranscript(data.transcript || "");
-      setLyricsSource(data.lyricsSource || "");
-      setReport(data.report);
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Something went wrong analyzing the song.";
-
-      setError(message);
-    } finally {
-      setLoading(false);
+    if (!songFile) {
+      throw new Error("Please upload a song file.");
     }
+
+    const uploadedSong = await upload(songFile.name, songFile, {
+      access: "private",
+      handleUploadUrl: "/api/upload-song",
+    });
+
+    formData.delete("songFile");
+    formData.append("songBlobPathname", uploadedSong.pathname);
+    formData.append("songFileName", songFile.name);
+    formData.append("songFileType", songFile.type || "audio/mpeg");
+
+    const response = await fetch("/api/analyze-song", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong.");
+    }
+
+    setTranscript(data.transcript || "");
+    setLyricsSource(data.lyricsSource || "");
+    setReport(data.report);
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Something went wrong analyzing the song.";
+
+    setError(message);
+  } finally {
+    setLoading(false);
   }
+}
 
   if (report) {
     return (
@@ -668,7 +685,7 @@ export default function Home() {
           {error && <div className="error-box">{error}</div>}
 
           <button className="submit-button" type="submit" disabled={loading}>
-            {loading ? "Analyzing Song..." : "Analyze My Song"}
+            {loading ? "Uploading & Analyzing Song..." : "Analyze My Song"}
           </button>
 
           <p className="micro-copy">
