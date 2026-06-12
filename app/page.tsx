@@ -172,7 +172,32 @@ export default function Home() {
   songTitle: String(formData.get("songTitle") || ""),
   songLink: String(formData.get("songLink") || ""),
 });
-
+fetch("/api/track-cta", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    eventType: "submission",
+    artistName: String(formData.get("artistName") || ""),
+    email: String(formData.get("email") || ""),
+    songTitle: String(formData.get("songTitle") || ""),
+    songLink: String(formData.get("songLink") || ""),
+    releaseStatus: String(formData.get("releaseStatus") || ""),
+    discoveryScore: data.report?.discoveryScore || "",
+    discoveryMoment: data.report?.discoveryMoment || "",
+    artistArchetype: data.report?.artistArchetype || "",
+    rolloutType: data.report?.rolloutType || "",
+    mostShareableLyric: data.report?.mostShareableLyric || "",
+    fanbaseMatchArtists: Array.isArray(data.report?.fanbaseMatchArtists)
+      ? data.report.fanbaseMatchArtists.join(", ")
+      : data.report?.fanbaseMatchArtists || "",
+    ifReleasedToday: data.report?.ifReleasedToday || "",
+    futureRolloutPrediction: data.report?.futureRolloutPrediction || "",
+  }),
+}).catch((error) => {
+  console.error("Submission tracking failed:", error);
+});
     setReport(data.report);
   } catch (err) {
     const message =

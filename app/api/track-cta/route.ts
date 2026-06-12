@@ -34,37 +34,42 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    const eventType =
+      body.eventType === "submission" ? "submission" : "cta_click";
+
+    const ctaClicked = eventType === "submission" ? "No" : "Yes";
+
     await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        eventType: "cta_click",
+        eventType,
         date: new Date().toISOString(),
         artistName: body.artistName || "",
         email: body.email || "",
         songTitle: body.songTitle || "",
         songLink: body.songLink || "",
-        releaseStatus: "",
-        discoveryScore: "",
-        discoveryMoment: "",
-        artistArchetype: "",
-        rolloutType: "",
-        mostShareableLyric: "",
-        fanbaseMatchArtists: "",
-        ifReleasedToday: "",
-        futureRolloutPrediction: "",
-        ctaClicked: "Yes",
+        releaseStatus: body.releaseStatus || "",
+        discoveryScore: body.discoveryScore || "",
+        discoveryMoment: body.discoveryMoment || "",
+        artistArchetype: body.artistArchetype || "",
+        rolloutType: body.rolloutType || "",
+        mostShareableLyric: body.mostShareableLyric || "",
+        fanbaseMatchArtists: body.fanbaseMatchArtists || "",
+        ifReleasedToday: body.ifReleasedToday || "",
+        futureRolloutPrediction: body.futureRolloutPrediction || "",
+        ctaClicked,
       }),
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, eventType, ctaClicked });
   } catch (error) {
-    console.error("CTA tracking failed:", error);
+    console.error("Lead tracking failed:", error);
 
     return NextResponse.json(
-      { error: "CTA tracking failed." },
+      { error: "Lead tracking failed." },
       { status: 500 }
     );
   }
