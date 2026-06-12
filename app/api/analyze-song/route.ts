@@ -530,9 +530,9 @@ export async function POST(req: Request) {
       ctaClicked: "No",
     };
 
-    sendLeadToWebhook(leadPayload).catch((error) => {
-      console.error("Lead webhook background error:", error);
-    });
+  // sendLeadToWebhook(leadPayload).catch((error) => {
+//   console.error("Lead webhook background error:", error);
+// });
 
     return NextResponse.json({
       transcript,
