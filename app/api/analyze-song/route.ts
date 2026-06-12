@@ -186,53 +186,63 @@ async function getSpotifyAccessToken() {
 
   if (!clientId || !clientSecret) return null;
 
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      Authorization:
-        "Basic " +
-        Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
+  try {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        Authorization:
+          "Basic " +
+          Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "grant_type=client_credentials",
+    });
 
-  if (!response.ok) {
-    console.error("Spotify token error:", await response.text());
+    if (!response.ok) {
+      console.error("Spotify token error:", await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    return data.access_token as string;
+  } catch (error) {
+    console.error("Spotify token request failed:", error);
     return null;
   }
-
-  const data = await response.json();
-  return data.access_token as string;
 }
 
 async function searchSpotifyArtist(
   token: string,
   artistName: string
 ): Promise<SpotifyArtist | null> {
-  const query = encodeURIComponent(artistName);
+  try {
+    const query = encodeURIComponent(artistName);
 
-  const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?q=${query}&type=artist&limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-  if (!response.ok) return null;
+    if (!response.ok) return null;
 
-  const data = await response.json();
-  const artist = data?.artists?.items?.[0];
+    const data = await response.json();
+    const artist = data?.artists?.items?.[0];
 
-  if (!artist) return null;
+    if (!artist) return null;
 
-  return {
-    name: artist.name,
-    image: artist.images?.[0]?.url || "",
-    url: artist.external_urls?.spotify || "",
-  };
+    return {
+      name: artist.name,
+      image: artist.images?.[0]?.url || "",
+      url: artist.external_urls?.spotify || "",
+    };
+  } catch (error) {
+    console.error("Spotify artist search failed:", error);
+    return null;
+  }
 }
 
 function parseSongArtist(value: string) {
@@ -255,34 +265,39 @@ async function searchSpotifyTrack(
   token: string,
   songValue: string
 ): Promise<SpotifyTrack | null> {
-  const parsed = parseSongArtist(songValue);
+  try {
+    const parsed = parseSongArtist(songValue);
 
-  const query = parsed.artist
-    ? encodeURIComponent(`track:${parsed.song} artist:${parsed.artist}`)
-    : encodeURIComponent(parsed.song);
+    const query = parsed.artist
+      ? encodeURIComponent(`track:${parsed.song} artist:${parsed.artist}`)
+      : encodeURIComponent(parsed.song);
 
-  const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${query}&type=track&limit=1`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?q=${query}&type=track&limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-  if (!response.ok) return null;
+    if (!response.ok) return null;
 
-  const data = await response.json();
-  const track = data?.tracks?.items?.[0];
+    const data = await response.json();
+    const track = data?.tracks?.items?.[0];
 
-  if (!track) return null;
+    if (!track) return null;
 
-  return {
-    name: track.name,
-    artist: track.artists?.[0]?.name || "",
-    image: track.album?.images?.[0]?.url || "",
-    url: track.external_urls?.spotify || "",
-  };
+    return {
+      name: track.name,
+      artist: track.artists?.[0]?.name || "",
+      image: track.album?.images?.[0]?.url || "",
+      url: track.external_urls?.spotify || "",
+    };
+  } catch (error) {
+    console.error("Spotify track search failed:", error);
+    return null;
+  }
 }
 
 async function enrichWithSpotify(report: any) {
@@ -300,15 +315,15 @@ async function enrichWithSpotify(report: any) {
     const similarSongs = report?.fanbaseMatch?.similarSongs || [];
 
     const artists = await Promise.all(
-      closestArtists.slice(0, 3).map((artist: string) =>
-        searchSpotifyArtist(token, artist)
-      )
+      closestArtists
+        .slice(0, 3)
+        .map((artist: string) => searchSpotifyArtist(token, artist))
     );
 
     const tracks = await Promise.all(
-      similarSongs.slice(0, 3).map((track: string) =>
-        searchSpotifyTrack(token, track)
-      )
+      similarSongs
+        .slice(0, 3)
+        .map((track: string) => searchSpotifyTrack(token, track))
     );
 
     return {
@@ -322,6 +337,29 @@ async function enrichWithSpotify(report: any) {
       artists: [],
       tracks: [],
     };
+  }
+}
+
+function getSafeWebhookUrl() {
+  const rawUrl = process.env.DISCOVERY_LEADS_WEBHOOK_URL;
+
+  if (!rawUrl) return null;
+
+  const url = rawUrl.trim();
+
+  if (!url.startsWith("https://")) {
+    console.error(
+      "DISCOVERY_LEADS_WEBHOOK_URL is missing or invalid. It must start with https://"
+    );
+    return null;
+  }
+
+  try {
+    new URL(url);
+    return url;
+  } catch (error) {
+    console.error("Invalid DISCOVERY_LEADS_WEBHOOK_URL:", error);
+    return null;
   }
 }
 
@@ -342,18 +380,22 @@ async function sendLeadToWebhook(data: {
   futureRolloutPrediction: string;
   ctaClicked: string;
 }) {
-  const webhookUrl = process.env.DISCOVERY_LEADS_WEBHOOK_URL;
+  const webhookUrl = getSafeWebhookUrl();
 
   if (!webhookUrl) return;
 
   try {
-    await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
+
+    if (!response.ok) {
+      console.error("Lead webhook returned error:", await response.text());
+    }
   } catch (error) {
     console.error("Lead webhook failed:", error);
   }
@@ -468,7 +510,7 @@ export async function POST(req: Request) {
             .filter(Boolean)
             .join(" ");
 
-    await sendLeadToWebhook({
+    const leadPayload = {
       date: new Date().toISOString(),
       artistName,
       email,
@@ -486,6 +528,10 @@ export async function POST(req: Request) {
       futureRolloutPrediction:
         report?.strategy?.futureRolloutPrediction || "",
       ctaClicked: "No",
+    };
+
+    sendLeadToWebhook(leadPayload).catch((error) => {
+      console.error("Lead webhook background error:", error);
     });
 
     return NextResponse.json({
@@ -494,7 +540,7 @@ export async function POST(req: Request) {
       report: enrichedReport,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Analyze song route failed:", error);
 
     return NextResponse.json(
       { error: "Something went wrong analyzing the song." },
