@@ -80,24 +80,24 @@ export default function Home() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!report) return;
+  if (!report) return;
 
-    const scrollToTop = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
 
-      window.parent.postMessage({ type: "CXTY_SCROLL_TO_TOP" }, "*");
-    };
+  const firstScroll = setTimeout(scrollToTop, 50);
+  const secondScroll = setTimeout(scrollToTop, 300);
+  const thirdScroll = setTimeout(scrollToTop, 800);
 
-    const firstScroll = setTimeout(scrollToTop, 50);
-    const secondScroll = setTimeout(scrollToTop, 300);
-
-    return () => {
-      clearTimeout(firstScroll);
-      clearTimeout(secondScroll);
-    };
-  }, [report]);
+  return () => {
+    clearTimeout(firstScroll);
+    clearTimeout(secondScroll);
+    clearTimeout(thirdScroll);
+  };
+}, [report]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
