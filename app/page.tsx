@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 
 type Report = {
   evidence: {
@@ -80,33 +81,59 @@ export default function Home() {
   const [error, setError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-    setReport(null);
+  event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await fetch("/api/analyze-song", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
-      const data = await response.json();
+    const songFile = formData.get("songFile") as File | null;
 
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong.");
-      }
-
-      setReport(data.report);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+    if (!songFile) {
+      throw new Error("Please upload a song file.");
     }
+
+    const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const uploadPath = `songs/${Date.now()}-${safeFileName}`;
+
+    const uploadedSong = await upload(uploadPath, songFile, {
+      access: "private",
+      handleUploadUrl: "/api/upload-song",
+    });
+
+    formData.delete("songFile");
+    formData.append("songBlobPathname", uploadedSong.pathname);
+    formData.append("songFileName", songFile.name);
+    formData.append("songFileType", songFile.type || "audio/mpeg");
+
+    const response = await fetch("/api/analyze-song", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong.");
+    }
+
+    setTranscript(data.transcript || "");
+    setLyricsSource(data.lyricsSource || "");
+    setReport(data.report);
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Something went wrong analyzing the song.";
+
+    setError(message);
+  } finally {
+    setLoading(false);
   }
+}
 
   if (report) {
     return <ReportView report={report} onReset={() => setReport(null)} />;
