@@ -21,7 +21,62 @@ type SpotifyTrack = {
   artist: string;
   image: string;
   url: string;
+  album?: string;
+  releaseDate?: string;
+  popularity?: number;
 };
+
+function getSpotifyTrackIdFromUrl(songLink: string) {
+  try {
+    const url = new URL(songLink);
+    const parts = url.pathname.split("/").filter(Boolean);
+
+    if (
+      url.hostname.includes("spotify.com") &&
+      parts[0] === "track" &&
+      parts[1]
+    ) {
+      return parts[1];
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function getSpotifyTrackById(
+  token: string,
+  trackId: string
+): Promise<SpotifyTrack | null> {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/tracks/${trackId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const track = await response.json();
+
+    return {
+      name: track.name || "",
+      artist: track.artists?.map((artist: any) => artist.name).join(", ") || "",
+      image: track.album?.images?.[0]?.url || "",
+      url: track.external_urls?.spotify || "",
+      album: track.album?.name || "",
+      releaseDate: track.album?.release_date || "",
+      popularity: track.popularity,
+    };
+  } catch (error) {
+    console.error("Spotify track lookup failed:", error);
+    return null;
+  }
+}
 
 function buildDiscoveryPrompt(data: {
   artistName: string;
@@ -30,6 +85,7 @@ function buildDiscoveryPrompt(data: {
   releaseStatus: string;
   lyrics: string;
   lyricsSource: string;
+  spotifyTrack?: SpotifyTrack | null;
 }) {
   return `
 You are an elite A&R strategist, creative director, rollout strategist, and music psychologist working for CXTY LIMITS CREATIVES.
@@ -46,6 +102,24 @@ ${data.songTitle || "Not provided"}
 
 Song Link Context:
 ${data.songLink || "Not provided"}
+
+Spotify Track Metadata:
+${
+  data.spotifyTrack
+    ? `
+Track: ${data.spotifyTrack.name}
+Artist: ${data.spotifyTrack.artist}
+Album: ${data.spotifyTrack.album || "Not provided"}
+Release Date: ${data.spotifyTrack.releaseDate || "Not provided"}
+Spotify Popularity: ${
+        typeof data.spotifyTrack.popularity === "number"
+          ? data.spotifyTrack.popularity
+          : "Not provided"
+      }
+Spotify URL: ${data.spotifyTrack.url}
+`
+    : "No Spotify track metadata available."
+}
 
 Release Status:
 ${data.releaseStatus || "Not provided"}
@@ -413,6 +487,18 @@ export async function POST(req: Request) {
     const releaseStatus = String(formData.get("releaseStatus") || "").trim();
     const providedLyrics = String(formData.get("lyrics") || "").trim();
 
+let spotifyTrack: SpotifyTrack | null = null;
+
+const spotifyTrackId = getSpotifyTrackIdFromUrl(songLink);
+
+if (spotifyTrackId) {
+  const spotifyToken = await getSpotifyAccessToken();
+
+  if (spotifyToken) {
+    spotifyTrack = await getSpotifyTrackById(spotifyToken, spotifyTrackId);
+  }
+}
+
 const songBlobPathname = String(
   formData.get("songBlobPathname") || ""
 ).trim();
@@ -498,6 +584,7 @@ if (!lyricsToAnalyze && songLink) {
             releaseStatus,
             lyrics: lyricsToAnalyze,
             lyricsSource,
+            spotifyTrack,
           }),
         },
       ],
@@ -518,10 +605,13 @@ if (!lyricsToAnalyze && songLink) {
 
     const spotify = await enrichWithSpotify(report);
 
-    const enrichedReport = {
-      ...report,
-      spotify,
-    };
+const enrichedReport = {
+  ...report,
+  spotify: {
+    ...spotify,
+    submittedTrack: spotifyTrack,
+  },
+};
 
     const prediction = report?.strategy?.ifReleasedToday;
     const predictionText =
