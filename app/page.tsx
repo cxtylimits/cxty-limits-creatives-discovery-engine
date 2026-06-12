@@ -100,7 +100,13 @@ export default function Home() {
       }
 
       setReport(data.report);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+setTimeout(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}, 150);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     } finally {
