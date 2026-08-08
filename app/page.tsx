@@ -177,11 +177,30 @@ export default function Home() {
         inline: "nearest",
       });
 
+      if (window.matchMedia("(max-width: 640px)").matches) {
+        const focusTarget =
+          mobileStep === 1
+            ? (activeSlide.querySelector(
+                'input[name="artistName"]'
+              ) as HTMLInputElement | null)
+            : mobileStep === 2
+            ? (activeSlide.querySelector(
+                'textarea[name="lyrics"]'
+              ) as HTMLTextAreaElement | null)
+            : null;
+
+        /*
+        Focus only after the panel has moved. preventScroll keeps Safari from
+        undoing our controlled snap and jumping the document somewhere else.
+        */
+        focusTarget?.focus({ preventScroll: true });
+      }
+
       window.parent.postMessage(
         { type: "CXTY_DISCOVERY_ACTIVE_STEP" },
         "*"
       );
-    }, 120);
+    }, 180);
 
     return () => window.clearTimeout(timer);
   }, [mobileStep, report]);
