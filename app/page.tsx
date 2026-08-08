@@ -87,6 +87,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
+  const [mobileStep, setMobileStep] = useState(0);
   const [leadInfo, setLeadInfo] = useState<{
     artistName: string;
     email: string;
@@ -160,6 +161,50 @@ export default function Home() {
       window.clearTimeout(thirdScroll);
     };
   }, [report]);
+
+  function goToMobileStep(
+    form: HTMLFormElement,
+    nextStep: number
+  ) {
+    setError("");
+
+    if (nextStep > mobileStep) {
+      const formData = new FormData(form);
+
+      if (mobileStep === 0) {
+        const songFile = formData.get("songFile") as File | null;
+        const songLink = String(formData.get("songLink") || "").trim();
+
+        if ((!songFile || songFile.size === 0) && !songLink) {
+          setError("Upload a track or paste a song link to continue.");
+          return;
+        }
+      }
+
+      if (mobileStep === 1) {
+        const artistName = String(formData.get("artistName") || "").trim();
+        const email = String(formData.get("email") || "").trim();
+
+        if (!artistName || !email) {
+          setError("Add your artist name and email to continue.");
+          return;
+        }
+      }
+    }
+
+    setMobileStep(Math.max(0, Math.min(2, nextStep)));
+  }
+
+  function handleMobileStepClick(
+    event: React.MouseEvent<HTMLButtonElement>,
+    nextStep: number
+  ) {
+    const form = event.currentTarget.closest("form");
+
+    if (!form) return;
+
+    goToMobileStep(form, nextStep);
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -288,7 +333,10 @@ export default function Home() {
     return (
       <ReportView
         report={report}
-        onReset={() => setReport(null)}
+        onReset={() => {
+          setReport(null);
+          setMobileStep(0);
+        }}
         onBuildMyRolloutClick={handleBuildMyRolloutClick}
       />
     );
@@ -341,7 +389,23 @@ export default function Home() {
               <span className="composer-step">01</span>
             </div>
 
-            <div className="track-source track-source-hero">
+            <div className="mobile-intake-progress" aria-label="Analysis setup progress">
+              {["Track", "Details", "Context"].map((label, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={index === mobileStep ? "active" : index < mobileStep ? "complete" : ""}
+                  onClick={(event) => handleMobileStepClick(event, index)}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <b>{label}</b>
+                  <i />
+                </button>
+              ))}
+            </div>
+
+            <div className={`mobile-intake-slide ${mobileStep === 0 ? "active" : ""}`}>
+              <div className="track-source track-source-hero">
               <div className="track-source-head">
                 <div>
                   <span className="composer-label live-red">Track source</span>
@@ -385,9 +449,21 @@ export default function Home() {
                 Links are used for context only and may be less accurate. For
                 Spotify links, add lyrics or key context for a stronger report.
               </p>
+              </div>
+
+              <div className="mobile-step-actions">
+                <span>01 / 03</span>
+                <button
+                  type="button"
+                  onClick={(event) => handleMobileStepClick(event, 1)}
+                >
+                  Continue <b>→</b>
+                </button>
+              </div>
             </div>
 
-            <div className="session-meta">
+            <div className={`mobile-intake-slide ${mobileStep === 1 ? "active" : ""}`}>
+              <div className="session-meta">
               <div className="session-meta-head">
                 <span className="composer-label">Session details</span>
                 <span>Required metadata</span>
@@ -440,9 +516,28 @@ export default function Home() {
                   </select>
                 </label>
               </div>
+              </div>
+
+              <div className="mobile-step-actions split">
+                <button
+                  type="button"
+                  className="back"
+                  onClick={(event) => handleMobileStepClick(event, 0)}
+                >
+                  ← Back
+                </button>
+                <span>02 / 03</span>
+                <button
+                  type="button"
+                  onClick={(event) => handleMobileStepClick(event, 2)}
+                >
+                  Continue <b>→</b>
+                </button>
+              </div>
             </div>
 
-            <label className="lyrics-shell">
+            <div className={`mobile-intake-slide ${mobileStep === 2 ? "active" : ""}`}>
+              <label className="lyrics-shell">
               <span>Lyrics / context</span>
               <textarea
                 name="lyrics"
@@ -469,9 +564,21 @@ export default function Home() {
               </button>
             </div>
 
+            <div className="mobile-step-actions final">
+              <button
+                type="button"
+                className="back"
+                onClick={(event) => handleMobileStepClick(event, 1)}
+              >
+                ← Back
+              </button>
+              <span>03 / 03</span>
+            </div>
+
             {loading && <AnalysisLoader />}
 
             {error && <p className="engine-error">{error}</p>}
+            </div>
           </form>
         </div>
       </section>
