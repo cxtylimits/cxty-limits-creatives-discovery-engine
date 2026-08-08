@@ -137,6 +137,7 @@ export default function Home() {
           {
             type: "CXTY_DISCOVERY_HEIGHT",
             height,
+            mode: report ? "report" : "intake",
           },
           "*"
         );
@@ -184,6 +185,29 @@ export default function Home() {
       window.clearTimeout(thirdScroll);
     };
   }, [report]);
+
+  function handleFieldFocus(
+    event: React.FocusEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
+    const field = event.currentTarget;
+
+    window.setTimeout(() => {
+      field.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_FOCUS_FIELD",
+        },
+        "*"
+      );
+    }, 120);
+  }
 
   function handleSongFileChange(
     event: React.ChangeEvent<HTMLInputElement>
@@ -238,6 +262,15 @@ export default function Home() {
     }
 
     setMobileStep(Math.max(0, Math.min(2, nextStep)));
+
+    window.setTimeout(() => {
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_STEP_CHANGED",
+        },
+        "*"
+      );
+    }, 80);
   }
 
   function handleMobileStepClick(
@@ -608,6 +641,7 @@ export default function Home() {
                     name="songLink"
                     placeholder="Spotify, YouTube, or SoundCloud"
                     className="composer-input composer-link"
+                    onFocus={handleFieldFocus}
                   />
                 </label>
               </div>
@@ -710,6 +744,7 @@ export default function Home() {
                 name="lyrics"
                 placeholder="Optional — paste lyrics or add context for a more accurate analysis."
                 className="composer-textarea"
+                onFocus={handleFieldFocus}
               />
             </label>
 
@@ -880,9 +915,14 @@ function ReportView({
       id: "overview",
       label: "Overview",
       eyebrow: "The discovery moment",
-      title: report.strategy.discoveryMoment,
+      title: "Why this song connects.",
       content: (
         <div className="report-dashboard-grid">
+          <div className="report-moment-card">
+            <span>Core discovery moment</span>
+            <strong>{report.strategy.discoveryMoment}</strong>
+          </div>
+
           <div className="report-primary-score">
             <span>Discovery score</span>
             <strong>{report.scores.discoveryScore}</strong>
