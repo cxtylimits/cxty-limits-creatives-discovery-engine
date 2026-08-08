@@ -1528,3 +1528,279 @@ Functional plumbing untouched.
     animation: none !important;
   }
 }
+
+
+/* =========================================================
+DISCOVERY ENGINE — MOBILE INTAKE CAROUSEL V1
+Desktop remains the full workspace. Mobile becomes a guided 3-step flow.
+========================================================= */
+
+.mobile-intake-progress,
+.mobile-step-actions {
+  display: none;
+}
+
+.mobile-intake-slide {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  .composer-panel {
+    overflow: hidden;
+  }
+
+  .composer-header {
+    padding-bottom: 15px;
+  }
+
+  .composer-header .composer-step {
+    display: none;
+  }
+
+  .mobile-intake-progress {
+    margin: 14px -2px 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .mobile-intake-progress button {
+    position: relative;
+    min-width: 0;
+    padding: 8px 3px 13px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 5px;
+    border: 0;
+    background: transparent;
+    color: #535a65;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .mobile-intake-progress button span {
+    font-size: 7px;
+    font-weight: 500;
+  }
+
+  .mobile-intake-progress button b {
+    overflow: hidden;
+    color: inherit;
+    font-size: 8px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-intake-progress button i {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    height: 1px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .mobile-intake-progress button i::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: var(--cxty-red);
+    box-shadow: 0 0 9px rgba(255, 59, 48, 0.24);
+    transition: transform 0.28s ease;
+  }
+
+  .mobile-intake-progress button.active,
+  .mobile-intake-progress button.complete {
+    color: #d3d5d9;
+  }
+
+  .mobile-intake-progress button.active span,
+  .mobile-intake-progress button.complete span {
+    color: var(--cxty-red);
+  }
+
+  .mobile-intake-progress button.active i::after,
+  .mobile-intake-progress button.complete i::after {
+    transform: scaleX(1);
+  }
+
+  .mobile-intake-slide {
+    width: 100%;
+    display: none;
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  .mobile-intake-slide.active {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+    animation: cxtyMobileStepIn 0.34s cubic-bezier(.22,.78,.28,1) both;
+  }
+
+  @keyframes cxtyMobileStepIn {
+    from {
+      opacity: 0;
+      transform: translateX(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .track-source-hero {
+    margin-top: 10px;
+  }
+
+  .source-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .upload-shell {
+    min-height: 132px;
+  }
+
+  .link-shell-hero {
+    min-height: 88px;
+  }
+
+  .session-meta {
+    margin-top: 10px;
+    padding: 15px;
+  }
+
+  .session-meta .composer-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .session-meta .composer-input {
+    min-height: 50px;
+    font-size: 14px;
+  }
+
+  .lyrics-shell {
+    margin-top: 12px;
+  }
+
+  .lyrics-shell .composer-textarea {
+    min-height: 155px;
+    max-height: 220px;
+  }
+
+  .mobile-step-actions {
+    min-height: 58px;
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-step-actions.split {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .mobile-step-actions.final {
+    grid-template-columns: auto 1fr;
+  }
+
+  .mobile-step-actions > span {
+    color: #555c66;
+    font-size: 8px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .mobile-step-actions.split > span,
+  .mobile-step-actions.final > span {
+    text-align: center;
+  }
+
+  .mobile-step-actions button {
+    min-height: 46px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 12px;
+    background: #f5f5f2;
+    color: #111216;
+    font-size: 9px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:
+      0 12px 28px rgba(0,0,0,.18),
+      0 0 0 rgba(255,255,255,0);
+    animation: cxtyMobileContinuePulse 4.2s ease-in-out infinite;
+  }
+
+  .mobile-step-actions button b {
+    color: var(--cxty-red);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .mobile-step-actions button.back {
+    padding: 0 11px;
+    background: transparent;
+    color: #737a84;
+    border-color: rgba(255,255,255,.08);
+    box-shadow: none;
+    animation: none;
+  }
+
+  @keyframes cxtyMobileContinuePulse {
+    0%, 68%, 100% {
+      filter: brightness(1);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,.18),
+        0 0 0 rgba(255,255,255,0);
+    }
+    80% {
+      filter: brightness(1.04);
+      box-shadow:
+        0 14px 32px rgba(0,0,0,.20),
+        0 0 14px rgba(255,255,255,.10);
+    }
+  }
+
+  .composer-actions {
+    margin-top: 16px;
+  }
+
+  .composer-actions .analyze-button {
+    min-height: 54px;
+  }
+
+  /* On mobile, errors belong to the active step and remain visible. */
+  .engine-error {
+    margin-top: 10px;
+    padding: 10px 11px;
+    border: 1px solid rgba(255, 122, 114, 0.15);
+    border-radius: 10px;
+    background: rgba(255, 122, 114, 0.035);
+  }
+
+  /* Keep the whole embedded intake short enough that Squarespace does not feel endless. */
+  .engine-grid {
+    padding-bottom: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-intake-slide.active,
+  .mobile-step-actions button {
+    animation: none !important;
+  }
+}
