@@ -3223,3 +3223,241 @@ Replaces dead black space with a restrained live intelligence visual.
     animation: none !important;
   }
 }
+
+
+/* =========================================================
+DISCOVERY ENGINE — V4.3 STABILITY LOCK
+- Full-width, non-skewed report slides
+- No horizontal page drift
+- Compact mobile form journey
+- Active step / processing stays in focus
+========================================================= */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overscroll-behavior-x: none;
+}
+
+.engine-shell,
+.engine-workspace,
+.report-app,
+.report-layout,
+.report-main,
+.report-track {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* REPORT: remove the previous "peek" layout completely. */
+.report-track {
+  gap: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  scroll-padding-left: 0 !important;
+}
+
+.report-slide {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  margin-right: 0 !important;
+}
+
+.report-slide:last-child {
+  margin-right: 0 !important;
+}
+
+.report-slide-inner {
+  width: calc(100% - 32px) !important;
+  max-width: calc(100% - 32px) !important;
+  margin: 0 16px !important;
+}
+
+/* Make the report feel like one full SaaS workspace, not skinny cards. */
+.report-app {
+  overflow: hidden !important;
+}
+
+.report-layout,
+.report-main {
+  overflow: hidden !important;
+}
+
+.report-slide-content,
+.report-slide-head,
+.report-dashboard-grid,
+.report-three,
+.report-two,
+.report-score-grid,
+.report-audience-layout,
+.report-next-move {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Processing state is a real focus state, not something added below the fold. */
+.processing-panel {
+  scroll-margin-top: 90px;
+  scroll-margin-bottom: 90px;
+}
+
+/* =========================================================
+MOBILE
+========================================================= */
+@media (max-width: 640px) {
+  /*
+  The mobile journey should fit as a guided screen, not a long stacked form.
+  */
+  .engine-grid {
+    padding-top: 18px !important;
+    padding-bottom: 16px !important;
+    gap: 18px !important;
+  }
+
+  .engine-intro {
+    margin-bottom: 0 !important;
+  }
+
+  .composer-panel {
+    padding: 14px !important;
+    border-radius: 15px !important;
+  }
+
+  .mobile-intake-progress {
+    margin-top: 10px !important;
+  }
+
+  .mobile-swipe-hint {
+    min-height: 22px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .mobile-intake-slide.active {
+    scroll-margin-top: 78px;
+    scroll-margin-bottom: 78px;
+  }
+
+  /* Details = compact 2x2 grid. No giant vertical form stack. */
+  .session-meta {
+    padding: 12px !important;
+  }
+
+  .session-meta .composer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .session-meta .field-shell {
+    min-width: 0 !important;
+  }
+
+  .session-meta .composer-input {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 10px !important;
+    font-size: 16px !important;
+  }
+
+  .session-meta-head {
+    margin-bottom: 2px !important;
+  }
+
+  .track-source-hero {
+    padding: 12px !important;
+  }
+
+  .upload-shell {
+    min-height: 102px !important;
+  }
+
+  .link-shell-hero {
+    min-height: 74px !important;
+    padding: 10px !important;
+  }
+
+  .lyrics-shell .composer-textarea {
+    min-height: 118px !important;
+    max-height: 150px !important;
+  }
+
+  .mobile-step-actions {
+    min-height: 48px !important;
+    margin-top: 9px !important;
+  }
+
+  .mobile-step-actions button {
+    min-height: 42px !important;
+  }
+
+  .composer-actions {
+    margin-top: 10px !important;
+  }
+
+  .composer-actions .analyze-button {
+    min-height: 50px !important;
+  }
+
+  .processing-panel {
+    margin-top: 8px !important;
+    scroll-margin-top: 70px;
+    scroll-margin-bottom: 70px;
+  }
+
+  /*
+  REPORT: absolutely full-width slide. No next-card peek, no skew,
+  no accidental horizontal canvas beyond the viewport.
+  */
+  .report-track {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    scroll-padding: 0 !important;
+  }
+
+  .report-slide {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .report-slide-inner {
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    margin: 0 10px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .report-slide-head h1 {
+    max-width: 100% !important;
+    font-size: clamp(24px, 7vw, 31px) !important;
+    line-height: .98 !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .report-explore-hint {
+    justify-content: center !important;
+  }
+
+  .report-dashboard-grid,
+  .report-three,
+  .report-two,
+  .report-score-grid,
+  .report-next-move {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .session-meta .composer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
