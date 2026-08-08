@@ -1144,3 +1144,387 @@ RESPONSIVE
     display: none;
   }
 }
+
+
+/* =========================================================
+DISCOVERY ENGINE — FINAL PRODUCT POLISH V3
+Streamlined intake + restrained "alive LLM" motion.
+Functional plumbing untouched.
+========================================================= */
+
+.live-red {
+  animation: cxtyRedBreath 3.8s ease-in-out infinite;
+}
+
+@keyframes cxtyRedBreath {
+  0%, 100% {
+    color: var(--cxty-red);
+    text-shadow: 0 0 0 rgba(255, 59, 48, 0);
+  }
+  48% {
+    color: #ff5148;
+    text-shadow:
+      0 0 8px rgba(255, 59, 48, 0.26),
+      0 0 20px rgba(255, 59, 48, 0.09);
+  }
+}
+
+/* Give the entire intake more breathing room without making it taller. */
+.engine-grid {
+  grid-template-columns: minmax(340px, 0.82fr) minmax(620px, 1.18fr);
+  gap: clamp(42px, 5vw, 82px);
+  padding-top: 34px;
+  padding-bottom: 38px;
+}
+
+.composer-panel {
+  padding: 22px;
+  background:
+    radial-gradient(circle at 12% 5%, rgba(255, 59, 48, 0.045), transparent 30%),
+    rgba(11, 12, 15, 0.94);
+}
+
+/* Track is now the hero interaction. */
+.track-source-hero {
+  position: relative;
+  margin-top: 18px;
+  padding: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008));
+}
+
+.track-source-hero::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 59, 48, 0.045),
+    0 0 28px rgba(255, 59, 48, 0.025);
+  animation: cxtyTrackAura 4.8s ease-in-out infinite;
+}
+
+@keyframes cxtyTrackAura {
+  0%, 100% {
+    opacity: .35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: 1.18fr .82fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.upload-shell {
+  min-height: 108px;
+  margin-top: 0;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.10);
+  transition:
+    border-color .24s ease,
+    background .24s ease,
+    box-shadow .24s ease,
+    transform .24s ease;
+}
+
+.upload-shell:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.20);
+  background: #0d0e11;
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.18),
+    0 0 22px rgba(255,255,255,.035);
+}
+
+.upload-icon {
+  transition:
+    transform .24s ease,
+    box-shadow .24s ease,
+    filter .24s ease;
+}
+
+.upload-shell:hover .upload-icon {
+  transform: scale(1.04);
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 14px rgba(255,255,255,.12),
+    0 0 26px rgba(255,255,255,.045);
+}
+
+.upload-life {
+  height: 12px;
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: .48;
+}
+
+.upload-life i {
+  width: 2px;
+  height: 4px;
+  border-radius: 999px;
+  background: #fff;
+  transform-origin: center;
+  animation: cxtyUploadWave 1.5s ease-in-out infinite alternate;
+}
+
+.upload-life i:nth-child(2) { animation-delay: .10s; }
+.upload-life i:nth-child(3) { animation-delay: .20s; }
+.upload-life i:nth-child(4) { animation-delay: .30s; }
+.upload-life i:nth-child(5) { animation-delay: .40s; }
+.upload-life i:nth-child(6) { animation-delay: .50s; }
+.upload-life i:nth-child(7) { animation-delay: .60s; }
+.upload-life i:nth-child(8) { animation-delay: .70s; }
+.upload-life i:nth-child(9) { animation-delay: .80s; }
+
+@keyframes cxtyUploadWave {
+  from {
+    transform: scaleY(.55);
+    opacity: .28;
+  }
+  to {
+    transform: scaleY(2.2);
+    opacity: .82;
+  }
+}
+
+.link-shell-hero {
+  min-width: 0;
+  padding: 13px;
+  justify-content: center;
+  border: 1px solid var(--cxty-border-dark);
+  border-radius: 14px;
+  background: #090a0d;
+}
+
+.link-shell-hero .composer-input {
+  margin-top: 4px;
+}
+
+/* Metadata is intentionally quieter and more compact. */
+.session-meta {
+  margin-top: 10px;
+  padding: 13px 14px 14px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 14px;
+  background: rgba(255,255,255,.009);
+}
+
+.session-meta-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.session-meta-head > span:last-child {
+  color: #4f5660;
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.session-meta .composer-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.session-meta .field-shell {
+  gap: 6px;
+}
+
+.session-meta .composer-input {
+  min-height: 42px;
+  padding: 0 11px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+/* Context is secondary, not another hero box. */
+.lyrics-shell {
+  margin-top: 10px;
+}
+
+.lyrics-shell .composer-textarea {
+  min-height: 82px;
+  max-height: 150px;
+  background: rgba(8, 9, 11, 0.82);
+}
+
+/* Soft whole-button light catch. No blade / stripe. */
+.analyze-button {
+  animation: cxtyAnalyzeBreath 4.2s ease-in-out infinite;
+}
+
+@keyframes cxtyAnalyzeBreath {
+  0%, 68%, 100% {
+    box-shadow:
+      0 12px 34px rgba(0,0,0,.22),
+      0 0 0 rgba(255,255,255,0);
+    filter: brightness(1);
+  }
+  80% {
+    box-shadow:
+      0 14px 38px rgba(0,0,0,.24),
+      0 0 15px rgba(255,255,255,.13),
+      0 0 30px rgba(255,255,255,.045);
+    filter: brightness(1.045);
+  }
+  88% {
+    box-shadow:
+      0 12px 34px rgba(0,0,0,.22),
+      0 0 7px rgba(255,255,255,.06);
+    filter: brightness(1.015);
+  }
+}
+
+.analyze-button:disabled {
+  animation: cxtyAnalyzeWorking 1.4s ease-in-out infinite;
+}
+
+@keyframes cxtyAnalyzeWorking {
+  0%, 100% {
+    filter: brightness(.9);
+    box-shadow: 0 12px 34px rgba(0,0,0,.22);
+  }
+  50% {
+    filter: brightness(1.04);
+    box-shadow:
+      0 14px 38px rgba(0,0,0,.24),
+      0 0 18px rgba(255,255,255,.10);
+  }
+}
+
+/* Tiny living line in the composer header. */
+.composer-header {
+  position: relative;
+}
+
+.composer-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,59,48,.78), transparent);
+  transform: translateX(-60px);
+  opacity: 0;
+  animation: cxtyHeaderCurrent 5.8s ease-in-out infinite;
+}
+
+@keyframes cxtyHeaderCurrent {
+  0%, 70% {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+  76% {
+    opacity: .8;
+  }
+  92% {
+    transform: translateX(540px);
+    opacity: .7;
+  }
+  100% {
+    transform: translateX(540px);
+    opacity: 0;
+  }
+}
+
+/* The loader can become more alive without changing analysis logic. */
+.analysis-loader {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.02),
+    0 0 32px rgba(255,59,48,.025);
+}
+
+.analysis-live {
+  animation: cxtyRedBreath 2.2s ease-in-out infinite;
+}
+
+/* Report accent labels retain restrained life. */
+.report-eyebrow,
+.report-final-cta > div:first-child > span {
+  animation: cxtyReportRedBreath 4.4s ease-in-out infinite;
+}
+
+@keyframes cxtyReportRedBreath {
+  0%, 100% {
+    text-shadow: 0 0 0 rgba(255,59,48,0);
+  }
+  50% {
+    text-shadow: 0 0 9px rgba(255,59,48,.19);
+  }
+}
+
+@media (max-width: 1180px) {
+  .engine-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .engine-intro {
+    max-width: 760px;
+  }
+
+  .composer-panel {
+    max-width: none;
+    justify-self: stretch;
+  }
+
+  .session-meta .composer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .source-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .session-meta .composer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .engine-grid {
+    gap: 26px;
+  }
+
+  .track-source-hero {
+    padding: 15px;
+  }
+
+  .upload-shell {
+    min-height: 92px;
+  }
+}
+
+@media (max-width: 430px) {
+  .session-meta .composer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-red,
+  .track-source-hero::before,
+  .upload-life i,
+  .analyze-button,
+  .composer-header::after,
+  .analysis-live,
+  .report-eyebrow,
+  .report-final-cta > div:first-child > span {
+    animation: none !important;
+  }
+}
