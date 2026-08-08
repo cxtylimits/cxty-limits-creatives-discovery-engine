@@ -59,31 +59,28 @@ type Report = {
     finalRecommendation: string;
     cta: string;
   };
-
   spotify?: {
-  submittedTrack?: {
-    name: string;
-    artist: string;
-    image: string;
-    url: string;
-    album?: string;
-    releaseDate?: string;
-    popularity?: number;
-  } | null;
-
-  artists: {
-    name: string;
-    image: string;
-    url: string;
-  }[];
-
-  tracks: {
-    name: string;
-    artist: string;
-    image: string;
-    url: string;
-  }[];
-};
+    submittedTrack?: {
+      name: string;
+      artist: string;
+      image: string;
+      url: string;
+      album?: string;
+      releaseDate?: string;
+      popularity?: number;
+    } | null;
+    artists: {
+      name: string;
+      image: string;
+      url: string;
+    }[];
+    tracks: {
+      name: string;
+      artist: string;
+      image: string;
+      url: string;
+    }[];
+  };
 };
 
 export default function Home() {
@@ -91,262 +88,386 @@ export default function Home() {
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
   const [leadInfo, setLeadInfo] = useState<{
-  artistName: string;
-  email: string;
-  songTitle: string;
-  songLink: string;
-} | null>(null);
-const isSubmittingRef = useRef(false);
+    artistName: string;
+    email: string;
+    songTitle: string;
+    songLink: string;
+  } | null>(null);
+
+  const isSubmittingRef = useRef(false);
+
   useEffect(() => {
-  if (!report) return;
+    if (!report) return;
 
-  const scrollToReportTop = () => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    const scrollToReportTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
 
-    window.parent.postMessage(
-      { type: "CXTY_DISCOVERY_REPORT_READY" },
-      "*"
-    );
-  };
+      window.parent.postMessage(
+        { type: "CXTY_DISCOVERY_REPORT_READY" },
+        "*"
+      );
+    };
 
-  const firstScroll = window.setTimeout(scrollToReportTop, 100);
-  const secondScroll = window.setTimeout(scrollToReportTop, 500);
-  const thirdScroll = window.setTimeout(scrollToReportTop, 1000);
+    const firstScroll = window.setTimeout(scrollToReportTop, 100);
+    const secondScroll = window.setTimeout(scrollToReportTop, 500);
+    const thirdScroll = window.setTimeout(scrollToReportTop, 1000);
 
-  return () => {
-    window.clearTimeout(firstScroll);
-    window.clearTimeout(secondScroll);
-    window.clearTimeout(thirdScroll);
-  };
-}, [report]);
+    return () => {
+      window.clearTimeout(firstScroll);
+      window.clearTimeout(secondScroll);
+      window.clearTimeout(thirdScroll);
+    };
+  }, [report]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-if (isSubmittingRef.current) {
-  return;
-}
+    event.preventDefault();
 
-isSubmittingRef.current = true;
-  setLoading(true);
-  setError("");
+    if (isSubmittingRef.current) return;
 
-  try {
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    isSubmittingRef.current = true;
+    setLoading(true);
+    setError("");
 
-    const songFile = formData.get("songFile") as File | null;
-    const songLink = String(formData.get("songLink") || "").trim();
+    try {
+      const form = event.currentTarget;
+      const formData = new FormData(form);
 
-    if ((!songFile || songFile.size === 0) && !songLink) {
-      throw new Error("Please upload a song or paste a song link.");
-    }
+      const songFile = formData.get("songFile") as File | null;
+      const songLink = String(formData.get("songLink") || "").trim();
 
-    if (songFile && songFile.size > 0) {
-      const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-      const uploadPath = `songs/${Date.now()}-${safeFileName}`;
+      if ((!songFile || songFile.size === 0) && !songLink) {
+        throw new Error("Please upload a song or paste a song link.");
+      }
 
-      const uploadedSong = await upload(uploadPath, songFile, {
-        access: "private",
-        handleUploadUrl: "/api/upload-song",
+      if (songFile && songFile.size > 0) {
+        const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const uploadPath = `songs/${Date.now()}-${safeFileName}`;
+
+        const uploadedSong = await upload(uploadPath, songFile, {
+          access: "private",
+          handleUploadUrl: "/api/upload-song",
+        });
+
+        formData.delete("songFile");
+        formData.append("songBlobPathname", uploadedSong.pathname);
+        formData.append("songFileName", songFile.name);
+        formData.append("songFileType", songFile.type || "audio/mpeg");
+      } else {
+        formData.delete("songFile");
+      }
+
+      const response = await fetch("/api/analyze-song", {
+        method: "POST",
+        body: formData,
       });
 
-      formData.delete("songFile");
-      formData.append("songBlobPathname", uploadedSong.pathname);
-      formData.append("songFileName", songFile.name);
-      formData.append("songFileType", songFile.type || "audio/mpeg");
-    } else {
-      formData.delete("songFile");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+
+      setLeadInfo({
+        artistName: String(formData.get("artistName") || ""),
+        email: String(formData.get("email") || ""),
+        songTitle: String(formData.get("songTitle") || ""),
+        songLink: String(formData.get("songLink") || ""),
+      });
+
+      fetch("/api/track-cta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventType: "submission",
+          artistName: String(formData.get("artistName") || ""),
+          email: String(formData.get("email") || ""),
+          songTitle: String(formData.get("songTitle") || ""),
+          songLink: String(formData.get("songLink") || ""),
+          releaseStatus: String(formData.get("releaseStatus") || ""),
+          discoveryScore: data.report?.scores?.discoveryScore || "",
+          discoveryMoment: data.report?.strategy?.discoveryMoment || "",
+          artistArchetype: data.report?.strategy?.artistArchetype || "",
+          rolloutType: data.report?.strategy?.rolloutType || "",
+          mostShareableLyric: data.report?.evidence?.mostShareableLyric || "",
+          fanbaseMatchArtists: Array.isArray(
+            data.report?.fanbaseMatch?.closestArtists
+          )
+            ? data.report.fanbaseMatch.closestArtists.join(", ")
+            : "",
+          ifReleasedToday: data.report?.strategy?.ifReleasedToday
+            ? `${data.report.strategy.ifReleasedToday.likelyOutcome} ${data.report.strategy.ifReleasedToday.theUnlock} ${data.report.strategy.ifReleasedToday.contentTrigger}`
+            : "",
+          futureRolloutPrediction:
+            data.report?.strategy?.futureRolloutPrediction || "",
+        }),
+      }).catch((trackingError) => {
+        console.error("Submission tracking failed:", trackingError);
+      });
+
+      setReport(data.report);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong analyzing the song.";
+
+      setError(message);
+    } finally {
+      setLoading(false);
+      isSubmittingRef.current = false;
     }
-
-    const response = await fetch("/api/analyze-song", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong.");
-    }
-
-    setLeadInfo({
-  artistName: String(formData.get("artistName") || ""),
-  email: String(formData.get("email") || ""),
-  songTitle: String(formData.get("songTitle") || ""),
-  songLink: String(formData.get("songLink") || ""),
-});
-fetch("/api/track-cta", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-  eventType: "submission",
-  artistName: String(formData.get("artistName") || ""),
-  email: String(formData.get("email") || ""),
-  songTitle: String(formData.get("songTitle") || ""),
-  songLink: String(formData.get("songLink") || ""),
-  releaseStatus: String(formData.get("releaseStatus") || ""),
-
-  discoveryScore: data.report?.scores?.discoveryScore || "",
-  discoveryMoment: data.report?.strategy?.discoveryMoment || "",
-  artistArchetype: data.report?.strategy?.artistArchetype || "",
-  rolloutType: data.report?.strategy?.rolloutType || "",
-  mostShareableLyric: data.report?.evidence?.mostShareableLyric || "",
-
-  fanbaseMatchArtists: Array.isArray(data.report?.fanbaseMatch?.closestArtists)
-    ? data.report.fanbaseMatch.closestArtists.join(", ")
-    : "",
-
-  ifReleasedToday: data.report?.strategy?.ifReleasedToday
-    ? `${data.report.strategy.ifReleasedToday.likelyOutcome} ${data.report.strategy.ifReleasedToday.theUnlock} ${data.report.strategy.ifReleasedToday.contentTrigger}`
-    : "",
-
-  futureRolloutPrediction:
-    data.report?.strategy?.futureRolloutPrediction || "",
-}),
-}).catch((error) => {
-  console.error("Submission tracking failed:", error);
-});
-    setReport(data.report);
-  } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Something went wrong analyzing the song.";
-
-    setError(message);
-  } finally {
-  setLoading(false);
-  isSubmittingRef.current = false;
-}
-}
-async function handleBuildMyRolloutClick() {
-  if (leadInfo) {
-    fetch("/api/track-cta", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        artistName: leadInfo.artistName,
-        email: leadInfo.email,
-        songTitle: leadInfo.songTitle,
-        songLink: leadInfo.songLink,
-        ctaClicked: "Yes",
-      }),
-    }).catch((error) => {
-      console.error("CTA tracking failed:", error);
-    });
   }
 
-  window.open("https://cxtylimits.co/build-my-rollout", "_blank");
-}
+  async function handleBuildMyRolloutClick() {
+    if (leadInfo) {
+      fetch("/api/track-cta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          artistName: leadInfo.artistName,
+          email: leadInfo.email,
+          songTitle: leadInfo.songTitle,
+          songLink: leadInfo.songLink,
+          ctaClicked: "Yes",
+        }),
+      }).catch((trackingError) => {
+        console.error("CTA tracking failed:", trackingError);
+      });
+    }
+
+    window.open("https://cxtylimits.co/build-my-rollout", "_blank");
+  }
+
   if (report) {
     return (
-  <ReportView
-    report={report}
-    onReset={() => setReport(null)}
-    onBuildMyRolloutClick={handleBuildMyRolloutClick}
-  />
-);
+      <ReportView
+        report={report}
+        onReset={() => setReport(null)}
+        onBuildMyRolloutClick={handleBuildMyRolloutClick}
+      />
+    );
   }
 
   return (
-    <main className="page-shell">
-      <section className="container">
-        <p className="brand">CXTY LIMITS CREATIVES</p>
+    <main className="engine-shell">
+      <section className="engine-workspace">
+        <header className="engine-topbar">
+          <div>
+            <p className="product-brand">CXTY LIMITS</p>
+            <p className="product-name">Discovery Engine</p>
+          </div>
 
-        <h1 className="hero-title">DISCOVERY ENGINE</h1>
+          <div className="engine-status">
+            <span />
+            Private session
+          </div>
+        </header>
 
-        <p className="hero-copy">
-          Upload your song and get the story, the angle, and the rollout world
-          that gives it the best chance to be discovered.
-        </p>
+        <div className="engine-grid">
+          <section className="engine-intro">
+            <p className="engine-kicker">Creative intelligence for music</p>
 
-        <p className="support-copy">
-          Built for unreleased songs, new releases, and songs that already came
-          out but still need a stronger discovery strategy.
-        </p>
+            <h1 className="engine-title">
+              What are we
+              <br />
+              discovering?
+            </h1>
 
-        <form onSubmit={handleSubmit} className="form-card">
-          <h2 className="form-title">DROP THE TRACK</h2>
+            <p className="engine-description">
+              Upload a track or paste a song link. Discovery Engine turns the
+              record into a story, audience map, creative angle, and rollout
+              direction.
+            </p>
 
-          <input
-            name="artistName"
-            required
-            placeholder="Artist Name"
-            className="input"
-          />
-
-          <input
-            name="email"
-            required
-            placeholder="Email Address"
-            type="email"
-            className="input"
-          />
-
-          <input
-            name="songTitle"
-            placeholder="Song Title optional"
-            className="input"
-          />
-
-          <select name="releaseStatus" defaultValue="" className="input">
-            <option value="" disabled>
-              Is the song released?
-            </option>
-            <option value="Unreleased">Unreleased</option>
-            <option value="Already Released">Already Released</option>
-            <option value="Not Sure">Not Sure</option>
-          </select>
-
-          <label className="label">Song Link optional</label>
-          <input
-            name="songLink"
-            placeholder="Spotify, YouTube, or SoundCloud link"
-            className="input"
-          />
-          <p className="field-note">
-  Links are used for context only and may be less accurate. For Spotify links, add lyrics or key context for a more accurate rollout. For the best report, upload the song file.
-</p>
-
-          <label className="label">Upload Song File</label>
-
-          <input
-            name="songFile"
-        
-            type="file"
-            accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
-            className="file-input"
-          />
-
-          <textarea
-            name="lyrics"
-            placeholder="Optional: Paste lyrics for a more accurate report"
-            className="textarea"
-          />
-
-          <button disabled={loading} type="submit" className="primary-button">
-            {loading ? "Building The World..." : "Create My Rollout"}
-          </button>
-
-          {loading && (
-            <div className="loading">
-              <p>Listening for the emotional signal…</p>
-              <p>Finding the lyric that carries the rollout…</p>
-              <p>Mapping the audience psychology…</p>
-              <p>Building the world around the song…</p>
+            <div className="engine-meta">
+              <span>Private upload</span>
+              <span>Strategy report</span>
+              <span>Rollout direction</span>
             </div>
-          )}
+          </section>
 
-          {error && <p className="error">{error}</p>}
-        </form>
+          <form onSubmit={handleSubmit} className="composer-panel">
+            <div className="composer-header">
+              <div>
+                <span className="composer-label">New analysis</span>
+                <strong>Start with the track.</strong>
+              </div>
+              <span className="composer-step">01</span>
+            </div>
+
+            <div className="composer-grid">
+              <label className="field-shell">
+                <span>Artist</span>
+                <input
+                  name="artistName"
+                  required
+                  placeholder="Artist name"
+                  className="composer-input"
+                />
+              </label>
+
+              <label className="field-shell">
+                <span>Email</span>
+                <input
+                  name="email"
+                  required
+                  placeholder="Email address"
+                  type="email"
+                  className="composer-input"
+                />
+              </label>
+
+              <label className="field-shell">
+                <span>Song title</span>
+                <input
+                  name="songTitle"
+                  placeholder="Optional"
+                  className="composer-input"
+                />
+              </label>
+
+              <label className="field-shell">
+                <span>Release status</span>
+                <select
+                  name="releaseStatus"
+                  defaultValue=""
+                  className="composer-input"
+                >
+                  <option value="" disabled>
+                    Select
+                  </option>
+                  <option value="Unreleased">Unreleased</option>
+                  <option value="Already Released">Already Released</option>
+                  <option value="Not Sure">Not Sure</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="track-source">
+              <div className="track-source-head">
+                <div>
+                  <span className="composer-label">Track source</span>
+                  <strong>Upload audio or paste a link.</strong>
+                </div>
+                <span className="source-note">Best results: audio upload</span>
+              </div>
+
+              <label className="link-shell">
+                <span>Song link</span>
+                <input
+                  name="songLink"
+                  placeholder="Spotify, YouTube, or SoundCloud"
+                  className="composer-input composer-link"
+                />
+              </label>
+
+              <div className="upload-shell">
+                <div>
+                  <span className="upload-icon">＋</span>
+                  <div>
+                    <strong>Upload track</strong>
+                    <p>MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB</p>
+                  </div>
+                </div>
+
+                <input
+                  name="songFile"
+                  type="file"
+                  accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+                  className="upload-input"
+                />
+              </div>
+
+              <p className="track-source-note">
+                Links are used for context only and may be less accurate. For
+                Spotify links, add lyrics or key context for a stronger report.
+              </p>
+            </div>
+
+            <label className="lyrics-shell">
+              <span>Lyrics / context</span>
+              <textarea
+                name="lyrics"
+                placeholder="Optional — paste lyrics or add context for a more accurate analysis."
+                className="composer-textarea"
+              />
+            </label>
+
+            <div className="composer-actions">
+              <div className="privacy-note">
+                <span />
+                Your upload stays private.
+              </div>
+
+              <button
+                disabled={loading}
+                type="submit"
+                className="analyze-button"
+              >
+                <span>
+                  {loading ? "Analyzing track" : "Start analysis"}
+                </span>
+                <b>{loading ? "…" : "↗"}</b>
+              </button>
+            </div>
+
+            {loading && <AnalysisLoader />}
+
+            {error && <p className="engine-error">{error}</p>}
+          </form>
+        </div>
       </section>
     </main>
+  );
+}
+
+function AnalysisLoader() {
+  const steps = [
+    "Reading structure and creative context",
+    "Mapping story and audience",
+    "Finding the creative angle",
+    "Building rollout direction",
+  ];
+
+  return (
+    <section className="analysis-loader">
+      <div className="analysis-loader-top">
+        <div>
+          <span>Discovery Engine</span>
+          <strong>Analyzing track</strong>
+        </div>
+        <span className="analysis-live">LIVE</span>
+      </div>
+
+      <div className="analysis-wave" aria-hidden="true">
+        {Array.from({ length: 52 }).map((_, index) => (
+          <i
+            key={index}
+            style={
+              {
+                "--bar-delay": `${index * 24}ms`,
+                "--bar-height": `${22 + ((index * 37) % 68)}%`,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+
+      <div className="analysis-steps">
+        {steps.map((step, index) => (
+          <span key={step}>
+            <i>{String(index + 1).padStart(2, "0")}</i>
+            {step}
+          </span>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -359,6 +480,9 @@ function ReportView({
   onReset: () => void;
   onBuildMyRolloutClick: () => void;
 }) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
   const scores = [
     ["Discovery", report.scores.discoveryScore],
     ["Viral", report.scores.viralPotentialScore],
@@ -368,1010 +492,460 @@ function ReportView({
     ["Emotion", report.scores.emotionalResonanceScore],
     ["Brand", report.scores.brandFitScore],
     ["Rollout", report.scores.rolloutReadinessScore],
-  ];
+  ] as const;
 
-  return (
-    <main className="report-shell">
-      <section className="report-container">
-        <p className="brand">CXTY LIMITS CREATIVES</p>
-
-        <section className="wrapped-hero">
-          <p className="eyebrow">THE DISCOVERY MOMENT</p>
-          <h1 className="wrapped-headline">{report.strategy.discoveryMoment}</h1>
-
-          <div className="stats-grid">
-            <Stat label="Archetype" value={report.strategy.artistArchetype} />
-            <Stat label="Rollout" value={report.strategy.rolloutType} />
-            <Stat label="Score" value={`${report.scores.discoveryScore}/100`} />
-          </div>
-        </section>
-
-        <section className="red-card">
-          <p className="eyebrow-white">THE LINE THAT CARRIES THE ROLLOUT</p>
-          <h2 className="lyric">
-            “{cleanQuote(report.evidence.mostShareableLyric)}”
-          </h2>
-        </section>
-
-        <section className="final-card dark-final">
-          <p className="eyebrow">IF RELEASED TODAY...</p>
-
-          <div style={{ marginTop: "16px" }}>
-            <p className="eyebrow">LIKELY OUTCOME</p>
-            <h3 className="wrapped-card-title">
-              {report.strategy.ifReleasedToday?.likelyOutcome}
-            </h3>
+  const slides = [
+    {
+      id: "overview",
+      label: "Overview",
+      eyebrow: "The discovery moment",
+      title: report.strategy.discoveryMoment,
+      content: (
+        <>
+          <div className="report-stat-row">
+            <ReportStat
+              label="Archetype"
+              value={report.strategy.artistArchetype}
+            />
+            <ReportStat label="Rollout" value={report.strategy.rolloutType} />
+            <ReportStat
+              label="Discovery score"
+              value={`${report.scores.discoveryScore}/100`}
+            />
           </div>
 
-          <div style={{ marginTop: "24px" }}>
-            <p className="eyebrow">THE UNLOCK</p>
-            <h3 className="wrapped-card-title">
-              {report.strategy.ifReleasedToday?.theUnlock}
-            </h3>
+          <div className="report-quote">
+            <span>The line that carries the rollout</span>
+            <strong>
+              “{cleanQuote(report.evidence.mostShareableLyric)}”
+            </strong>
           </div>
-
-          <div style={{ marginTop: "24px" }}>
-            <p className="eyebrow">CONTENT TRIGGER</p>
-            <h3 className="wrapped-card-title">
-              {report.strategy.ifReleasedToday?.contentTrigger}
-            </h3>
-          </div>
-        </section>
-
-        <section className="final-card dark-final">
-          <p className="eyebrow">FUTURE ROLLOUT PREDICTION</p>
-          <h3 className="wrapped-card-title">
-            {report.strategy.futureRolloutPrediction}
-          </h3>
-        </section>
-
-        <section className="split-grid">
-          <WrappedCard
-            label="IF IT CONNECTS"
-            title={`“${cleanQuote(report.evidence.listenerComment)}”`}
-            body="This is the emotional reaction the rollout should be built to trigger."
+        </>
+      ),
+    },
+    {
+      id: "release",
+      label: "Release",
+      eyebrow: "If released today",
+      title: "What happens next.",
+      content: (
+        <div className="report-three">
+          <ReportInsight
+            label="Likely outcome"
+            value={report.strategy.ifReleasedToday?.likelyOutcome}
           />
-
-          <WrappedCard
-            label="WHAT IT'S REALLY SELLING"
-            title={report.evidence.strongestMessage}
-            body="The song is not just a sound. It is a feeling people need to recognize in themselves."
+          <ReportInsight
+            label="The unlock"
+            value={report.strategy.ifReleasedToday?.theUnlock}
           />
-        </section>
+          <ReportInsight
+            label="Content trigger"
+            value={report.strategy.ifReleasedToday?.contentTrigger}
+          />
+          <ReportInsight
+            label="Future rollout prediction"
+            value={report.strategy.futureRolloutPrediction}
+            wide
+          />
+        </div>
+      ),
+    },
+    {
+      id: "audience",
+      label: "Audience",
+      eyebrow: "Fanbase match",
+      title: "Where this song could live.",
+      content: (
+        <>
+          <p className="report-lede">{report.fanbaseMatch?.fanbaseReason}</p>
 
-        <section className="panel fanbase-panel">
-          <p className="eyebrow">FANBASE MATCH</p>
-          <h2 className="section-title">Where this song could live.</h2>
-          <p className="panel-body">{report.fanbaseMatch?.fanbaseReason}</p>
-
-          <div className="three-grid">
-            <ListBlock
-              title="Closest Artist Lanes"
+          <div className="report-three">
+            <ReportList
+              title="Closest artist lanes"
               items={report.fanbaseMatch?.closestArtists || []}
             />
-            <ListBlock
-              title="Similar Song Energy"
+            <ReportList
+              title="Similar song energy"
               items={report.fanbaseMatch?.similarSongs || []}
             />
-            <ListBlock
-              title="Playlist Lanes"
+            <ReportList
+              title="Playlist lanes"
               items={report.fanbaseMatch?.playlistLanes || []}
             />
           </div>
-{report.spotify?.submittedTrack && (
-  <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
-    <p className="text-xs uppercase tracking-[0.3em] text-red-400 mb-3">
-      Submitted Spotify Track
-    </p>
 
-    <div className="flex items-center gap-4">
-      {report.spotify.submittedTrack.image && (
-        <img
-          src={report.spotify.submittedTrack.image}
-          alt={report.spotify.submittedTrack.name}
-          className="submitted-track-img"
-        />
-      )}
-
-      <div>
-        <h3 className="text-xl font-bold text-white">
-          {report.spotify.submittedTrack.name}
-        </h3>
-
-        <p className="text-white/70">
-          {report.spotify.submittedTrack.artist}
-        </p>
-
-        {report.spotify.submittedTrack.releaseDate && (
-          <p className="text-sm text-white/50">
-            Released: {report.spotify.submittedTrack.releaseDate}
-          </p>
-        )}
-
-        {typeof report.spotify.submittedTrack.popularity === "number" && (
-          <p className="text-sm text-white/50">
-            Spotify Popularity: {report.spotify.submittedTrack.popularity}/100
-          </p>
-        )}
-
-        {report.spotify.submittedTrack.url && (
-          <a
-            href={report.spotify.submittedTrack.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-sm text-red-400 underline"
-          >
-            Open on Spotify
-          </a>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-          {report.spotify?.artists?.length ? (
-            <div className="spotify-section">
-              <h3 className="spotify-heading">Spotify Artist Lanes</h3>
-              <div className="spotify-grid">
-                {report.spotify.artists.map((artist, index) => (
-                  <a
-                    key={index}
-                    className="spotify-card"
-                    href={artist.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {artist.image && (
-                      <img
-                        src={artist.image}
-                        alt={artist.name}
-                        className="spotify-img"
-                      />
-                    )}
-                    <div>
-                      <p className="spotify-name">{artist.name}</p>
-                      <p className="spotify-link">Open in Spotify</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+          <SpotifyRail report={report} />
+        </>
+      ),
+    },
+    {
+      id: "scorecard",
+      label: "Scorecard",
+      eyebrow: "Discovery scorecard",
+      title: "How the record is positioned.",
+      content: (
+        <div className="report-score-grid">
+          {scores.map(([label, value]) => (
+            <div className="report-score" key={label}>
+              <span>{label}</span>
+              <strong>
+                {value}
+                <small>/100</small>
+              </strong>
             </div>
-          ) : null}
-
-          {report.spotify?.tracks?.length ? (
-            <div className="spotify-section">
-              <h3 className="spotify-heading">Spotify Song References</h3>
-              <div className="spotify-grid">
-                {report.spotify.tracks.map((track, index) => (
-                  <a
-                    key={index}
-                    className="spotify-card"
-                    href={track.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {track.image && (
-                      <img
-                        src={track.image}
-                        alt={track.name}
-                        className="spotify-img"
-                      />
-                    )}
-                    <div>
-                      <p className="spotify-name">{track.name}</p>
-                      <p className="spotify-sub">{track.artist}</p>
-                      <p className="spotify-link">Open in Spotify</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </section>
-
-        <section className="panel">
-          <p className="eyebrow">DISCOVERY SCORECARD</p>
-
-          <div className="score-grid">
-            {scores.map(([label, value]) => (
-              <div key={label} className="score-card">
-                <p className="score-label">{label}</p>
-                <p className="score-number">
-                  {value}
-                  <span className="score-outof">/100</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="split-grid">
-          <WrappedCard
-            label="THE ANGLE"
-            title={report.strategy.discoveryAngle}
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "strategy",
+      label: "Strategy",
+      eyebrow: "Angle + audience",
+      title: "The strategy underneath the song.",
+      content: (
+        <div className="report-two">
+          <ReportInsight
+            label="The angle"
+            value={report.strategy.discoveryAngle}
             body={report.strategy.archetypeExplanation}
           />
-
-          <WrappedCard
-            label="THE AUDIENCE"
-            title={report.strategy.audienceMap}
+          <ReportInsight
+            label="The audience"
+            value={report.strategy.audienceMap}
             body="These are the people most likely to hear themselves inside the record."
           />
-        </section>
-
-        <section className="panel">
-          <p className="eyebrow">WHAT WE PULLED FROM THE SONG</p>
-
-          <div className="evidence-grid">
-            <PillList title="Themes" items={report.evidence.coreThemes} />
-            <PillList title="Emotions" items={report.evidence.emotionalStates} />
-            <PillList title="Imagery" items={report.evidence.imagery} />
-            <PillList
-              title="Repeated Ideas"
-              items={report.evidence.repeatedIdeas}
-            />
-          </div>
-        </section>
-
-        <section className="panel">
-          <p className="eyebrow">THE ROLLOUT BLUEPRINT</p>
-
-          <div className="split-grid inner-grid">
-            <ListBlock
-              title="Content Pillars"
-              items={report.rollout.contentPillars}
-            />
-            <ListBlock title="Video Ideas" items={report.rollout.videoIdeas} />
-          </div>
-
-          <div className="three-grid">
-            <ListBlock
-              title="Pre-Release"
-              items={report.rollout.preReleasePlan}
-            />
-            <ListBlock
-              title="Release Week"
-              items={report.rollout.releaseWeekPlan}
-            />
-            <ListBlock
-              title="30 Days After"
-              items={report.rollout.postReleasePlan}
-            />
-          </div>
-        </section>
-
-        <section className="split-grid">
-          <WrappedCard
-            label="VISUAL WORLD"
-            title={report.creative.visualDirection}
-            body=""
+          <ReportInsight
+            label="If it connects"
+            value={`“${cleanQuote(report.evidence.listenerComment)}”`}
+            body="This is the emotional reaction the rollout should be built to trigger."
           />
-          <WrappedCard
-            label="BIGGEST RISK"
-            title={report.creative.biggestRisk}
-            body=""
+          <ReportInsight
+            label="What it's really selling"
+            value={report.evidence.strongestMessage}
+            body="The song is not just a sound. It is a feeling people need to recognize in themselves."
           />
-        </section>
+        </div>
+      ),
+    },
+    {
+      id: "evidence",
+      label: "Evidence",
+      eyebrow: "What we pulled from the song",
+      title: "The emotional material inside the record.",
+      content: (
+        <div className="report-two">
+          <ReportPills title="Themes" items={report.evidence.coreThemes} />
+          <ReportPills
+            title="Emotions"
+            items={report.evidence.emotionalStates}
+          />
+          <ReportPills title="Imagery" items={report.evidence.imagery} />
+          <ReportPills
+            title="Repeated ideas"
+            items={report.evidence.repeatedIdeas}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "rollout",
+      label: "Rollout",
+      eyebrow: "The rollout blueprint",
+      title: "Turn the analysis into movement.",
+      content: (
+        <div className="report-rollout-grid">
+          <ReportList title="Content pillars" items={report.rollout.contentPillars} />
+          <ReportList title="Video ideas" items={report.rollout.videoIdeas} />
+          <ReportList title="Pre-release" items={report.rollout.preReleasePlan} />
+          <ReportList
+            title="Release week"
+            items={report.rollout.releaseWeekPlan}
+          />
+          <ReportList
+            title="30 days after"
+            items={report.rollout.postReleasePlan}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "final",
+      label: "Final read",
+      eyebrow: "Creative direction",
+      title: report.creative.finalRecommendation,
+      content: (
+        <>
+          <div className="report-two">
+            <ReportInsight
+              label="Visual world"
+              value={report.creative.visualDirection}
+            />
+            <ReportInsight label="Biggest risk" value={report.creative.biggestRisk} />
+          </div>
 
-        <section className="final-card">
-          <p className="eyebrow">FINAL READ</p>
-          <h2 className="final-title">{report.creative.finalRecommendation}</h2>
-        </section>
+          <div className="report-final-cta">
+            <div>
+              <span>CXTY LIMITS</span>
+              <strong>We found the story. Now build the world around it.</strong>
+            </div>
 
-        <section className="cta-card desktop-bottom-cta">
-          <p className="eyebrow-white">CXTY LIMITS CREATIVES</p>
-          <h2 className="cta-title">
-            We found the story. Now build the world around it.
-          </h2>
-          <p className="cta-body">
-            Your song does not need more random posts. It needs a release world:
-            visuals, narrative, short-form moments, and a rollout system built
-            around the emotion people will actually remember.
-          </p>
+            <div className="report-cta-actions">
+              <button type="button" onClick={onBuildMyRolloutClick}>
+                Build the world around this song
+              </button>
+              <button type="button" onClick={onReset}>
+                Analyze another track
+              </button>
+            </div>
+          </div>
+        </>
+      ),
+    },
+  ];
 
-          <div className="button-row">
+  function goToSlide(index: number) {
+    const next = Math.max(0, Math.min(slides.length - 1, index));
+    setActiveSlide(next);
+
+    const track = trackRef.current;
+    if (!track) return;
+
+    const slide = track.children[next] as HTMLElement | undefined;
+    slide?.scrollIntoView({
+      behavior: "smooth",
+      inline: "start",
+      block: "nearest",
+    });
+  }
+
+  function handleTrackScroll() {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const width = track.clientWidth;
+    if (!width) return;
+
+    const index = Math.round(track.scrollLeft / width);
+    if (index !== activeSlide && index >= 0 && index < slides.length) {
+      setActiveSlide(index);
+    }
+  }
+
+  return (
+    <main className="report-app">
+      <header className="report-topbar">
+        <div>
+          <p className="product-brand dark">CXTY LIMITS</p>
+          <p className="report-product-name">Discovery Engine / Report</p>
+        </div>
+
+        <div className="report-topbar-meta">
+          <span>
+            {String(activeSlide + 1).padStart(2, "0")} /{" "}
+            {String(slides.length).padStart(2, "0")}
+          </span>
+          <button type="button" onClick={onReset}>
+            New analysis
+          </button>
+        </div>
+      </header>
+
+      <div className="report-layout">
+        <aside className="report-nav">
+          <div className="report-nav-title">Report</div>
+
+          <nav>
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                className={index === activeSlide ? "active" : ""}
+                onClick={() => goToSlide(index)}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {slide.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <section className="report-main">
+          <div
+            className="report-track"
+            ref={trackRef}
+            onScroll={handleTrackScroll}
+          >
+            {slides.map((slide, index) => (
+              <article className="report-slide" key={slide.id}>
+                <div className="report-slide-inner">
+                  <div className="report-slide-head">
+                    <div>
+                      <span className="report-eyebrow">{slide.eyebrow}</span>
+                      <h1>{slide.title}</h1>
+                    </div>
+
+                    <span className="report-slide-index">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="report-slide-content">{slide.content}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="report-controls">
             <button
-  type="button"
-  className="black-button"
-  onClick={onBuildMyRolloutClick}
->
-  Build The World Around This Song
-</button>
+              type="button"
+              onClick={() => goToSlide(activeSlide - 1)}
+              disabled={activeSlide === 0}
+            >
+              ← Previous
+            </button>
 
-            <button onClick={onReset} className="outline-button">
-              Analyze Another Track
+            <div className="report-dots">
+              {slides.map((slide, index) => (
+                <button
+                  type="button"
+                  aria-label={`Go to ${slide.label}`}
+                  key={slide.id}
+                  className={index === activeSlide ? "active" : ""}
+                  onClick={() => goToSlide(index)}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => goToSlide(activeSlide + 1)}
+              disabled={activeSlide === slides.length - 1}
+            >
+              Next →
             </button>
           </div>
         </section>
-      </section>
-
-      <style jsx global>{`
-        * {
-          box-sizing: border-box;
-        }
-
-        html,
-        body {
-          margin: 0;
-          padding: 0;
-          background: #000;
-          overflow-x: hidden;
-        }
-
-        .page-shell {
-          min-height: 100vh;
-          background: #000;
-          color: #fff;
-          padding: 56px 20px;
-          font-family: var(--font-source-sans);
-          overflow-x: hidden;
-        }
-
-        .report-shell {
-          min-height: 100vh;
-          background: radial-gradient(
-              circle at top left,
-              rgba(220, 38, 38, 0.24),
-              transparent 30%
-            ),
-            #000;
-          color: #fff;
-          padding: 44px 20px;
-          font-family: var(--font-source-sans);
-          overflow-x: hidden;
-        }
-
-        .container,
-        .report-container {
-          width: 100%;
-          max-width: 940px;
-          margin: 0 auto;
-        }
-
-        .brand,
-        .eyebrow {
-          color: #dc2626;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-          font-size: 12px;
-          font-weight: 900;
-          margin: 0;
-        }
-
-        .eyebrow-white {
-          color: #fff;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-          font-size: 12px;
-          font-weight: 900;
-          margin: 0;
-        }
-
-        .hero-title {
-          font-family: var(--font-bebas);
-          font-size: clamp(66px, 12vw, 96px);
-          line-height: 0.86;
-          margin: 14px 0 0;
-          letter-spacing: 2px;
-          max-width: 760px;
-        }
-
-        .hero-copy {
-          max-width: 760px;
-          font-size: clamp(20px, 4vw, 23px);
-          font-weight: 900;
-          line-height: 1.35;
-          margin-top: 28px;
-        }
-
-        .support-copy {
-          max-width: 760px;
-          font-size: 18px;
-          line-height: 1.55;
-          color: #a1a1aa;
-          margin-top: 16px;
-        }
-
-        .form-card {
-          margin-top: 40px;
-          padding: 30px;
-          border: 1px solid #27272a;
-          border-radius: 22px;
-          width: 100%;
-          max-width: 720px;
-          background: rgba(9, 9, 11, 0.92);
-          display: grid;
-          gap: 16px;
-        }
-
-        .form-title {
-          font-family: var(--font-bebas);
-          font-size: 48px;
-          margin: 0;
-          letter-spacing: 1px;
-        }
-
-        .input,
-        .textarea {
-          width: 100%;
-          padding: 16px;
-          background: #fff;
-          border: 1px solid #27272a;
-          border-radius: 12px;
-          color: #000;
-          font-size: 16px;
-          font-family: var(--font-source-sans);
-        }
-
-        .textarea {
-          min-height: 130px;
-          resize: vertical;
-        }
-
-        .label {
-          color: #a1a1aa;
-          font-size: 15px;
-          margin-top: 8px;
-        }
-
-        .field-note {
-          color: #a1a1aa;
-          font-size: 14px;
-          line-height: 1.35;
-          margin: -6px 0 2px;
-        }
-
-        .file-input {
-          color: #fff;
-          max-width: 100%;
-        }
-
-        .primary-button,
-        .black-button,
-        .outline-button,
-        .mobile-reset {
-          border: none;
-          padding: 15px 20px;
-          border-radius: 12px;
-          cursor: pointer;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          font-size: 14px;
-        }
-
-        .primary-button {
-          margin-top: 14px;
-          background: #dc2626;
-          color: #fff;
-        }
-
-        .loading {
-          color: #a1a1aa;
-          font-size: 15px;
-          line-height: 1.25;
-        }
-
-        .error {
-          color: #f87171;
-        }
-
-        .wrapped-hero,
-        .panel,
-        .wrapped-card,
-        .final-card,
-        .cta-card,
-        .red-card {
-          width: 100%;
-          overflow: hidden;
-        }
-
-        .wrapped-hero {
-          margin-top: 24px;
-          padding: 32px;
-          border: 1px solid #dc2626;
-          border-radius: 28px;
-          background: linear-gradient(
-            135deg,
-            rgba(220, 38, 38, 0.24),
-            rgba(9, 9, 11, 1) 55%,
-            rgba(255, 255, 255, 0.05)
-          );
-        }
-
-        .wrapped-headline {
-          font-size: clamp(25px, 5vw, 34px);
-          line-height: 1.12;
-          margin: 18px 0 0;
-          max-width: 820px;
-          font-weight: 900;
-        }
-
-        .stats-grid,
-        .score-grid,
-        .split-grid,
-        .three-grid,
-        .evidence-grid {
-          display: grid;
-          gap: 12px;
-        }
-
-        .stats-grid {
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          margin-top: 24px;
-        }
-
-        .stat,
-        .score-card,
-        .list-block {
-          background: #000;
-          border: 1px solid #27272a;
-          border-radius: 16px;
-          padding: 16px;
-        }
-
-        .stat-label,
-        .score-label {
-          color: #a1a1aa;
-          font-size: 13px;
-          margin: 0;
-        }
-
-        .stat-value {
-          color: #fff;
-          font-size: 18px;
-          font-weight: 900;
-          line-height: 1.25;
-          margin: 8px 0 0;
-        }
-
-        .red-card {
-          margin-top: 18px;
-          padding: 28px;
-          border-radius: 24px;
-          background: #dc2626;
-        }
-
-        .lyric {
-          font-size: clamp(27px, 6vw, 36px);
-          line-height: 1.05;
-          margin: 14px 0 0;
-          font-weight: 900;
-        }
-
-        .split-grid {
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          margin-top: 18px;
-        }
-
-        .three-grid {
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          margin-top: 18px;
-        }
-
-        .wrapped-card,
-        .panel {
-          background: rgba(9, 9, 11, 0.92);
-          border: 1px solid #27272a;
-          border-radius: 22px;
-          padding: 24px;
-        }
-
-        .fanbase-panel {
-          background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.08),
-            rgba(9, 9, 11, 0.96)
-          );
-        }
-
-        .wrapped-card-title {
-          font-size: 24px;
-          line-height: 1.15;
-          margin: 14px 0 0;
-          font-weight: 900;
-        }
-
-        .wrapped-card-body,
-        .panel-body {
-          color: #a1a1aa;
-          font-size: 16px;
-          line-height: 1.5;
-          margin-top: 12px;
-        }
-
-        .panel {
-          margin-top: 18px;
-        }
-
-        .section-title {
-          font-size: 28px;
-          line-height: 1.1;
-          margin: 12px 0 0;
-          font-weight: 900;
-        }
-
-        .score-grid {
-          margin-top: 18px;
-          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-          gap: 10px;
-        }
-
-        .score-card {
-          min-height: 88px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        .score-number {
-          font-size: 28px;
-          font-weight: 900;
-          margin: 6px 0 0;
-        }
-
-        .score-outof {
-          color: #a1a1aa;
-          font-size: 15px;
-          margin-left: 3px;
-          font-weight: 800;
-        }
-
-        .evidence-grid {
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          margin-top: 18px;
-        }
-
-        .small-title {
-          font-size: 18px;
-          margin: 0 0 10px;
-          font-weight: 900;
-        }
-
-        .pill-wrap {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .pill {
-          border: 1px solid #27272a;
-          border-radius: 999px;
-          padding: 8px 11px;
-          color: #d4d4d8;
-          font-size: 14px;
-          background: #000;
-        }
-
-        .inner-grid {
-          margin-top: 18px;
-        }
-
-        .list-title {
-          font-size: 23px;
-          margin: 0 0 12px;
-          font-weight: 900;
-        }
-
-        .list {
-          color: #d4d4d8;
-          font-size: 16px;
-          line-height: 1.45;
-          padding-left: 18px;
-          margin: 0;
-        }
-
-        .final-card {
-          margin-top: 18px;
-          background: #fff;
-          color: #000;
-          border-radius: 24px;
-          padding: 28px;
-        }
-
-        .dark-final {
-          background: #09090b;
-          color: #fff;
-          border: 1px solid #27272a;
-        }
-
-        .final-title {
-          font-size: 26px;
-          line-height: 1.15;
-          margin: 14px 0 0;
-          font-weight: 900;
-        }
-
-        .cta-card {
-          margin-top: 20px;
-          background: #dc2626;
-          color: #fff;
-          border-radius: 28px;
-          padding: 30px;
-        }
-
-        .mobile-early-cta {
-          display: none;
-        }
-
-        .cta-title {
-          font-size: clamp(30px, 6vw, 38px);
-          line-height: 1.05;
-          margin: 14px 0 0;
-          font-weight: 900;
-        }
-
-        .cta-body {
-          font-size: 17px;
-          line-height: 1.5;
-          max-width: 820px;
-        }
-
-        .button-row {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-
-        .black-button {
-          margin-top: 16px;
-          background: #000;
-          color: #fff;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          text-decoration: none;
-        }
-
-        .outline-button,
-        .mobile-reset {
-          margin-top: 16px;
-          background: transparent;
-          color: #fff;
-          border: 1px solid #fff;
-        }
-
-        .mobile-reset {
-          display: none;
-          width: 100%;
-        }
-
-        .spotify-section {
-          margin-top: 22px;
-        }
-
-        .spotify-heading {
-          font-size: 22px;
-          margin: 0 0 12px;
-          font-weight: 900;
-        }
-
-        .spotify-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-          gap: 12px;
-        }
-
-        .spotify-card {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-          background: #000;
-          border: 1px solid #27272a;
-          border-radius: 16px;
-          padding: 12px;
-          text-decoration: none;
-          color: #fff;
-        }
-
-        .spotify-img {
-          width: 58px;
-          height: 58px;
-          border-radius: 12px;
-          object-fit: cover;
-          flex-shrink: 0;
-        }
-
-        .spotify-name {
-          font-size: 16px;
-          font-weight: 900;
-          margin: 0;
-          line-height: 1.15;
-        }
-
-        .spotify-sub {
-          color: #a1a1aa;
-          font-size: 14px;
-          margin: 4px 0 0;
-        }
-
-        .spotify-link {
-          color: #dc2626;
-          font-size: 13px;
-          font-weight: 900;
-          margin: 6px 0 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        @media (max-width: 640px) {
-          .page-shell,
-          .report-shell {
-            padding: 32px 14px;
-          }
-
-          .container,
-          .report-container {
-            max-width: 100%;
-          }
-
-          .brand,
-          .eyebrow,
-          .eyebrow-white {
-            letter-spacing: 3px;
-            font-size: 11px;
-          }
-
-          .hero-title {
-            font-size: 58px;
-            line-height: 0.9;
-            max-width: 100%;
-            word-break: normal;
-          }
-
-          .hero-copy {
-            font-size: 19px;
-            line-height: 1.35;
-            margin-top: 22px;
-          }
-
-          .support-copy {
-            font-size: 16px;
-            line-height: 1.5;
-          }
-
-          .form-card {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 18px;
-          }
-
-          .form-title {
-            font-size: 38px;
-          }
-
-          .input,
-          .textarea {
-            font-size: 15px;
-            padding: 14px;
-          }
-
-          .wrapped-hero,
-          .panel,
-          .wrapped-card,
-          .red-card,
-          .final-card,
-          .cta-card {
-            padding: 20px;
-            border-radius: 20px;
-          }
-
-          .wrapped-headline {
-            font-size: 25px;
-          }
-
-          .stats-grid,
-          .score-grid,
-          .split-grid,
-          .three-grid,
-          .evidence-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .stat-value {
-            font-size: 17px;
-          }
-
-          .lyric {
-            font-size: 28px;
-          }
-
-          .wrapped-card-title {
-            font-size: 21px;
-          }
-
-          .score-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
-          .score-card {
-            min-height: 78px;
-            padding: 14px;
-          }
-
-          .score-number {
-            font-size: 24px;
-          }
-
-          .list-title {
-            font-size: 21px;
-          }
-
-          .final-title {
-            font-size: 22px;
-          }
-
-          .mobile-early-cta {
-            display: block;
-          }
-
-          .mobile-reset {
-            display: block;
-          }
-
-          .black-button,
-          .outline-button {
-            width: 100%;
-          }
-        }
-      `}</style>
+      </div>
     </main>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function ReportStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="stat">
-      <p className="stat-label">{label}</p>
-      <p className="stat-value">{value}</p>
+    <div className="report-stat">
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
 
-function WrappedCard({
+function ReportInsight({
   label,
-  title,
+  value,
   body,
+  wide,
 }: {
   label: string;
-  title: string;
-  body: string;
+  value?: string;
+  body?: string;
+  wide?: boolean;
 }) {
   return (
-    <section className="wrapped-card">
-      <p className="eyebrow">{label}</p>
-      <h3 className="wrapped-card-title">{title}</h3>
-      {body && <p className="wrapped-card-body">{body}</p>}
+    <section className={`report-insight ${wide ? "wide" : ""}`}>
+      <span>{label}</span>
+      <strong>{value || "—"}</strong>
+      {body ? <p>{body}</p> : null}
     </section>
   );
 }
 
-function PillList({ title, items }: { title: string; items: string[] }) {
+function ReportList({ title, items }: { title: string; items: string[] }) {
   return (
-    <div>
-      <h3 className="small-title">{title}</h3>
-      <div className="pill-wrap">
+    <section className="report-list">
+      <span>{title}</span>
+      <ul>
         {items?.slice(0, 5).map((item, index) => (
-          <span key={index} className="pill">
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ListBlock({ title, items }: { title: string; items: string[] }) {
-  return (
-    <section className="list-block">
-      <h3 className="list-title">{title}</h3>
-      <ul className="list">
-        {items?.slice(0, 5).map((item, index) => (
-          <li key={index} style={{ marginBottom: "10px" }}>
-            {item}
-          </li>
+          <li key={`${title}-${index}`}>{item}</li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function ReportPills({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="report-pill-group">
+      <span>{title}</span>
+      <div>
+        {items?.slice(0, 6).map((item, index) => (
+          <b key={`${title}-${index}`}>{item}</b>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SpotifyRail({ report }: { report: Report }) {
+  const submitted = report.spotify?.submittedTrack;
+  const artists = report.spotify?.artists || [];
+  const tracks = report.spotify?.tracks || [];
+
+  if (!submitted && !artists.length && !tracks.length) return null;
+
+  return (
+    <div className="spotify-rail">
+      {submitted ? (
+        <a
+          href={submitted.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference submitted"
+        >
+          {submitted.image ? (
+            <img src={submitted.image} alt={submitted.name} />
+          ) : null}
+          <div>
+            <span>Submitted track</span>
+            <strong>{submitted.name}</strong>
+            <p>{submitted.artist}</p>
+          </div>
+        </a>
+      ) : null}
+
+      {artists.slice(0, 3).map((artist, index) => (
+        <a
+          href={artist.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference"
+          key={`artist-${index}`}
+        >
+          {artist.image ? <img src={artist.image} alt={artist.name} /> : null}
+          <div>
+            <span>Artist lane</span>
+            <strong>{artist.name}</strong>
+            <p>Open in Spotify</p>
+          </div>
+        </a>
+      ))}
+
+      {tracks.slice(0, 3).map((track, index) => (
+        <a
+          href={track.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference"
+          key={`track-${index}`}
+        >
+          {track.image ? <img src={track.image} alt={track.name} /> : null}
+          <div>
+            <span>Song reference</span>
+            <strong>{track.name}</strong>
+            <p>{track.artist}</p>
+          </div>
+        </a>
+      ))}
+    </div>
   );
 }
 
