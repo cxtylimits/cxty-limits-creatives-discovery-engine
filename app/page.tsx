@@ -97,6 +97,46 @@ export default function Home() {
   const isSubmittingRef = useRef(false);
 
   useEffect(() => {
+    let raf = 0;
+
+    const postHeight = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const height = Math.max(
+          document.documentElement.scrollHeight,
+          document.body.scrollHeight,
+          document.documentElement.offsetHeight,
+          document.body.offsetHeight
+        );
+
+        window.parent.postMessage(
+          {
+            type: "CXTY_DISCOVERY_HEIGHT",
+            height,
+          },
+          "*"
+        );
+      });
+    };
+
+    postHeight();
+
+    const observer = new ResizeObserver(postHeight);
+    observer.observe(document.documentElement);
+    observer.observe(document.body);
+
+    window.addEventListener("load", postHeight);
+    window.addEventListener("resize", postHeight);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+      window.removeEventListener("load", postHeight);
+      window.removeEventListener("resize", postHeight);
+    };
+  }, [loading, report, error]);
+
+  useEffect(() => {
     if (!report) return;
 
     const scrollToReportTop = () => {
