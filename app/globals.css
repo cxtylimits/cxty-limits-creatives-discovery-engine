@@ -2821,3 +2821,165 @@ REPORT MOBILE — NO PAGE SCROLL
     animation: none !important;
   }
 }
+
+
+/* =========================================================
+DISCOVERY ENGINE — PRODUCT UI V4.1
+Mobile report fit + stable field focus
+========================================================= */
+
+/* New overview card keeps the long AI output out of the headline slot. */
+.report-moment-card {
+  grid-column: 2 / 4;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border: 1px solid var(--cxty-border-light);
+  border-radius: 15px;
+  background: #fff;
+}
+
+.report-moment-card > span {
+  color: #8b9098;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.report-moment-card > strong {
+  margin-top: 9px;
+  color: #17181b;
+  font-size: clamp(15px, 1.65vw, 21px);
+  line-height: 1.18;
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+
+/* Prevent grid children from forcing horizontal overflow. */
+.report-slide *,
+.report-dashboard-grid > *,
+.report-three > *,
+.report-two > *,
+.report-score-grid > *,
+.report-audience-layout > * {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  /*
+  Mobile report should behave like an app viewport, not a set of
+  narrow cards sitting inside a horizontally oversized canvas.
+  */
+  .report-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .report-track {
+    width: 100%;
+    max-width: 100%;
+    gap: 0;
+    padding: 0;
+    scroll-padding-left: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .report-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    padding: 0 10px 6px;
+    scroll-snap-align: start;
+  }
+
+  .report-slide:last-child {
+    margin-right: 0;
+  }
+
+  .report-slide-inner {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .report-slide-head h1 {
+    max-width: 100%;
+    font-size: clamp(25px, 7.1vw, 31px);
+    line-height: .98;
+    overflow-wrap: anywhere;
+  }
+
+  .report-dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .report-moment-card {
+    grid-column: 1 / 3;
+    padding: 12px;
+  }
+
+  .report-moment-card > strong {
+    font-size: 13px;
+    line-height: 1.22;
+  }
+
+  .report-primary-score {
+    grid-column: 1 / 2;
+    grid-row: auto;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .report-primary-score > strong {
+    font-size: 48px;
+  }
+
+  .report-dashboard-grid > .report-stat {
+    min-height: 0;
+  }
+
+  .report-quote.compact {
+    grid-column: 1 / 3;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .report-quote.compact strong {
+    font-size: 17px;
+    line-height: 1.08;
+  }
+
+  /*
+  The permanent bottom nav is the primary carousel affordance.
+  Keep the hint compact instead of consuming another large row.
+  */
+  .report-explore-hint {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .report-explore-hint i {
+    width: 28px;
+    flex: 0 0 auto;
+  }
+
+  /* iOS input focus should not create giant browser zoom/position jumps. */
+  .composer-input,
+  .composer-textarea,
+  .session-meta .composer-input {
+    font-size: 16px !important;
+  }
+
+  .field-shell,
+  .link-shell,
+  .lyrics-shell {
+    scroll-margin-top: 110px;
+    scroll-margin-bottom: 110px;
+  }
+}
