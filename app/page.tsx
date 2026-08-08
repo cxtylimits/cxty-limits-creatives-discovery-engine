@@ -1155,11 +1155,38 @@ function ReportView({
       content: (
         <div className="report-next-move">
           <div className="next-move-copy">
-            <span>CXTY LIMITS</span>
-            <p>
-              Turn the discovery report into a release world, or clear the
-              session and analyze another record.
-            </p>
+            <div className="next-move-visual" aria-hidden="true">
+              <div className="next-orbit next-orbit-a" />
+              <div className="next-orbit next-orbit-b" />
+              <div className="next-orbit next-orbit-c" />
+              <div className="next-core">
+                <span>DISCOVERY</span>
+                <b>{report.scores.discoveryScore}</b>
+                <small>/100</small>
+              </div>
+
+              <div className="next-wave">
+                {Array.from({ length: 34 }).map((_, index) => (
+                  <i
+                    key={index}
+                    style={
+                      {
+                        "--next-delay": `${index * 34}ms`,
+                        "--next-height": `${18 + ((index * 31) % 68)}%`,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="next-move-copy-text">
+              <span>CXTY LIMITS</span>
+              <p>
+                Turn the discovery report into a release world, or clear the
+                session and analyze another record.
+              </p>
+            </div>
           </div>
 
           <button
