@@ -85,6 +85,14 @@ type Report = {
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
+  const [processingPhase, setProcessingPhase] = useState<
+    "idle" | "uploading" | "analyzing"
+  >("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStage, setAnalysisStage] = useState("Preparing analysis");
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [selectedFileSize, setSelectedFileSize] = useState("");
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
   const [mobileStep, setMobileStep] = useState(0);
@@ -96,6 +104,21 @@ export default function Home() {
   } | null>(null);
 
   const isSubmittingRef = useRef(false);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setMobileStep(0);
+
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    window.parent.postMessage(
+      { type: "CXTY_DISCOVERY_READY" },
+      "*"
+    );
+  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -162,6 +185,26 @@ export default function Home() {
     };
   }, [report]);
 
+  function handleSongFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setSelectedFileName("");
+      setSelectedFileSize("");
+      return;
+    }
+
+    setSelectedFileName(file.name);
+    setSelectedFileSize(
+      file.size >= 1024 * 1024
+        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(file.size / 1024))} KB`
+    );
+    setError("");
+  }
+
   function goToMobileStep(
     form: HTMLFormElement,
     nextStep: number
@@ -171,22 +214,24 @@ export default function Home() {
     if (nextStep > mobileStep) {
       const formData = new FormData(form);
 
-      if (mobileStep === 0) {
+      if (nextStep >= 1) {
         const songFile = formData.get("songFile") as File | null;
         const songLink = String(formData.get("songLink") || "").trim();
 
         if ((!songFile || songFile.size === 0) && !songLink) {
           setError("Upload a track or paste a song link to continue.");
+          setMobileStep(0);
           return;
         }
       }
 
-      if (mobileStep === 1) {
+      if (nextStep >= 2) {
         const artistName = String(formData.get("artistName") || "").trim();
         const email = String(formData.get("email") || "").trim();
 
         if (!artistName || !email) {
           setError("Add your artist name and email to continue.");
+          setMobileStep(1);
           return;
         }
       }
@@ -206,6 +251,42 @@ export default function Home() {
     goToMobileStep(form, nextStep);
   }
 
+  function handleMobileTouchStart(
+    event: React.TouchEvent<HTMLFormElement>
+  ) {
+    const touch = event.touches[0];
+
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+  }
+
+  function handleMobileTouchEnd(
+    event: React.TouchEvent<HTMLFormElement>
+  ) {
+    const startX = touchStartXRef.current;
+    const startY = touchStartYRef.current;
+
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+
+    if (startX === null || startY === null) return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    if (Math.abs(deltaX) < 52) return;
+    if (Math.abs(deltaY) > Math.abs(deltaX) * 0.7) return;
+
+    const form = event.currentTarget;
+
+    if (deltaX < 0) {
+      goToMobileStep(form, mobileStep + 1);
+    } else {
+      goToMobileStep(form, mobileStep - 1);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -214,6 +295,10 @@ export default function Home() {
     isSubmittingRef.current = true;
     setLoading(true);
     setError("");
+    setUploadProgress(0);
+    setAnalysisProgress(0);
+
+    let analysisTimer: number | null = null;
 
     try {
       const form = event.currentTarget;
@@ -227,13 +312,24 @@ export default function Home() {
       }
 
       if (songFile && songFile.size > 0) {
+        setProcessingPhase("uploading");
+        setAnalysisStage("Uploading track securely");
+        setUploadProgress(1);
+
         const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
         const uploadPath = `songs/${Date.now()}-${safeFileName}`;
 
         const uploadedSong = await upload(uploadPath, songFile, {
           access: "private",
           handleUploadUrl: "/api/upload-song",
+          onUploadProgress: (progressEvent) => {
+            setUploadProgress(
+              Math.max(1, Math.min(100, Math.round(progressEvent.percentage)))
+            );
+          },
         });
+
+        setUploadProgress(100);
 
         formData.delete("songFile");
         formData.append("songBlobPathname", uploadedSong.pathname);
@@ -242,6 +338,39 @@ export default function Home() {
       } else {
         formData.delete("songFile");
       }
+
+      setProcessingPhase("analyzing");
+      setAnalysisProgress(8);
+      setAnalysisStage("Reading structure and creative context");
+
+      const analysisStartedAt = Date.now();
+
+      analysisTimer = window.setInterval(() => {
+        const elapsed = Date.now() - analysisStartedAt;
+
+        setAnalysisProgress((current) => {
+          let ceiling = 92;
+
+          if (elapsed < 4500) {
+            ceiling = 36;
+            setAnalysisStage("Reading structure and creative context");
+          } else if (elapsed < 9000) {
+            ceiling = 58;
+            setAnalysisStage("Mapping story, audience, and emotion");
+          } else if (elapsed < 15000) {
+            ceiling = 76;
+            setAnalysisStage("Finding the creative angle");
+          } else {
+            ceiling = 94;
+            setAnalysisStage("Building rollout direction");
+          }
+
+          if (current >= ceiling) return current;
+
+          const step = current < 35 ? 3 : current < 70 ? 2 : 1;
+          return Math.min(ceiling, current + step);
+        });
+      }, 480);
 
       const response = await fetch("/api/analyze-song", {
         method: "POST",
@@ -253,6 +382,14 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong.");
       }
+
+      if (analysisTimer !== null) {
+        window.clearInterval(analysisTimer);
+        analysisTimer = null;
+      }
+
+      setAnalysisStage("Report ready");
+      setAnalysisProgress(100);
 
       setLeadInfo({
         artistName: String(formData.get("artistName") || ""),
@@ -293,6 +430,7 @@ export default function Home() {
         console.error("Submission tracking failed:", trackingError);
       });
 
+      await new Promise((resolve) => window.setTimeout(resolve, 320));
       setReport(data.report);
     } catch (err) {
       const message =
@@ -301,7 +439,12 @@ export default function Home() {
           : "Something went wrong analyzing the song.";
 
       setError(message);
+      setProcessingPhase("idle");
     } finally {
+      if (analysisTimer !== null) {
+        window.clearInterval(analysisTimer);
+      }
+
       setLoading(false);
       isSubmittingRef.current = false;
     }
@@ -336,6 +479,11 @@ export default function Home() {
         onReset={() => {
           setReport(null);
           setMobileStep(0);
+          setProcessingPhase("idle");
+          setUploadProgress(0);
+          setAnalysisProgress(0);
+          setSelectedFileName("");
+          setSelectedFileSize("");
         }}
         onBuildMyRolloutClick={handleBuildMyRolloutClick}
       />
@@ -380,7 +528,12 @@ export default function Home() {
             </div>
           </section>
 
-          <form onSubmit={handleSubmit} className="composer-panel">
+          <form
+            onSubmit={handleSubmit}
+            onTouchStart={handleMobileTouchStart}
+            onTouchEnd={handleMobileTouchEnd}
+            className="composer-panel"
+          >
             <div className="composer-header">
               <div>
                 <span className="composer-label live-red">New analysis</span>
@@ -404,6 +557,13 @@ export default function Home() {
               ))}
             </div>
 
+            <div className="mobile-swipe-hint" aria-hidden="true">
+              <span>Swipe to move through setup</span>
+              <b>←</b>
+              <i />
+              <b>→</b>
+            </div>
+
             <div className={`mobile-intake-slide ${mobileStep === 0 ? "active" : ""}`}>
               <div className="track-source track-source-hero">
               <div className="track-source-head">
@@ -418,9 +578,15 @@ export default function Home() {
                 <div className="upload-shell">
                   <div>
                     <span className="upload-icon">＋</span>
-                    <div>
-                      <strong>Upload track</strong>
-                      <p>MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB</p>
+                    <div className="upload-copy">
+                      <strong>
+                        {selectedFileName ? "Track selected" : "Upload track"}
+                      </strong>
+                      <p>
+                        {selectedFileName
+                          ? `${selectedFileName} · ${selectedFileSize}`
+                          : "MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB"}
+                      </p>
                       <span className="upload-life" aria-hidden="true">
                         <i /><i /><i /><i /><i /><i /><i /><i /><i />
                       </span>
@@ -432,6 +598,7 @@ export default function Home() {
                     type="file"
                     accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
                     className="upload-input"
+                    onChange={handleSongFileChange}
                   />
                 </div>
 
@@ -546,6 +713,63 @@ export default function Home() {
               />
             </label>
 
+            {loading && (
+              <section className="processing-panel" aria-live="polite">
+                <div className="processing-head">
+                  <div>
+                    <span>
+                      {processingPhase === "uploading"
+                        ? "Secure upload"
+                        : "Discovery Engine"}
+                    </span>
+                    <strong>
+                      {processingPhase === "uploading"
+                        ? "Uploading track"
+                        : analysisStage}
+                    </strong>
+                  </div>
+                  <b>
+                    {processingPhase === "uploading"
+                      ? uploadProgress
+                      : analysisProgress}
+                    %
+                  </b>
+                </div>
+
+                <div className="processing-progress">
+                  <i
+                    style={{
+                      width: `${
+                        processingPhase === "uploading"
+                          ? uploadProgress
+                          : analysisProgress
+                      }%`,
+                    }}
+                  />
+                </div>
+
+                <div className="processing-wave" aria-hidden="true">
+                  {Array.from({ length: 44 }).map((_, index) => (
+                    <i
+                      key={index}
+                      style={
+                        {
+                          "--process-delay": `${index * 23}ms`,
+                          "--process-height": `${18 + ((index * 29) % 70)}%`,
+                        } as React.CSSProperties
+                      }
+                    />
+                  ))}
+                </div>
+
+                <p>
+                  {processingPhase === "uploading"
+                    ? "Your track is being uploaded privately before analysis begins."
+                    : "Keep this screen open. We’re building the report now."}
+                </p>
+              </section>
+            )}
+
             <div className="composer-actions">
               <div className="privacy-note">
                 <span />
@@ -574,8 +798,6 @@ export default function Home() {
               </button>
               <span>03 / 03</span>
             </div>
-
-            {loading && <AnalysisLoader />}
 
             {error && <p className="engine-error">{error}</p>}
             </div>
@@ -660,26 +882,37 @@ function ReportView({
       eyebrow: "The discovery moment",
       title: report.strategy.discoveryMoment,
       content: (
-        <>
-          <div className="report-stat-row">
-            <ReportStat
-              label="Archetype"
-              value={report.strategy.artistArchetype}
-            />
-            <ReportStat label="Rollout" value={report.strategy.rolloutType} />
-            <ReportStat
-              label="Discovery score"
-              value={`${report.scores.discoveryScore}/100`}
+        <div className="report-dashboard-grid">
+          <div className="report-primary-score">
+            <span>Discovery score</span>
+            <strong>{report.scores.discoveryScore}</strong>
+            <small>/100</small>
+            <i
+              style={{
+                width: `${Math.max(
+                  0,
+                  Math.min(100, report.scores.discoveryScore)
+                )}%`,
+              }}
             />
           </div>
 
-          <div className="report-quote">
+          <ReportStat
+            label="Archetype"
+            value={report.strategy.artistArchetype}
+          />
+          <ReportStat
+            label="Rollout"
+            value={report.strategy.rolloutType}
+          />
+
+          <div className="report-quote compact">
             <span>The line that carries the rollout</span>
             <strong>
               “{cleanQuote(report.evidence.mostShareableLyric)}”
             </strong>
           </div>
-        </>
+        </div>
       ),
     },
     {
@@ -715,26 +948,26 @@ function ReportView({
       eyebrow: "Fanbase match",
       title: "Where this song could live.",
       content: (
-        <>
-          <p className="report-lede">{report.fanbaseMatch?.fanbaseReason}</p>
-
-          <div className="report-three">
-            <ReportList
-              title="Closest artist lanes"
-              items={report.fanbaseMatch?.closestArtists || []}
-            />
-            <ReportList
-              title="Similar song energy"
-              items={report.fanbaseMatch?.similarSongs || []}
-            />
-            <ReportList
-              title="Playlist lanes"
-              items={report.fanbaseMatch?.playlistLanes || []}
-            />
+        <div className="report-audience-layout">
+          <div>
+            <p className="report-lede">{report.fanbaseMatch?.fanbaseReason}</p>
+            <div className="report-three">
+              <ReportList
+                title="Closest artist lanes"
+                items={report.fanbaseMatch?.closestArtists || []}
+              />
+              <ReportList
+                title="Similar song energy"
+                items={report.fanbaseMatch?.similarSongs || []}
+              />
+              <ReportList
+                title="Playlist lanes"
+                items={report.fanbaseMatch?.playlistLanes || []}
+              />
+            </div>
           </div>
-
           <SpotifyRail report={report} />
-        </>
+        </div>
       ),
     },
     {
@@ -751,6 +984,13 @@ function ReportView({
                 {value}
                 <small>/100</small>
               </strong>
+              <i>
+                <b
+                  style={{
+                    width: `${Math.max(0, Math.min(100, Number(value) || 0))}%`,
+                  }}
+                />
+              </i>
             </div>
           ))}
         </div>
@@ -771,17 +1011,17 @@ function ReportView({
           <ReportInsight
             label="The audience"
             value={report.strategy.audienceMap}
-            body="These are the people most likely to hear themselves inside the record."
+            body="The listeners most likely to hear themselves inside the record."
           />
           <ReportInsight
             label="If it connects"
             value={`“${cleanQuote(report.evidence.listenerComment)}”`}
-            body="This is the emotional reaction the rollout should be built to trigger."
+            body="The emotional response the rollout should be built to trigger."
           />
           <ReportInsight
             label="What it's really selling"
             value={report.evidence.strongestMessage}
-            body="The song is not just a sound. It is a feeling people need to recognize in themselves."
+            body="The feeling people need to recognize in themselves."
           />
         </div>
       ),
@@ -789,8 +1029,8 @@ function ReportView({
     {
       id: "evidence",
       label: "Evidence",
-      eyebrow: "What we pulled from the song",
-      title: "The emotional material inside the record.",
+      eyebrow: "Inside the record",
+      title: "The emotional material we found.",
       content: (
         <div className="report-two">
           <ReportPills title="Themes" items={report.evidence.coreThemes} />
@@ -807,14 +1047,28 @@ function ReportView({
       ),
     },
     {
-      id: "rollout",
-      label: "Rollout",
-      eyebrow: "The rollout blueprint",
-      title: "Turn the analysis into movement.",
+      id: "content",
+      label: "Content",
+      eyebrow: "Creative system",
+      title: "What to make around the song.",
       content: (
-        <div className="report-rollout-grid">
+        <div className="report-three">
           <ReportList title="Content pillars" items={report.rollout.contentPillars} />
           <ReportList title="Video ideas" items={report.rollout.videoIdeas} />
+          <ReportInsight
+            label="Platform priority"
+            value={report.rollout.platformPriority}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "timeline",
+      label: "Timeline",
+      eyebrow: "Rollout sequence",
+      title: "How to move the record.",
+      content: (
+        <div className="report-three timeline">
           <ReportList title="Pre-release" items={report.rollout.preReleasePlan} />
           <ReportList
             title="Release week"
@@ -831,33 +1085,61 @@ function ReportView({
       id: "final",
       label: "Final read",
       eyebrow: "Creative direction",
-      title: report.creative.finalRecommendation,
+      title: "The final read.",
       content: (
-        <>
-          <div className="report-two">
-            <ReportInsight
-              label="Visual world"
-              value={report.creative.visualDirection}
-            />
-            <ReportInsight label="Biggest risk" value={report.creative.biggestRisk} />
+        <div className="report-two final-read">
+          <ReportInsight
+            label="Recommendation"
+            value={report.creative.finalRecommendation}
+          />
+          <ReportInsight
+            label="Visual world"
+            value={report.creative.visualDirection}
+          />
+          <ReportInsight
+            label="Biggest opportunity"
+            value={report.creative.biggestOpportunity}
+          />
+          <ReportInsight
+            label="Biggest risk"
+            value={report.creative.biggestRisk}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "next",
+      label: "Next move",
+      eyebrow: "Your next move",
+      title: "We found the story. Now build the world.",
+      content: (
+        <div className="report-next-move">
+          <div className="next-move-copy">
+            <span>CXTY LIMITS</span>
+            <p>
+              Turn the discovery report into a release world, or clear the
+              session and analyze another record.
+            </p>
           </div>
 
-          <div className="report-final-cta">
-            <div>
-              <span>CXTY LIMITS</span>
-              <strong>We found the story. Now build the world around it.</strong>
-            </div>
+          <button
+            type="button"
+            className="next-move-primary"
+            onClick={onBuildMyRolloutClick}
+          >
+            <span>Build the world around this song</span>
+            <b>↗</b>
+          </button>
 
-            <div className="report-cta-actions">
-              <button type="button" onClick={onBuildMyRolloutClick}>
-                Build the world around this song
-              </button>
-              <button type="button" onClick={onReset}>
-                Analyze another track
-              </button>
-            </div>
-          </div>
-        </>
+          <button
+            type="button"
+            className="next-move-secondary"
+            onClick={onReset}
+          >
+            <span>Analyze another track</span>
+            <b>＋</b>
+          </button>
+        </div>
       ),
     },
   ];
@@ -881,12 +1163,26 @@ function ReportView({
     const track = trackRef.current;
     if (!track) return;
 
-    const width = track.clientWidth;
-    if (!width) return;
+    const children = Array.from(track.children) as HTMLElement[];
+    if (!children.length) return;
 
-    const index = Math.round(track.scrollLeft / width);
-    if (index !== activeSlide && index >= 0 && index < slides.length) {
-      setActiveSlide(index);
+    const center = track.scrollLeft + track.clientWidth / 2;
+
+    let closest = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    children.forEach((child, index) => {
+      const childCenter = child.offsetLeft + child.offsetWidth / 2;
+      const distance = Math.abs(center - childCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = index;
+      }
+    });
+
+    if (closest !== activeSlide) {
+      setActiveSlide(closest);
     }
   }
 
@@ -911,7 +1207,7 @@ function ReportView({
 
       <div className="report-layout">
         <aside className="report-nav">
-          <div className="report-nav-title">Report</div>
+          <div className="report-nav-title">Discovery report</div>
 
           <nav>
             {slides.map((slide, index) => (
@@ -929,6 +1225,15 @@ function ReportView({
         </aside>
 
         <section className="report-main">
+          <div className="report-explore-hint">
+            <span className="desktop-hint">Use arrows or swipe/trackpad to explore</span>
+            <span className="mobile-hint">Swipe to explore the report</span>
+            <i>
+              <b />
+            </i>
+            <strong>→</strong>
+          </div>
+
           <div
             className="report-track"
             ref={trackRef}
@@ -959,28 +1264,35 @@ function ReportView({
               type="button"
               onClick={() => goToSlide(activeSlide - 1)}
               disabled={activeSlide === 0}
+              aria-label="Previous report slide"
             >
-              ← Previous
+              <b>←</b>
+              <span>Previous</span>
             </button>
 
-            <div className="report-dots">
-              {slides.map((slide, index) => (
-                <button
-                  type="button"
-                  aria-label={`Go to ${slide.label}`}
-                  key={slide.id}
-                  className={index === activeSlide ? "active" : ""}
-                  onClick={() => goToSlide(index)}
-                />
-              ))}
+            <div className="report-progress-center">
+              <div className="report-dots">
+                {slides.map((slide, index) => (
+                  <button
+                    type="button"
+                    aria-label={`Go to ${slide.label}`}
+                    key={slide.id}
+                    className={index === activeSlide ? "active" : ""}
+                    onClick={() => goToSlide(index)}
+                  />
+                ))}
+              </div>
+              <span>{slides[activeSlide]?.label}</span>
             </div>
 
             <button
               type="button"
               onClick={() => goToSlide(activeSlide + 1)}
               disabled={activeSlide === slides.length - 1}
+              aria-label="Next report slide"
             >
-              Next →
+              <span>Next</span>
+              <b>→</b>
             </button>
           </div>
         </section>
