@@ -1,3463 +1,1599 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --cxty-red: #ff3b30;
-  --cxty-black: #050506;
-  --cxty-ink: #111216;
-  --cxty-offwhite: #f5f5f2;
-  --cxty-muted: #8f959f;
-  --cxty-border-dark: rgba(255, 255, 255, 0.09);
-  --cxty-border-light: rgba(17, 18, 22, 0.1);
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--cxty-black);
-  color: #fff;
-  overflow-x: hidden;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* =========================================================
-ENGINE INPUT
-========================================================= */
-
-.engine-shell {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 78% 22%, rgba(255, 59, 48, 0.09), transparent 26%),
-    #050506;
-  color: #fff;
-  padding: 24px;
-}
-
-.engine-workspace {
-  width: min(1380px, 100%);
-  min-height: calc(100vh - 48px);
-  margin: 0 auto;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 24px;
-  overflow: hidden;
-  background: rgba(7, 8, 10, 0.86);
-  box-shadow:
-    0 34px 100px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.02);
-}
-
-.engine-topbar,
-.report-topbar {
-  min-height: 74px;
-  padding: 0 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border-bottom: 1px solid var(--cxty-border-dark);
-}
-
-.product-brand {
-  margin: 0;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.035em;
-}
-
-.product-brand.dark {
-  color: var(--cxty-ink);
-}
-
-.product-name,
-.report-product-name {
-  margin: 6px 0 0;
-  color: #717782;
-  font-size: 9px;
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
-
-.engine-status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #717782;
-  font-size: 9px;
-  font-weight: 500;
-}
-
-.engine-status span,
-.privacy-note span,
-.report-topbar-meta > span::before {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cxty-red);
-  box-shadow: 0 0 14px rgba(255, 59, 48, 0.46);
-  flex: 0 0 auto;
-}
-
-.engine-grid {
-  min-height: calc(100vh - 124px);
-  display: grid;
-  grid-template-columns: 0.84fr 1.16fr;
-  gap: 56px;
-  align-items: center;
-  padding: 46px 48px 54px;
-}
-
-.engine-intro {
-  max-width: 570px;
-}
-
-.engine-kicker,
-.composer-label,
-.report-eyebrow {
-  margin: 0;
-  color: var(--cxty-red);
-  font-size: 9px;
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-}
-
-.engine-title {
-  margin: 18px 0 0;
-  font-size: clamp(58px, 6.4vw, 96px);
-  line-height: 0.94;
-  font-weight: 600;
-  letter-spacing: -0.065em;
-}
-
-.engine-description {
-  max-width: 520px;
-  margin: 28px 0 0;
-  color: #8f959f;
-  font-size: 16px;
-  line-height: 1.58;
-  letter-spacing: -0.012em;
-}
-
-.engine-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin-top: 30px;
-  color: #5d6470;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.composer-panel {
-  width: 100%;
-  max-width: 720px;
-  justify-self: end;
-  padding: 24px;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 20px;
-  background: rgba(12, 13, 16, 0.92);
-  box-shadow:
-    0 26px 70px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-}
-
-.composer-header,
-.track-source-head,
-.composer-actions,
-.analysis-loader-top,
-.report-slide-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.composer-header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--cxty-border-dark);
-}
-
-.composer-header > div,
-.track-source-head > div,
-.analysis-loader-top > div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.composer-header strong,
-.track-source-head strong,
-.analysis-loader-top strong {
-  color: #f7f7f5;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.composer-step {
-  color: #5c636e;
-  font-size: 10px;
-}
-
-.composer-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.field-shell,
-.link-shell,
-.lyrics-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.field-shell > span,
-.link-shell > span,
-.lyrics-shell > span {
-  color: #727985;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-}
-
-.composer-input,
-.composer-textarea {
-  width: 100%;
-  outline: none;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 12px;
-  background: #0a0b0e;
-  color: #fff;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.composer-input {
-  min-height: 48px;
-  padding: 0 14px;
-}
-
-.composer-textarea {
-  min-height: 106px;
-  padding: 14px;
-  resize: vertical;
-  line-height: 1.5;
-}
-
-.composer-input::placeholder,
-.composer-textarea::placeholder {
-  color: #4f5661;
-}
-
-.composer-input:focus,
-.composer-textarea:focus {
-  border-color: rgba(255, 59, 48, 0.34);
-  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.045);
-  background: #0d0e12;
-}
-
-.track-source {
-  margin-top: 12px;
-  padding: 18px;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.018);
-}
-
-.source-note {
-  color: #5f6670;
-  font-size: 8px;
-  font-weight: 500;
-}
-
-.link-shell {
-  margin-top: 16px;
-}
-
-.upload-shell {
-  position: relative;
-  min-height: 84px;
-  margin-top: 10px;
-  padding: 15px 16px;
-  display: flex;
-  align-items: center;
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  background: #090a0d;
-  overflow: hidden;
-}
-
-.upload-shell > div {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  pointer-events: none;
-}
-
-.upload-icon {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 10px;
-  background: #fff;
-  color: #111216;
-  font-size: 18px;
-}
-
-.upload-shell strong {
-  display: block;
-  color: #f6f6f4;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.upload-shell p,
-.track-source-note {
-  margin: 5px 0 0;
-  color: #5d6470;
-  font-size: 8px;
-  line-height: 1.45;
-}
-
-.upload-input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.lyrics-shell {
-  margin-top: 12px;
-}
-
-.composer-actions {
-  margin-top: 16px;
-}
-
-.privacy-note {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #626974;
-  font-size: 8px;
-  font-weight: 500;
-}
-
-.analyze-button {
-  position: relative;
-  min-width: 168px;
-  min-height: 52px;
-  padding: 0 13px 0 17px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 13px;
-  background: #f5f5f2;
-  color: #111216;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
-}
-
-.analyze-button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.035);
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.26),
-    0 0 18px rgba(255, 255, 255, 0.09);
-}
-
-.analyze-button:disabled {
-  cursor: wait;
-  opacity: 0.78;
-}
-
-.analyze-button span {
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.analyze-button b {
-  color: var(--cxty-red);
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.engine-error {
-  margin: 14px 0 0;
-  color: #ff7a72;
-  font-size: 12px;
-}
-
-/* =========================================================
-LOADER
-========================================================= */
-
-.analysis-loader {
-  margin-top: 16px;
-  padding: 18px;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 15px;
-  background: #07080a;
-}
-
-.analysis-live {
-  color: var(--cxty-red);
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.analysis-wave {
-  height: 86px;
-  margin-top: 16px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.analysis-wave i {
-  flex: 1 1 0;
-  min-width: 2px;
-  max-width: 7px;
-  height: var(--bar-height);
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 59, 48, 0.3), #fff, rgba(255, 59, 48, 0.52));
-  transform: scaleY(0.12);
-  transform-origin: center;
-  animation: analysisWave 1.2s ease-in-out var(--bar-delay) infinite alternate;
-}
-
-@keyframes analysisWave {
-  from {
-    transform: scaleY(0.12);
-    opacity: 0.28;
-  }
-  to {
-    transform: scaleY(1);
-    opacity: 0.95;
-  }
-}
-
-.analysis-steps {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 16px;
-}
-
-.analysis-steps span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #646b76;
-  font-size: 8px;
-  line-height: 1.35;
-}
-
-.analysis-steps i {
-  color: var(--cxty-red);
-  font-style: normal;
-}
-
-/* =========================================================
-REPORT APP
-========================================================= */
-
-.report-app {
-  min-height: 100vh;
-  background: var(--cxty-offwhite);
-  color: var(--cxty-ink);
-  overflow: hidden;
-}
-
-.report-topbar {
-  min-height: 72px;
-  border-bottom-color: var(--cxty-border-light);
-  background: rgba(245, 245, 242, 0.94);
-  backdrop-filter: blur(16px);
-}
-
-.report-topbar-meta {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.report-topbar-meta > span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #777d86;
-  font-size: 9px;
-  font-weight: 500;
-}
-
-.report-topbar-meta button {
-  border: 0;
-  background: transparent;
-  color: #777d86;
-  font-size: 9px;
-  cursor: pointer;
-}
-
-.report-layout {
-  height: calc(100vh - 72px);
-  display: grid;
-  grid-template-columns: 210px minmax(0, 1fr);
-}
-
-.report-nav {
-  padding: 28px 18px;
-  border-right: 1px solid var(--cxty-border-light);
-  background: #f0f0ed;
-}
-
-.report-nav-title {
-  padding: 0 10px 12px;
-  color: #8b9098;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.report-nav nav {
-  display: grid;
-  gap: 4px;
-}
-
-.report-nav button {
-  width: 100%;
-  min-height: 40px;
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: #737983;
-  text-align: left;
-  font-size: 10px;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.report-nav button span {
-  color: #a3a7ad;
-  font-size: 8px;
-}
-
-.report-nav button.active {
-  background: #fff;
-  color: #111216;
-  box-shadow: 0 8px 20px rgba(17, 18, 22, 0.04);
-}
-
-.report-nav button.active span {
-  color: var(--cxty-red);
-}
-
-.report-main {
-  min-width: 0;
-  height: 100%;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) 66px;
-}
-
-.report-track {
-  min-width: 0;
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  overscroll-behavior-x: contain;
-  scroll-behavior: smooth;
-}
-
-.report-track::-webkit-scrollbar {
-  display: none;
-}
-
-.report-slide {
-  flex: 0 0 100%;
-  min-width: 100%;
-  height: 100%;
-  padding: 28px;
-  scroll-snap-align: start;
-  overflow-y: auto;
-}
-
-.report-slide-inner {
-  min-height: 100%;
-  padding: 30px;
-  border: 1px solid var(--cxty-border-light);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow:
-    0 24px 70px rgba(17, 18, 22, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-}
-
-.report-slide-head {
-  align-items: flex-start;
-  padding-bottom: 22px;
-  border-bottom: 1px solid var(--cxty-border-light);
-}
-
-.report-slide-head > div {
-  max-width: 820px;
-}
-
-.report-slide-head h1 {
-  margin: 12px 0 0;
-  color: var(--cxty-ink);
-  font-size: clamp(38px, 4.9vw, 72px);
-  line-height: 0.97;
-  font-weight: 600;
-  letter-spacing: -0.055em;
-}
-
-.report-slide-index {
-  color: #a0a5ac;
-  font-size: 9px;
-}
-
-.report-slide-content {
-  padding-top: 24px;
-}
-
-.report-stat-row,
-.report-three,
-.report-two,
-.report-rollout-grid,
-.report-score-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.report-stat-row {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.report-three {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.report-two {
-  grid-template-columns: 1fr 1fr;
-}
-
-.report-rollout-grid {
-  grid-template-columns: repeat(5, minmax(160px, 1fr));
-}
-
-.report-score-grid {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.report-stat,
-.report-insight,
-.report-list,
-.report-pill-group,
-.report-score {
-  padding: 18px;
-  border: 1px solid var(--cxty-border-light);
-  border-radius: 15px;
-  background: #fff;
-}
-
-.report-stat span,
-.report-insight > span,
-.report-list > span,
-.report-pill-group > span,
-.report-score > span,
-.report-quote > span,
-.spotify-reference span {
-  display: block;
-  color: #8b9098;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.report-stat strong {
-  display: block;
-  margin-top: 8px;
-  color: var(--cxty-ink);
-  font-size: 15px;
-  line-height: 1.25;
-  font-weight: 600;
-}
-
-.report-quote {
-  margin-top: 12px;
-  padding: 24px;
-  border-radius: 17px;
-  background: #111216;
-  color: #fff;
-}
-
-.report-quote strong {
-  display: block;
-  margin-top: 13px;
-  font-size: clamp(24px, 3.2vw, 42px);
-  line-height: 1.03;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-}
-
-.report-insight.wide {
-  grid-column: 1 / -1;
-}
-
-.report-insight strong {
-  display: block;
-  margin-top: 10px;
-  color: #17181b;
-  font-size: 18px;
-  line-height: 1.25;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.report-insight p,
-.report-lede {
-  color: #737983;
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.report-lede {
-  max-width: 760px;
-  margin: 0 0 16px;
-}
-
-.report-list ul {
-  margin: 12px 0 0;
-  padding-left: 16px;
-  color: #40454d;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.report-list li + li {
-  margin-top: 8px;
-}
-
-.report-score {
-  min-height: 96px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.report-score strong {
-  display: block;
-  margin-top: 14px;
-  color: var(--cxty-ink);
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
-
-.report-score small {
-  margin-left: 3px;
-  color: #9a9fa6;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.report-pill-group > div {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.report-pill-group b {
-  padding: 8px 10px;
-  border: 1px solid var(--cxty-border-light);
-  border-radius: 999px;
-  background: #f7f7f5;
-  color: #4c5159;
-  font-size: 10px;
-  font-weight: 500;
-}
-
-.spotify-rail {
-  margin-top: 14px;
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.spotify-rail::-webkit-scrollbar {
-  display: none;
-}
-
-.spotify-reference {
-  min-width: 210px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid var(--cxty-border-light);
-  border-radius: 13px;
-  background: #fff;
-  color: inherit;
-  text-decoration: none;
-}
-
-.spotify-reference.submitted {
-  min-width: 260px;
-}
-
-.spotify-reference img {
-  width: 50px;
-  height: 50px;
-  border-radius: 9px;
-  object-fit: cover;
-  flex: 0 0 auto;
-}
-
-.spotify-reference strong {
-  display: block;
-  margin-top: 4px;
-  color: #17181b;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.spotify-reference p {
-  margin: 3px 0 0;
-  color: #8d929a;
-  font-size: 9px;
-}
-
-.report-final-cta {
-  margin-top: 14px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  border-radius: 16px;
-  background: #111216;
-  color: #fff;
-}
-
-.report-final-cta > div:first-child {
-  max-width: 650px;
-}
-
-.report-final-cta span {
-  color: var(--cxty-red);
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-}
-
-.report-final-cta strong {
-  display: block;
-  margin-top: 7px;
-  font-size: 18px;
-  line-height: 1.25;
-  font-weight: 500;
-}
-
-.report-cta-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.report-cta-actions button {
-  min-height: 40px;
-  padding: 0 13px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  background: #fff;
-  color: #111216;
-  font-size: 9px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.report-cta-actions button + button {
-  background: transparent;
-  color: #fff;
-}
-
-.report-controls {
-  min-width: 0;
-  padding: 0 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border-top: 1px solid var(--cxty-border-light);
-  background: rgba(245, 245, 242, 0.96);
-}
-
-.report-controls > button {
-  min-width: 92px;
-  border: 0;
-  background: transparent;
-  color: #5f6570;
-  font-size: 9px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.report-controls > button:last-child {
-  text-align: right;
-}
-
-.report-controls > button:disabled {
-  opacity: 0.28;
-  cursor: default;
-}
-
-.report-dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.report-dots button {
-  width: 5px;
-  height: 5px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: #c5c8cc;
-  cursor: pointer;
-  transition:
-    width 0.2s ease,
-    background 0.2s ease;
-}
-
-.report-dots button.active {
-  width: 20px;
-  background: var(--cxty-red);
-}
-
-/* =========================================================
-RESPONSIVE
-========================================================= */
-
-@media (max-width: 980px) {
-  .engine-grid {
-    grid-template-columns: 1fr;
-    gap: 34px;
-  }
-
-  .composer-panel {
-    max-width: none;
-    justify-self: stretch;
-  }
-
-  .engine-intro {
-    max-width: 760px;
-  }
-
-  .report-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .report-nav {
-    display: none;
-  }
-
-  .report-rollout-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .engine-shell {
-    padding: 0;
-  }
-
-  .engine-workspace {
-    min-height: 100vh;
-    border: 0;
-    border-radius: 0;
-  }
-
-  .engine-topbar,
-  .report-topbar {
-    min-height: 62px;
-    padding: 0 16px;
-  }
-
-  .engine-grid {
-    min-height: 0;
-    padding: 28px 15px 34px;
-  }
-
-  .engine-title {
-    font-size: clamp(48px, 13vw, 64px);
-  }
-
-  .engine-description {
-    margin-top: 20px;
-    font-size: 14px;
-  }
-
-  .engine-meta {
-    margin-top: 22px;
-  }
-
-  .composer-panel {
-    padding: 16px;
-    border-radius: 17px;
-  }
-
-  .composer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .composer-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .analyze-button {
-    width: 100%;
-  }
-
-  .analysis-steps {
-    grid-template-columns: 1fr;
-  }
-
-  .analysis-wave {
-    height: 72px;
-  }
-
-  .report-layout {
-    height: calc(100vh - 62px);
-  }
-
-  .report-main {
-    grid-template-rows: minmax(0, 1fr) 60px;
-  }
-
-  .report-slide {
-    padding: 10px;
-  }
-
-  .report-slide-inner {
-    min-height: 100%;
-    padding: 18px;
-    border-radius: 18px;
-  }
-
-  .report-slide-head h1 {
-    font-size: clamp(34px, 10.5vw, 52px);
-  }
-
-  .report-stat-row,
-  .report-three,
-  .report-two,
-  .report-rollout-grid,
-  .report-score-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .report-score-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .report-quote strong {
-    font-size: 24px;
-  }
-
-  .report-final-cta {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .report-cta-actions {
-    width: 100%;
-  }
-
-  .report-cta-actions button {
-    width: 100%;
-  }
-
-  .report-controls {
-    padding: 0 12px;
-  }
-
-  .report-controls > button {
-    min-width: 72px;
-  }
-
-  .report-topbar-meta button {
-    display: none;
-  }
-}
-
-
-/* =========================================================
-DISCOVERY ENGINE — FINAL PRODUCT POLISH V3
-Streamlined intake + restrained "alive LLM" motion.
-Functional plumbing untouched.
-========================================================= */
-
-.live-red {
-  animation: cxtyRedBreath 3.8s ease-in-out infinite;
-}
-
-@keyframes cxtyRedBreath {
-  0%, 100% {
-    color: var(--cxty-red);
-    text-shadow: 0 0 0 rgba(255, 59, 48, 0);
-  }
-  48% {
-    color: #ff5148;
-    text-shadow:
-      0 0 8px rgba(255, 59, 48, 0.26),
-      0 0 20px rgba(255, 59, 48, 0.09);
-  }
-}
-
-/* Give the entire intake more breathing room without making it taller. */
-.engine-grid {
-  grid-template-columns: minmax(340px, 0.82fr) minmax(620px, 1.18fr);
-  gap: clamp(42px, 5vw, 82px);
-  padding-top: 34px;
-  padding-bottom: 38px;
-}
-
-.composer-panel {
-  padding: 22px;
-  background:
-    radial-gradient(circle at 12% 5%, rgba(255, 59, 48, 0.045), transparent 30%),
-    rgba(11, 12, 15, 0.94);
-}
-
-/* Track is now the hero interaction. */
-.track-source-hero {
-  position: relative;
-  margin-top: 18px;
-  padding: 18px;
-  overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008));
-}
-
-.track-source-hero::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 59, 48, 0.045),
-    0 0 28px rgba(255, 59, 48, 0.025);
-  animation: cxtyTrackAura 4.8s ease-in-out infinite;
-}
-
-@keyframes cxtyTrackAura {
-  0%, 100% {
-    opacity: .35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.source-grid {
-  display: grid;
-  grid-template-columns: 1.18fr .82fr;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.upload-shell {
-  min-height: 108px;
-  margin-top: 0;
-  border-style: solid;
-  border-color: rgba(255, 255, 255, 0.10);
-  transition:
-    border-color .24s ease,
-    background .24s ease,
-    box-shadow .24s ease,
-    transform .24s ease;
-}
-
-.upload-shell:hover {
-  transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.20);
-  background: #0d0e11;
-  box-shadow:
-    0 14px 32px rgba(0,0,0,.18),
-    0 0 22px rgba(255,255,255,.035);
-}
-
-.upload-icon {
-  transition:
-    transform .24s ease,
-    box-shadow .24s ease,
-    filter .24s ease;
-}
-
-.upload-shell:hover .upload-icon {
-  transform: scale(1.04);
-  filter: brightness(1.08);
-  box-shadow:
-    0 0 14px rgba(255,255,255,.12),
-    0 0 26px rgba(255,255,255,.045);
-}
-
-.upload-life {
-  height: 12px;
-  margin-top: 9px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  opacity: .48;
-}
-
-.upload-life i {
-  width: 2px;
-  height: 4px;
-  border-radius: 999px;
-  background: #fff;
-  transform-origin: center;
-  animation: cxtyUploadWave 1.5s ease-in-out infinite alternate;
-}
-
-.upload-life i:nth-child(2) { animation-delay: .10s; }
-.upload-life i:nth-child(3) { animation-delay: .20s; }
-.upload-life i:nth-child(4) { animation-delay: .30s; }
-.upload-life i:nth-child(5) { animation-delay: .40s; }
-.upload-life i:nth-child(6) { animation-delay: .50s; }
-.upload-life i:nth-child(7) { animation-delay: .60s; }
-.upload-life i:nth-child(8) { animation-delay: .70s; }
-.upload-life i:nth-child(9) { animation-delay: .80s; }
-
-@keyframes cxtyUploadWave {
-  from {
-    transform: scaleY(.55);
-    opacity: .28;
-  }
-  to {
-    transform: scaleY(2.2);
-    opacity: .82;
-  }
-}
-
-.link-shell-hero {
-  min-width: 0;
-  padding: 13px;
-  justify-content: center;
-  border: 1px solid var(--cxty-border-dark);
-  border-radius: 14px;
-  background: #090a0d;
-}
-
-.link-shell-hero .composer-input {
-  margin-top: 4px;
-}
-
-/* Metadata is intentionally quieter and more compact. */
-.session-meta {
-  margin-top: 10px;
-  padding: 13px 14px 14px;
-  border: 1px solid rgba(255,255,255,.065);
-  border-radius: 14px;
-  background: rgba(255,255,255,.009);
-}
-
-.session-meta-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.session-meta-head > span:last-child {
-  color: #4f5660;
-  font-size: 7px;
-  font-weight: 500;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-}
-
-.session-meta .composer-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
-  margin-top: 11px;
-}
-
-.session-meta .field-shell {
-  gap: 6px;
-}
-
-.session-meta .composer-input {
-  min-height: 42px;
-  padding: 0 11px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-/* Context is secondary, not another hero box. */
-.lyrics-shell {
-  margin-top: 10px;
-}
-
-.lyrics-shell .composer-textarea {
-  min-height: 82px;
-  max-height: 150px;
-  background: rgba(8, 9, 11, 0.82);
-}
-
-/* Soft whole-button light catch. No blade / stripe. */
-.analyze-button {
-  animation: cxtyAnalyzeBreath 4.2s ease-in-out infinite;
-}
-
-@keyframes cxtyAnalyzeBreath {
-  0%, 68%, 100% {
-    box-shadow:
-      0 12px 34px rgba(0,0,0,.22),
-      0 0 0 rgba(255,255,255,0);
-    filter: brightness(1);
-  }
-  80% {
-    box-shadow:
-      0 14px 38px rgba(0,0,0,.24),
-      0 0 15px rgba(255,255,255,.13),
-      0 0 30px rgba(255,255,255,.045);
-    filter: brightness(1.045);
-  }
-  88% {
-    box-shadow:
-      0 12px 34px rgba(0,0,0,.22),
-      0 0 7px rgba(255,255,255,.06);
-    filter: brightness(1.015);
-  }
-}
-
-.analyze-button:disabled {
-  animation: cxtyAnalyzeWorking 1.4s ease-in-out infinite;
-}
-
-@keyframes cxtyAnalyzeWorking {
-  0%, 100% {
-    filter: brightness(.9);
-    box-shadow: 0 12px 34px rgba(0,0,0,.22);
-  }
-  50% {
-    filter: brightness(1.04);
-    box-shadow:
-      0 14px 38px rgba(0,0,0,.24),
-      0 0 18px rgba(255,255,255,.10);
-  }
-}
-
-/* Tiny living line in the composer header. */
-.composer-header {
-  position: relative;
-}
-
-.composer-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 52px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,59,48,.78), transparent);
-  transform: translateX(-60px);
-  opacity: 0;
-  animation: cxtyHeaderCurrent 5.8s ease-in-out infinite;
-}
-
-@keyframes cxtyHeaderCurrent {
-  0%, 70% {
-    transform: translateX(-60px);
-    opacity: 0;
-  }
-  76% {
-    opacity: .8;
-  }
-  92% {
-    transform: translateX(540px);
-    opacity: .7;
-  }
-  100% {
-    transform: translateX(540px);
-    opacity: 0;
-  }
-}
-
-/* The loader can become more alive without changing analysis logic. */
-.analysis-loader {
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.02),
-    0 0 32px rgba(255,59,48,.025);
-}
-
-.analysis-live {
-  animation: cxtyRedBreath 2.2s ease-in-out infinite;
-}
-
-/* Report accent labels retain restrained life. */
-.report-eyebrow,
-.report-final-cta > div:first-child > span {
-  animation: cxtyReportRedBreath 4.4s ease-in-out infinite;
-}
-
-@keyframes cxtyReportRedBreath {
-  0%, 100% {
-    text-shadow: 0 0 0 rgba(255,59,48,0);
-  }
-  50% {
-    text-shadow: 0 0 9px rgba(255,59,48,.19);
-  }
-}
-
-@media (max-width: 1180px) {
-  .engine-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .engine-intro {
-    max-width: 760px;
-  }
-
-  .composer-panel {
-    max-width: none;
-    justify-self: stretch;
-  }
-
-  .session-meta .composer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .source-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .session-meta .composer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .engine-grid {
-    gap: 26px;
-  }
-
-  .track-source-hero {
-    padding: 15px;
-  }
-
-  .upload-shell {
-    min-height: 92px;
-  }
-}
-
-@media (max-width: 430px) {
-  .session-meta .composer-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .live-red,
-  .track-source-hero::before,
-  .upload-life i,
-  .analyze-button,
-  .composer-header::after,
-  .analysis-live,
-  .report-eyebrow,
-  .report-final-cta > div:first-child > span {
-    animation: none !important;
-  }
-}
-
-
-/* =========================================================
-DISCOVERY ENGINE — MOBILE INTAKE CAROUSEL V1
-Desktop remains the full workspace. Mobile becomes a guided 3-step flow.
-========================================================= */
-
-.mobile-intake-progress,
-.mobile-step-actions {
-  display: none;
-}
-
-.mobile-intake-slide {
-  display: contents;
-}
-
-@media (max-width: 640px) {
-  .composer-panel {
-    overflow: hidden;
-  }
-
-  .composer-header {
-    padding-bottom: 15px;
-  }
-
-  .composer-header .composer-step {
-    display: none;
-  }
-
-  .mobile-intake-progress {
-    margin: 14px -2px 4px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
-
-  .mobile-intake-progress button {
-    position: relative;
-    min-width: 0;
-    padding: 8px 3px 13px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: 5px;
-    border: 0;
-    background: transparent;
-    color: #535a65;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .mobile-intake-progress button span {
-    font-size: 7px;
-    font-weight: 500;
-  }
-
-  .mobile-intake-progress button b {
-    overflow: hidden;
-    color: inherit;
-    font-size: 8px;
-    font-weight: 500;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .mobile-intake-progress button i {
-    position: absolute;
-    left: 3px;
-    right: 3px;
-    bottom: 3px;
-    height: 1px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.07);
-  }
-
-  .mobile-intake-progress button i::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: scaleX(0);
-    transform-origin: left center;
-    background: var(--cxty-red);
-    box-shadow: 0 0 9px rgba(255, 59, 48, 0.24);
-    transition: transform 0.28s ease;
-  }
-
-  .mobile-intake-progress button.active,
-  .mobile-intake-progress button.complete {
-    color: #d3d5d9;
-  }
-
-  .mobile-intake-progress button.active span,
-  .mobile-intake-progress button.complete span {
-    color: var(--cxty-red);
-  }
-
-  .mobile-intake-progress button.active i::after,
-  .mobile-intake-progress button.complete i::after {
-    transform: scaleX(1);
-  }
-
-  .mobile-intake-slide {
-    width: 100%;
-    display: none;
-    opacity: 0;
-    transform: translateX(18px);
-  }
-
-  .mobile-intake-slide.active {
-    display: block;
-    opacity: 1;
-    transform: translateX(0);
-    animation: cxtyMobileStepIn 0.34s cubic-bezier(.22,.78,.28,1) both;
-  }
-
-  @keyframes cxtyMobileStepIn {
-    from {
-      opacity: 0;
-      transform: translateX(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .track-source-hero {
-    margin-top: 10px;
-  }
-
-  .source-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .upload-shell {
-    min-height: 132px;
-  }
-
-  .link-shell-hero {
-    min-height: 88px;
-  }
-
-  .session-meta {
-    margin-top: 10px;
-    padding: 15px;
-  }
-
-  .session-meta .composer-grid {
-    grid-template-columns: 1fr;
-    gap: 9px;
-  }
-
-  .session-meta .composer-input {
-    min-height: 50px;
-    font-size: 14px;
-  }
-
-  .lyrics-shell {
-    margin-top: 12px;
-  }
-
-  .lyrics-shell .composer-textarea {
-    min-height: 155px;
-    max-height: 220px;
-  }
-
-  .mobile-step-actions {
-    min-height: 58px;
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .mobile-step-actions.split {
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .mobile-step-actions.final {
-    grid-template-columns: auto 1fr;
-  }
-
-  .mobile-step-actions > span {
-    color: #555c66;
-    font-size: 8px;
-    font-weight: 500;
-    text-align: left;
-  }
-
-  .mobile-step-actions.split > span,
-  .mobile-step-actions.final > span {
-    text-align: center;
-  }
-
-  .mobile-step-actions button {
-    min-height: 46px;
-    padding: 0 15px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    border: 1px solid rgba(255,255,255,.11);
-    border-radius: 12px;
-    background: #f5f5f2;
-    color: #111216;
-    font-size: 9px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow:
-      0 12px 28px rgba(0,0,0,.18),
-      0 0 0 rgba(255,255,255,0);
-    animation: cxtyMobileContinuePulse 4.2s ease-in-out infinite;
-  }
-
-  .mobile-step-actions button b {
-    color: var(--cxty-red);
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .mobile-step-actions button.back {
-    padding: 0 11px;
-    background: transparent;
-    color: #737a84;
-    border-color: rgba(255,255,255,.08);
-    box-shadow: none;
-    animation: none;
-  }
-
-  @keyframes cxtyMobileContinuePulse {
-    0%, 68%, 100% {
-      filter: brightness(1);
-      box-shadow:
-        0 12px 28px rgba(0,0,0,.18),
-        0 0 0 rgba(255,255,255,0);
-    }
-    80% {
-      filter: brightness(1.04);
-      box-shadow:
-        0 14px 32px rgba(0,0,0,.20),
-        0 0 14px rgba(255,255,255,.10);
-    }
-  }
-
-  .composer-actions {
-    margin-top: 16px;
-  }
-
-  .composer-actions .analyze-button {
-    min-height: 54px;
-  }
-
-  /* On mobile, errors belong to the active step and remain visible. */
-  .engine-error {
-    margin-top: 10px;
-    padding: 10px 11px;
-    border: 1px solid rgba(255, 122, 114, 0.15);
-    border-radius: 10px;
-    background: rgba(255, 122, 114, 0.035);
-  }
-
-  /* Keep the whole embedded intake short enough that Squarespace does not feel endless. */
-  .engine-grid {
-    padding-bottom: 22px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mobile-intake-slide.active,
-  .mobile-step-actions button {
-    animation: none !important;
-  }
-}
-
-
-/* =========================================================
-MOBILE CAROUSEL V2 — SWIPE AFFORDANCE + STABLE ENTRY
-========================================================= */
-
-.mobile-swipe-hint {
-  display: none;
-}
-
-@media (max-width: 640px) {
-  html,
-  body {
-    scroll-behavior: auto;
-  }
-
-  .engine-shell {
-    min-height: auto;
-  }
-
-  .engine-workspace {
-    min-height: auto;
-  }
-
-  .engine-grid {
-    min-height: auto;
-    align-items: start;
-  }
-
-  .mobile-swipe-hint {
-    min-height: 28px;
-    margin: 2px 0 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    color: #666d77;
-    font-size: 7px;
-    font-weight: 500;
-    letter-spacing: .035em;
-    text-transform: uppercase;
-    pointer-events: none;
-  }
-
-  .mobile-swipe-hint b {
-    color: #9aa0a8;
-    font-size: 10px;
-    font-weight: 500;
-  }
-
-  .mobile-swipe-hint i {
-    position: relative;
-    width: 34px;
-    height: 1px;
-    overflow: hidden;
-    background: rgba(255,255,255,.07);
-  }
-
-  .mobile-swipe-hint i::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,255,255,.72),
-      transparent
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
+
+type Report = {
+  evidence: {
+    coreThemes: string[];
+    emotionalStates: string[];
+    repeatedIdeas: string[];
+    imagery: string[];
+    coreTension: string;
+    strongestMessage: string;
+    mostShareableLyric: string;
+    listenerComment: string;
+  };
+  strategy: {
+    discoveryMoment: string;
+    artistArchetype: string;
+    archetypeExplanation: string;
+    discoveryAngle: string;
+    rolloutType: string;
+    audienceMap: string;
+    ifReleasedToday: {
+      likelyOutcome: string;
+      theUnlock: string;
+      contentTrigger: string;
+    };
+    futureRolloutPrediction: string;
+  };
+  fanbaseMatch: {
+    closestArtists: string[];
+    similarSongs: string[];
+    playlistLanes: string[];
+    fanbaseReason: string;
+  };
+  scores: {
+    discoveryScore: number;
+    viralPotentialScore: number;
+    hookStrengthScore: number;
+    playlistFitScore: number;
+    ugcTikTokScore: number;
+    emotionalResonanceScore: number;
+    brandFitScore: number;
+    rolloutReadinessScore: number;
+  };
+  rollout: {
+    platformPriority: string;
+    contentPillars: string[];
+    videoIdeas: string[];
+    preReleasePlan: string[];
+    releaseWeekPlan: string[];
+    postReleasePlan: string[];
+  };
+  creative: {
+    visualDirection: string;
+    biggestOpportunity: string;
+    biggestRisk: string;
+    finalRecommendation: string;
+    cta: string;
+  };
+  spotify?: {
+    submittedTrack?: {
+      name: string;
+      artist: string;
+      image: string;
+      url: string;
+      album?: string;
+      releaseDate?: string;
+      popularity?: number;
+    } | null;
+    artists: {
+      name: string;
+      image: string;
+      url: string;
+    }[];
+    tracks: {
+      name: string;
+      artist: string;
+      image: string;
+      url: string;
+    }[];
+  };
+};
+
+export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [processingPhase, setProcessingPhase] = useState<
+    "idle" | "uploading" | "analyzing"
+  >("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStage, setAnalysisStage] = useState("Preparing analysis");
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [selectedFileSize, setSelectedFileSize] = useState("");
+  const [report, setReport] = useState<Report | null>(null);
+  const [error, setError] = useState("");
+  const [mobileStep, setMobileStep] = useState(0);
+  const [leadInfo, setLeadInfo] = useState<{
+    artistName: string;
+    email: string;
+    songTitle: string;
+    songLink: string;
+  } | null>(null);
+
+  const isSubmittingRef = useRef(false);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setMobileStep(0);
+
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    window.parent.postMessage(
+      { type: "CXTY_DISCOVERY_READY" },
+      "*"
     );
-    transform: translateX(-120%);
-    animation: cxtySwipeHint 2.3s ease-in-out infinite;
+  }, []);
+
+  useEffect(() => {
+    let raf = 0;
+
+    const postHeight = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const height = Math.max(
+          document.documentElement.scrollHeight,
+          document.body.scrollHeight,
+          document.documentElement.offsetHeight,
+          document.body.offsetHeight
+        );
+
+        window.parent.postMessage(
+          {
+            type: "CXTY_DISCOVERY_HEIGHT",
+            height,
+            mode: report ? "report" : "intake",
+          },
+          "*"
+        );
+      });
+    };
+
+    postHeight();
+
+    const observer = new ResizeObserver(postHeight);
+    observer.observe(document.documentElement);
+    observer.observe(document.body);
+
+    window.addEventListener("load", postHeight);
+    window.addEventListener("resize", postHeight);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+      window.removeEventListener("load", postHeight);
+      window.removeEventListener("resize", postHeight);
+    };
+  }, [loading, report, error]);
+
+  useEffect(() => {
+    if (report) return;
+
+    const activeSlide = document.querySelector(
+      ".mobile-intake-slide.active"
+    ) as HTMLElement | null;
+
+    if (!activeSlide) return;
+
+    const timer = window.setTimeout(() => {
+      activeSlide.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
+      if (window.matchMedia("(max-width: 640px)").matches) {
+        const focusTarget =
+          mobileStep === 1
+            ? (activeSlide.querySelector(
+                'input[name="artistName"]'
+              ) as HTMLInputElement | null)
+            : mobileStep === 2
+            ? (activeSlide.querySelector(
+                'textarea[name="lyrics"]'
+              ) as HTMLTextAreaElement | null)
+            : null;
+
+        /*
+        Focus only after the panel has moved. preventScroll keeps Safari from
+        undoing our controlled snap and jumping the document somewhere else.
+        */
+        focusTarget?.focus({ preventScroll: true });
+      }
+
+      window.parent.postMessage(
+        { type: "CXTY_DISCOVERY_ACTIVE_STEP" },
+        "*"
+      );
+    }, 180);
+
+    return () => window.clearTimeout(timer);
+  }, [mobileStep, report]);
+
+  useEffect(() => {
+    if (!loading || report) return;
+
+    const timer = window.setTimeout(() => {
+      const processing = document.querySelector(
+        ".processing-panel"
+      ) as HTMLElement | null;
+
+      processing?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
+      window.parent.postMessage(
+        { type: "CXTY_DISCOVERY_PROCESSING" },
+        "*"
+      );
+    }, 100);
+
+    return () => window.clearTimeout(timer);
+  }, [loading, processingPhase, report]);
+
+  useEffect(() => {
+    if (!report) return;
+
+    const scrollToReportTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_REPORT_READY",
+          mode: "report"
+        },
+        "*"
+      );
+    };
+
+    const firstScroll = window.setTimeout(scrollToReportTop, 100);
+    const secondScroll = window.setTimeout(scrollToReportTop, 500);
+    const thirdScroll = window.setTimeout(scrollToReportTop, 1000);
+
+    return () => {
+      window.clearTimeout(firstScroll);
+      window.clearTimeout(secondScroll);
+      window.clearTimeout(thirdScroll);
+    };
+  }, [report]);
+
+  function handleFieldFocus(
+    event: React.FocusEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
+    const field = event.currentTarget;
+
+    window.setTimeout(() => {
+      field.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_FOCUS_FIELD",
+          field: field.getAttribute("name") || "",
+        },
+        "*"
+      );
+    }, 120);
   }
 
-  @keyframes cxtySwipeHint {
-    0%, 22% {
-      transform: translateX(-120%);
-      opacity: 0;
+  function handleFieldKeyDown(
+    event: React.KeyboardEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >
+  ) {
+    if (event.key !== "Enter") return;
+    if (event.currentTarget instanceof HTMLTextAreaElement) return;
+
+    const form = event.currentTarget.closest("form");
+    if (!form) return;
+
+    const order = ["artistName", "email", "songTitle"];
+    const currentName = event.currentTarget.getAttribute("name") || "";
+    const currentIndex = order.indexOf(currentName);
+
+    if (currentIndex === -1) return;
+
+    event.preventDefault();
+
+    const nextName = order[currentIndex + 1];
+
+    if (nextName) {
+      const next = form.elements.namedItem(nextName) as HTMLElement | null;
+      next?.focus();
+      return;
     }
-    34% {
-      opacity: 1;
+
+    const release = form.elements.namedItem("releaseStatus") as HTMLElement | null;
+    release?.focus();
+  }
+
+  function handleSongFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setSelectedFileName("");
+      setSelectedFileSize("");
+      return;
     }
-    72% {
-      transform: translateX(120%);
-      opacity: 1;
+
+    setSelectedFileName(file.name);
+    setSelectedFileSize(
+      file.size >= 1024 * 1024
+        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(file.size / 1024))} KB`
+    );
+    setError("");
+  }
+
+  function goToMobileStep(
+    form: HTMLFormElement,
+    nextStep: number
+  ) {
+    setError("");
+
+    if (nextStep > mobileStep) {
+      const formData = new FormData(form);
+
+      if (nextStep >= 1) {
+        const songFile = formData.get("songFile") as File | null;
+        const songLink = String(formData.get("songLink") || "").trim();
+
+        if ((!songFile || songFile.size === 0) && !songLink) {
+          setError("Upload a track or paste a song link to continue.");
+          setMobileStep(0);
+          return;
+        }
+      }
+
+      if (nextStep >= 2) {
+        const artistName = String(formData.get("artistName") || "").trim();
+        const email = String(formData.get("email") || "").trim();
+
+        if (!artistName || !email) {
+          setError("Add your artist name and email to continue.");
+          setMobileStep(1);
+          return;
+        }
+      }
     }
-    82%, 100% {
-      transform: translateX(120%);
-      opacity: 0;
+
+    setMobileStep(Math.max(0, Math.min(2, nextStep)));
+
+    window.setTimeout(() => {
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_STEP_CHANGED",
+        },
+        "*"
+      );
+    }, 80);
+  }
+
+  function handleMobileStepClick(
+    event: React.MouseEvent<HTMLButtonElement>,
+    nextStep: number
+  ) {
+    const form = event.currentTarget.closest("form");
+
+    if (!form) return;
+
+    goToMobileStep(form, nextStep);
+  }
+
+  function handleMobileTouchStart(
+    event: React.TouchEvent<HTMLFormElement>
+  ) {
+    const touch = event.touches[0];
+
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+  }
+
+  function handleMobileTouchEnd(
+    event: React.TouchEvent<HTMLFormElement>
+  ) {
+    const startX = touchStartXRef.current;
+    const startY = touchStartYRef.current;
+
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+
+    if (startX === null || startY === null) return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    if (Math.abs(deltaX) < 52) return;
+    if (Math.abs(deltaY) > Math.abs(deltaX) * 0.7) return;
+
+    const form = event.currentTarget;
+
+    if (deltaX < 0) {
+      goToMobileStep(form, mobileStep + 1);
+    } else {
+      goToMobileStep(form, mobileStep - 1);
     }
   }
 
-  .mobile-intake-slide.active {
-    touch-action: pan-y;
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isSubmittingRef.current) return;
+
+    isSubmittingRef.current = true;
+    setLoading(true);
+    setError("");
+    setUploadProgress(0);
+    setAnalysisProgress(0);
+
+    window.parent.postMessage(
+      { type: "CXTY_DISCOVERY_PROCESSING" },
+      "*"
+    );
+
+    let analysisTimer: number | null = null;
+
+    try {
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+
+      const songFile = formData.get("songFile") as File | null;
+      const songLink = String(formData.get("songLink") || "").trim();
+
+      if ((!songFile || songFile.size === 0) && !songLink) {
+        throw new Error("Please upload a song or paste a song link.");
+      }
+
+      if (songFile && songFile.size > 0) {
+        setProcessingPhase("uploading");
+        setAnalysisStage("Uploading track securely");
+        setUploadProgress(1);
+
+        const safeFileName = songFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const uploadPath = `songs/${Date.now()}-${safeFileName}`;
+
+        const uploadedSong = await upload(uploadPath, songFile, {
+          access: "private",
+          handleUploadUrl: "/api/upload-song",
+          onUploadProgress: (progressEvent) => {
+            setUploadProgress(
+              Math.max(1, Math.min(100, Math.round(progressEvent.percentage)))
+            );
+          },
+        });
+
+        setUploadProgress(100);
+
+        formData.delete("songFile");
+        formData.append("songBlobPathname", uploadedSong.pathname);
+        formData.append("songFileName", songFile.name);
+        formData.append("songFileType", songFile.type || "audio/mpeg");
+      } else {
+        formData.delete("songFile");
+      }
+
+      setProcessingPhase("analyzing");
+      setAnalysisProgress(8);
+      setAnalysisStage("Reading structure and creative context");
+
+      const analysisStartedAt = Date.now();
+
+      analysisTimer = window.setInterval(() => {
+        const elapsed = Date.now() - analysisStartedAt;
+
+        setAnalysisProgress((current) => {
+          let ceiling = 92;
+
+          if (elapsed < 4500) {
+            ceiling = 36;
+            setAnalysisStage("Reading structure and creative context");
+          } else if (elapsed < 9000) {
+            ceiling = 58;
+            setAnalysisStage("Mapping story, audience, and emotion");
+          } else if (elapsed < 15000) {
+            ceiling = 76;
+            setAnalysisStage("Finding the creative angle");
+          } else {
+            ceiling = 94;
+            setAnalysisStage("Building rollout direction");
+          }
+
+          if (current >= ceiling) return current;
+
+          const step = current < 35 ? 3 : current < 70 ? 2 : 1;
+          return Math.min(ceiling, current + step);
+        });
+      }, 480);
+
+      const response = await fetch("/api/analyze-song", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+
+      if (analysisTimer !== null) {
+        window.clearInterval(analysisTimer);
+        analysisTimer = null;
+      }
+
+      setAnalysisStage("Report ready");
+      setAnalysisProgress(100);
+
+      setLeadInfo({
+        artistName: String(formData.get("artistName") || ""),
+        email: String(formData.get("email") || ""),
+        songTitle: String(formData.get("songTitle") || ""),
+        songLink: String(formData.get("songLink") || ""),
+      });
+
+      fetch("/api/track-cta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventType: "submission",
+          artistName: String(formData.get("artistName") || ""),
+          email: String(formData.get("email") || ""),
+          songTitle: String(formData.get("songTitle") || ""),
+          songLink: String(formData.get("songLink") || ""),
+          releaseStatus: String(formData.get("releaseStatus") || ""),
+          discoveryScore: data.report?.scores?.discoveryScore || "",
+          discoveryMoment: data.report?.strategy?.discoveryMoment || "",
+          artistArchetype: data.report?.strategy?.artistArchetype || "",
+          rolloutType: data.report?.strategy?.rolloutType || "",
+          mostShareableLyric: data.report?.evidence?.mostShareableLyric || "",
+          fanbaseMatchArtists: Array.isArray(
+            data.report?.fanbaseMatch?.closestArtists
+          )
+            ? data.report.fanbaseMatch.closestArtists.join(", ")
+            : "",
+          ifReleasedToday: data.report?.strategy?.ifReleasedToday
+            ? `${data.report.strategy.ifReleasedToday.likelyOutcome} ${data.report.strategy.ifReleasedToday.theUnlock} ${data.report.strategy.ifReleasedToday.contentTrigger}`
+            : "",
+          futureRolloutPrediction:
+            data.report?.strategy?.futureRolloutPrediction || "",
+        }),
+      }).catch((trackingError) => {
+        console.error("Submission tracking failed:", trackingError);
+      });
+
+      await new Promise((resolve) => window.setTimeout(resolve, 320));
+      setReport(data.report);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong analyzing the song.";
+
+      setError(message);
+      setProcessingPhase("idle");
+    } finally {
+      if (analysisTimer !== null) {
+        window.clearInterval(analysisTimer);
+      }
+
+      setLoading(false);
+      isSubmittingRef.current = false;
+    }
   }
 
-  .mobile-step-actions button:not(.back) {
-    min-width: 132px;
+  async function handleBuildMyRolloutClick() {
+    if (leadInfo) {
+      fetch("/api/track-cta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          artistName: leadInfo.artistName,
+          email: leadInfo.email,
+          songTitle: leadInfo.songTitle,
+          songLink: leadInfo.songLink,
+          ctaClicked: "Yes",
+        }),
+      }).catch((trackingError) => {
+        console.error("CTA tracking failed:", trackingError);
+      });
+    }
+
+    window.open("https://cxtylimits.co/build-my-rollout", "_blank");
   }
 
-  .mobile-step-actions button:not(.back)::after {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-right: 1px solid currentColor;
-    border-top: 1px solid currentColor;
-    transform: rotate(45deg);
-    opacity: .65;
+  if (report) {
+    return (
+      <ReportView
+        report={report}
+        onReset={() => {
+          setReport(null);
+          setMobileStep(0);
+          setProcessingPhase("idle");
+          setUploadProgress(0);
+          setAnalysisProgress(0);
+          setSelectedFileName("");
+          setSelectedFileSize("");
+        }}
+        onBuildMyRolloutClick={handleBuildMyRolloutClick}
+      />
+    );
   }
 
-  /* Keep the active panel visually close to the progress controls. */
-  .track-source-hero,
-  .session-meta,
-  .lyrics-shell {
-    margin-top: 8px;
-  }
-}
+  return (
+    <main className="engine-shell">
+      <section className="engine-workspace">
+        <header className="engine-topbar">
+          <div>
+            <p className="product-brand">CXTY LIMITS</p>
+            <p className="product-name">Discovery Engine</p>
+          </div>
 
-@media (prefers-reduced-motion: reduce) {
-  .mobile-swipe-hint i::after {
-    animation: none !important;
-  }
-}
+          <div className="engine-status">
+            <span />
+            Private session
+          </div>
+        </header>
 
+        <div className="engine-grid">
+          <section className="engine-intro">
+            <p className="engine-kicker live-red">Creative intelligence for music</p>
 
-/* =========================================================
-DISCOVERY ENGINE — PRODUCT UI V4
-Upload progress + analysis progress + fixed SaaS report carousel
-========================================================= */
+            <h1 className="engine-title">
+              What are we
+              <br />
+              discovering?
+            </h1>
 
-/* -----------------------------
-PROCESSING / UPLOAD FEEDBACK
------------------------------ */
+            <p className="engine-description">
+              Upload a track or paste a song link. Discovery Engine turns the
+              record into a story, audience map, creative angle, and rollout
+              direction.
+            </p>
 
-.upload-copy {
-  min-width: 0;
-}
+            <div className="engine-meta">
+              <span>Private upload</span>
+              <span>Strategy report</span>
+              <span>Rollout direction</span>
+            </div>
+          </section>
 
-.upload-copy p {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+          <form
+            onSubmit={handleSubmit}
+            onTouchStart={handleMobileTouchStart}
+            onTouchEnd={handleMobileTouchEnd}
+            className="composer-panel"
+          >
+            <div className="composer-header">
+              <div>
+                <span className="composer-label live-red">New analysis</span>
+                <strong>Start with the track.</strong>
+              </div>
+              <span className="composer-step">01</span>
+            </div>
 
-.processing-panel {
-  margin-top: 12px;
-  padding: 16px;
-  border: 1px solid rgba(255,255,255,.085);
-  border-radius: 14px;
-  background:
-    radial-gradient(circle at 18% 0%, rgba(255,59,48,.055), transparent 34%),
-    #08090c;
-  overflow: hidden;
-}
+            <div className="mobile-intake-progress" aria-label="Analysis setup progress">
+              {["Track", "Details", "Context"].map((label, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={index === mobileStep ? "active" : index < mobileStep ? "complete" : ""}
+                  onClick={(event) => handleMobileStepClick(event, index)}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <b>{label}</b>
+                  <i />
+                </button>
+              ))}
+            </div>
 
-.processing-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
+            <div className="mobile-swipe-hint" aria-hidden="true">
+              <span>Swipe to move through setup</span>
+              <b>←</b>
+              <i />
+              <b>→</b>
+            </div>
 
-.processing-head > div {
-  display: grid;
-  gap: 5px;
-}
+            <div className={`mobile-intake-slide ${mobileStep === 0 ? "active" : ""}`}>
+              <div className="track-source track-source-hero">
+              <div className="track-source-head">
+                <div>
+                  <span className="composer-label live-red">Track source</span>
+                  <strong>Feed the engine.</strong>
+                </div>
+                <span className="source-note">Best results: audio upload</span>
+              </div>
 
-.processing-head span {
-  color: var(--cxty-red);
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: .055em;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255,59,48,.18);
-}
+              <div className="source-grid">
+                <div className="upload-shell">
+                  <div>
+                    <span className="upload-icon">＋</span>
+                    <div className="upload-copy">
+                      <strong>
+                        {selectedFileName ? "Track selected" : "Upload track"}
+                      </strong>
+                      <p>
+                        {selectedFileName
+                          ? `${selectedFileName} · ${selectedFileSize}`
+                          : "MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB"}
+                      </p>
+                      <span className="upload-life" aria-hidden="true">
+                        <i /><i /><i /><i /><i /><i /><i /><i /><i />
+                      </span>
+                    </div>
+                  </div>
 
-.processing-head strong {
-  color: #f7f7f5;
-  font-size: 12px;
-  font-weight: 500;
-}
+                  <input
+                    name="songFile"
+                    type="file"
+                    accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+                    className="upload-input"
+                    onChange={handleSongFileChange}
+                  />
+                </div>
 
-.processing-head > b {
-  color: #fff;
-  font-size: 18px;
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: -.04em;
-}
+                <label className="link-shell link-shell-hero">
+                  <span>Or paste a song link</span>
+                  <input
+                    name="songLink"
+                    placeholder="Spotify, YouTube, or SoundCloud"
+                    className="composer-input composer-link"
+                    onFocus={handleFieldFocus}
+                  />
+                </label>
+              </div>
 
-.processing-progress {
-  height: 2px;
-  margin-top: 13px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255,255,255,.065);
-}
+              <p className="track-source-note">
+                Links are used for context only and may be less accurate. For
+                Spotify links, add lyrics or key context for a stronger report.
+              </p>
+              </div>
 
-.processing-progress i {
-  display: block;
-  height: 100%;
-  min-width: 2px;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #ff3b30, #fff);
-  box-shadow: 0 0 14px rgba(255,255,255,.14);
-  transition: width .32s ease;
-}
+              <div className="mobile-step-actions">
+                <span>01 / 03</span>
+                <button
+                  type="button"
+                  onClick={(event) => handleMobileStepClick(event, 1)}
+                >
+                  Continue <b>→</b>
+                </button>
+              </div>
+            </div>
 
-.processing-wave {
-  height: 54px;
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  overflow: hidden;
-  border-top: 1px solid rgba(255,255,255,.045);
-  border-bottom: 1px solid rgba(255,255,255,.045);
-}
+            <div className={`mobile-intake-slide ${mobileStep === 1 ? "active" : ""}`}>
+              <div className="session-meta">
+              <div className="session-meta-head">
+                <span className="composer-label">Session details</span>
+                <span>Required metadata</span>
+              </div>
 
-.processing-wave > i {
-  flex: 1 1 0;
-  min-width: 1px;
-  max-width: 5px;
-  height: var(--process-height);
-  border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    rgba(255,59,48,.28),
-    rgba(255,255,255,.90),
-    rgba(255,59,48,.42)
+              <div className="composer-grid">
+                <label className="field-shell">
+                  <span>Artist</span>
+                  <input
+                    name="artistName"
+                    required
+                    placeholder="Artist name"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Email</span>
+                  <input
+                    name="email"
+                    required
+                    placeholder="Email address"
+                    type="email"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Song title</span>
+                  <input
+                    name="songTitle"
+                    placeholder="Optional"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Release status</span>
+                  <select
+                    name="releaseStatus"
+                    defaultValue=""
+                    className="composer-input"
+                  >
+                    <option value="" disabled>
+                      Select
+                    </option>
+                    <option value="Unreleased">Unreleased</option>
+                    <option value="Already Released">Already Released</option>
+                    <option value="Not Sure">Not Sure</option>
+                  </select>
+                </label>
+              </div>
+              </div>
+
+              <div className="mobile-step-actions split">
+                <button
+                  type="button"
+                  className="back"
+                  onClick={(event) => handleMobileStepClick(event, 0)}
+                >
+                  ← Back
+                </button>
+                <span>02 / 03</span>
+                <button
+                  type="button"
+                  onClick={(event) => handleMobileStepClick(event, 2)}
+                >
+                  Continue <b>→</b>
+                </button>
+              </div>
+            </div>
+
+            <div className={`mobile-intake-slide ${mobileStep === 2 ? "active" : ""}`}>
+              <label className="lyrics-shell">
+              <span>Lyrics / context</span>
+              <textarea
+                name="lyrics"
+                placeholder="Optional — paste lyrics or add context for a more accurate analysis."
+                className="composer-textarea"
+                onFocus={handleFieldFocus}
+              />
+            </label>
+
+            {loading && (
+              <section className="processing-panel" aria-live="polite">
+                <div className="processing-head">
+                  <div>
+                    <span>
+                      {processingPhase === "uploading"
+                        ? "Secure upload"
+                        : "Discovery Engine"}
+                    </span>
+                    <strong>
+                      {processingPhase === "uploading"
+                        ? "Uploading track"
+                        : analysisStage}
+                    </strong>
+                  </div>
+                  <b>
+                    {processingPhase === "uploading"
+                      ? uploadProgress
+                      : analysisProgress}
+                    %
+                  </b>
+                </div>
+
+                <div className="processing-progress">
+                  <i
+                    style={{
+                      width: `${
+                        processingPhase === "uploading"
+                          ? uploadProgress
+                          : analysisProgress
+                      }%`,
+                    }}
+                  />
+                </div>
+
+                <div className="processing-wave" aria-hidden="true">
+                  {Array.from({ length: 44 }).map((_, index) => (
+                    <i
+                      key={index}
+                      style={
+                        {
+                          "--process-delay": `${index * 23}ms`,
+                          "--process-height": `${18 + ((index * 29) % 70)}%`,
+                        } as React.CSSProperties
+                      }
+                    />
+                  ))}
+                </div>
+
+                <p>
+                  {processingPhase === "uploading"
+                    ? "Your track is being uploaded privately before analysis begins."
+                    : "Keep this screen open. We’re building the report now."}
+                </p>
+              </section>
+            )}
+
+            <div className="composer-actions">
+              <div className="privacy-note">
+                <span />
+                Your upload stays private.
+              </div>
+
+              <button
+                disabled={loading}
+                type="submit"
+                className="analyze-button"
+              >
+                <span>
+                  {loading ? "Analyzing track" : "Start analysis"}
+                </span>
+                <b>{loading ? "…" : "↗"}</b>
+              </button>
+            </div>
+
+            <div className="mobile-step-actions final">
+              <button
+                type="button"
+                className="back"
+                onClick={(event) => handleMobileStepClick(event, 1)}
+              >
+                ← Back
+              </button>
+              <span>03 / 03</span>
+            </div>
+
+            {error && <p className="engine-error">{error}</p>}
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
   );
-  transform: scaleY(.18);
-  opacity: .34;
-  animation: cxtyProcessingWave 1.1s ease-in-out var(--process-delay) infinite alternate;
 }
 
-@keyframes cxtyProcessingWave {
-  to {
-    transform: scaleY(1);
-    opacity: .88;
-  }
-}
-
-.processing-panel > p {
-  margin: 10px 0 0;
-  color: #5f6670;
-  font-size: 8px;
-  line-height: 1.45;
-}
-
-/* -----------------------------
-REPORT — FIXED PRODUCT SHELL
------------------------------ */
-
-html:has(.report-app),
-body:has(.report-app) {
-  height: 100%;
-  overflow: hidden !important;
-  background: var(--cxty-offwhite);
-}
-
-.report-app {
-  height: 100dvh;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: 64px minmax(0, 1fr);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 85% 8%, rgba(255,59,48,.055), transparent 23%),
-    linear-gradient(rgba(17,18,22,.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(17,18,22,.022) 1px, transparent 1px),
-    #f5f5f2;
-  background-size: auto, 42px 42px, 42px 42px, auto;
-}
-
-.report-topbar {
-  min-height: 64px;
-  height: 64px;
-  padding: 0 22px;
-  background: rgba(249,249,247,.88);
-  border-bottom: 1px solid rgba(17,18,22,.08);
-  backdrop-filter: blur(18px);
-  z-index: 5;
-}
-
-.report-layout {
-  height: auto;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 188px minmax(0,1fr);
-  overflow: hidden;
-}
-
-.report-nav {
-  min-height: 0;
-  padding: 20px 12px;
-  border-right: 1px solid rgba(17,18,22,.08);
-  background: rgba(238,238,234,.80);
-  overflow: hidden;
-}
-
-.report-nav-title {
-  padding: 0 9px 11px;
-}
-
-.report-nav nav {
-  gap: 2px;
-}
-
-.report-nav button {
-  min-height: 36px;
-  padding: 0 9px;
-  border-radius: 8px;
-  font-size: 9px;
-}
-
-.report-main {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  display: grid;
-  grid-template-rows: 34px minmax(0,1fr) 58px;
-  overflow: hidden;
-}
-
-.report-explore-hint {
-  padding: 0 22px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  color: #8a8f97;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: .025em;
-  text-transform: uppercase;
-}
-
-.report-explore-hint .mobile-hint {
-  display: none;
-}
-
-.report-explore-hint i {
-  position: relative;
-  width: 42px;
-  height: 1px;
-  overflow: hidden;
-  background: rgba(17,18,22,.10);
-}
-
-.report-explore-hint i b {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, #ff3b30, transparent);
-  transform: translateX(-120%);
-  animation: cxtyReportHint 2.4s ease-in-out infinite;
-}
-
-@keyframes cxtyReportHint {
-  0%,22% { transform: translateX(-120%); opacity: 0; }
-  34% { opacity: 1; }
-  72% { transform: translateX(120%); opacity: 1; }
-  82%,100% { transform: translateX(120%); opacity: 0; }
-}
-
-.report-explore-hint strong {
-  color: var(--cxty-red);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.report-track {
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  display: flex;
-  gap: 14px;
-  padding: 0 22px 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-padding-left: 22px;
-  scrollbar-width: none;
-  overscroll-behavior-x: contain;
-}
-
-.report-slide {
-  flex: 0 0 calc(100% - 42px);
-  min-width: calc(100% - 42px);
-  height: 100%;
-  padding: 0;
-  scroll-snap-align: start;
-  overflow: hidden;
-}
-
-.report-slide:last-child {
-  margin-right: 22px;
-}
-
-.report-slide-inner {
-  height: 100%;
-  min-height: 0;
-  padding: clamp(18px, 2.1vw, 28px);
-  display: grid;
-  grid-template-rows: auto minmax(0,1fr);
-  overflow: hidden;
-  border: 1px solid rgba(17,18,22,.09);
-  border-radius: 20px;
-  background: rgba(255,255,255,.88);
-  box-shadow:
-    0 22px 60px rgba(17,18,22,.055),
-    inset 0 1px 0 rgba(255,255,255,.94);
-}
-
-.report-slide-head {
-  min-height: 0;
-  padding-bottom: 16px;
-}
-
-.report-slide-head > div {
-  max-width: 820px;
-}
-
-.report-slide-head h1 {
-  margin-top: 9px;
-  max-width: 900px;
-  font-size: clamp(30px, 3.8vw, 54px);
-  line-height: .98;
-  letter-spacing: -.052em;
-}
-
-.report-slide-index {
-  padding-top: 2px;
-}
-
-.report-slide-content {
-  min-height: 0;
-  padding-top: 16px;
-  overflow: hidden;
-}
-
-.report-dashboard-grid {
-  height: 100%;
-  display: grid;
-  grid-template-columns: 1.2fr .9fr .9fr;
-  grid-template-rows: auto minmax(0,1fr);
-  gap: 10px;
-}
-
-.report-primary-score {
-  grid-row: 1 / 3;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  border-radius: 16px;
-  background: #111216;
-  color: #fff;
-}
-
-.report-primary-score > span {
-  color: #8e949d;
-  font-size: 8px;
-  text-transform: uppercase;
-}
-
-.report-primary-score > strong {
-  margin-top: auto;
-  font-size: clamp(68px, 8vw, 112px);
-  line-height: .82;
-  font-weight: 500;
-  letter-spacing: -.07em;
-}
-
-.report-primary-score > small {
-  color: #777e88;
-  font-size: 11px;
-}
-
-.report-primary-score > i {
-  height: 2px;
-  margin-top: 18px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--cxty-red), #fff);
-  box-shadow: 0 0 16px rgba(255,59,48,.18);
-}
-
-.report-quote.compact {
-  margin-top: 0;
-  min-height: 0;
-  padding: 18px;
-}
-
-.report-quote.compact strong {
-  font-size: clamp(18px, 2.2vw, 30px);
-}
-
-.report-stat,
-.report-insight,
-.report-list,
-.report-pill-group,
-.report-score {
-  min-height: 0;
-  padding: 15px;
-  border-radius: 13px;
-}
-
-.report-three,
-.report-two,
-.report-score-grid {
-  height: 100%;
-  align-content: stretch;
-}
-
-.report-three {
-  grid-template-columns: repeat(3,minmax(0,1fr));
-}
-
-.report-three.timeline {
-  grid-template-columns: repeat(3,minmax(0,1fr));
-}
-
-.report-two {
-  grid-template-columns: repeat(2,minmax(0,1fr));
-}
-
-.report-score-grid {
-  grid-template-columns: repeat(4,minmax(0,1fr));
-}
-
-.report-score {
-  min-height: 0;
-  justify-content: center;
-}
-
-.report-score strong {
-  margin-top: 11px;
-  font-size: clamp(25px, 3vw, 36px);
-}
-
-.report-score > i {
-  height: 2px;
-  margin-top: 12px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #ecece8;
-}
-
-.report-score > i > b {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--cxty-red);
-}
-
-.report-insight strong {
-  font-size: clamp(14px, 1.4vw, 18px);
-  line-height: 1.22;
-}
-
-.report-insight p,
-.report-lede {
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.report-list ul {
-  font-size: 10.5px;
-  line-height: 1.36;
-}
-
-.report-list li + li {
-  margin-top: 5px;
-}
-
-.report-pill-group b {
-  padding: 7px 9px;
-  font-size: 9px;
-}
-
-.report-audience-layout {
-  height: 100%;
-  display: grid;
-  grid-template-rows: minmax(0,1fr) auto;
-  gap: 10px;
-}
-
-.spotify-rail {
-  margin-top: 0;
-  min-height: 64px;
-  max-height: 76px;
-}
-
-.spotify-reference {
-  min-width: 185px;
-  padding: 8px;
-}
-
-.spotify-reference.submitted {
-  min-width: 220px;
-}
-
-.spotify-reference img {
-  width: 42px;
-  height: 42px;
-}
-
-.final-read {
-  height: 100%;
-}
-
-.report-next-move {
-  height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0,1fr) minmax(250px,.75fr);
-  grid-template-rows: 1fr 1fr;
-  gap: 12px;
-}
-
-.next-move-copy {
-  grid-row: 1 / 3;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 70% 10%, rgba(255,59,48,.13), transparent 30%),
-    #111216;
-  color: #fff;
-}
-
-.next-move-copy span {
-  color: var(--cxty-red);
-  font-size: 8px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
-.next-move-copy p {
-  max-width: 580px;
-  margin: 14px 0 0;
-  color: #a5abb4;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.next-move-primary,
-.next-move-secondary {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border: 1px solid rgba(17,18,22,.10);
-  border-radius: 16px;
-  cursor: pointer;
-  text-align: left;
-}
-
-.next-move-primary {
-  background: #fff;
-  color: #111216;
-  box-shadow: 0 15px 38px rgba(17,18,22,.06);
-}
-
-.next-move-secondary {
-  background: #ecece8;
-  color: #111216;
-}
-
-.next-move-primary span,
-.next-move-secondary span {
-  font-size: clamp(14px, 1.4vw, 18px);
-  font-weight: 600;
-}
-
-.next-move-primary b {
-  color: var(--cxty-red);
-  font-size: 18px;
-}
-
-.next-move-secondary b {
-  font-size: 17px;
-  font-weight: 400;
-}
-
-.report-controls {
-  min-height: 58px;
-  height: 58px;
-  padding: 0 22px;
-  background: rgba(249,249,247,.92);
-  backdrop-filter: blur(14px);
-}
-
-.report-controls > button {
-  min-width: 92px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.report-controls > button:last-child {
-  justify-content: flex-end;
-}
-
-.report-controls > button b {
-  color: var(--cxty-red);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.report-progress-center {
-  display: grid;
-  justify-items: center;
-  gap: 5px;
-}
-
-.report-progress-center > span {
-  color: #8b9098;
-  font-size: 7px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.report-dots {
-  gap: 5px;
-}
-
-/* -----------------------------
-REPORT MOBILE — NO PAGE SCROLL
------------------------------ */
-
-@media (max-width: 640px) {
-  .report-app {
-    grid-template-rows: 58px minmax(0,1fr);
-  }
-
-  .report-topbar {
-    height: 58px;
-    min-height: 58px;
-    padding: 0 14px;
-  }
-
-  .report-layout {
-    min-height: 0;
-    height: auto;
-  }
-
-  .report-main {
-    grid-template-rows: 30px minmax(0,1fr) 56px;
-  }
-
-  .report-explore-hint {
-    padding: 0 13px;
-    justify-content: center;
-    font-size: 7px;
-  }
-
-  .report-explore-hint .desktop-hint {
-    display: none;
-  }
-
-  .report-explore-hint .mobile-hint {
-    display: inline;
-  }
-
-  .report-track {
-    gap: 9px;
-    padding: 0 10px 6px;
-    scroll-padding-left: 10px;
-  }
-
-  .report-slide {
-    flex-basis: calc(100% - 24px);
-    min-width: calc(100% - 24px);
-  }
-
-  .report-slide:last-child {
-    margin-right: 10px;
-  }
-
-  .report-slide-inner {
-    padding: 15px;
-    border-radius: 17px;
-  }
-
-  .report-slide-head {
-    padding-bottom: 11px;
-  }
-
-  .report-slide-head h1 {
-    margin-top: 7px;
-    font-size: clamp(27px, 8vw, 38px);
-    line-height: .98;
-  }
-
-  .report-slide-content {
-    padding-top: 11px;
-  }
-
-  .report-dashboard-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1.15fr .75fr .85fr;
-  }
-
-  .report-primary-score {
-    grid-column: 1 / 3;
-    grid-row: auto;
-    padding: 15px;
-  }
-
-  .report-primary-score > strong {
-    font-size: 58px;
-  }
-
-  .report-quote.compact {
-    grid-column: 1 / 3;
-  }
-
-  .report-stat,
-  .report-insight,
-  .report-list,
-  .report-pill-group,
-  .report-score {
-    padding: 11px;
-  }
-
-  .report-three,
-  .report-three.timeline,
-  .report-two {
-    grid-template-columns: 1fr 1fr;
-    gap: 7px;
-  }
-
-  .report-three > .wide {
-    grid-column: 1 / 3;
-  }
-
-  .report-score-grid {
-    grid-template-columns: repeat(2,1fr);
-    gap: 7px;
-  }
-
-  .report-score strong {
-    font-size: 25px;
-  }
-
-  .report-insight strong {
-    font-size: 12px;
-  }
-
-  .report-insight p,
-  .report-lede {
-    font-size: 9.5px;
-  }
-
-  .report-list ul {
-    margin-top: 8px;
-    padding-left: 13px;
-    font-size: 8.8px;
-  }
-
-  .report-list li + li {
-    margin-top: 4px;
-  }
-
-  .report-pill-group > div {
-    margin-top: 8px;
-    gap: 5px;
-  }
-
-  .report-pill-group b {
-    padding: 5px 7px;
-    font-size: 8px;
-  }
-
-  .report-audience-layout {
-    grid-template-rows: minmax(0,1fr) 58px;
-  }
-
-  .spotify-rail {
-    min-height: 58px;
-    max-height: 58px;
-  }
-
-  .spotify-reference {
-    min-width: 150px;
-    padding: 6px;
-  }
-
-  .spotify-reference.submitted {
-    min-width: 180px;
-  }
-
-  .spotify-reference img {
-    width: 34px;
-    height: 34px;
-  }
-
-  .spotify-reference strong {
-    font-size: 9px;
-  }
-
-  .spotify-reference p,
-  .spotify-reference span {
-    font-size: 7px;
-  }
-
-  .report-next-move {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto auto;
-    gap: 8px;
-  }
-
-  .next-move-copy {
-    grid-row: auto;
-    padding: 18px;
-  }
-
-  .next-move-copy p {
-    font-size: 11px;
-  }
-
-  .next-move-primary,
-  .next-move-secondary {
-    min-height: 58px;
-    padding: 14px;
-    border-radius: 13px;
-  }
-
-  .next-move-primary span,
-  .next-move-secondary span {
-    font-size: 12px;
-  }
-
-  .report-controls {
-    height: 56px;
-    min-height: 56px;
-    padding: 0 10px;
-  }
-
-  .report-controls > button {
-    min-width: 68px;
-    font-size: 8px;
-  }
-
-  .report-controls > button span {
-    display: none;
-  }
-
-  .report-progress-center > span {
-    font-size: 6.5px;
-  }
-
-  .report-dots {
-    gap: 4px;
-  }
-
-  .report-dots button {
-    width: 4px;
-    height: 4px;
-  }
-
-  .report-dots button.active {
-    width: 16px;
-  }
-
-  .processing-panel {
-    padding: 13px;
-  }
-
-  .processing-wave {
-    height: 48px;
-  }
-
-  .processing-head > b {
-    font-size: 16px;
-  }
-}
-
-@media (max-height: 700px) and (max-width: 640px) {
-  .report-slide-head h1 {
-    font-size: 25px;
-  }
-
-  .report-slide-inner {
-    padding: 12px;
-  }
-
-  .report-slide-content {
-    padding-top: 8px;
-  }
-
-  .report-stat,
-  .report-insight,
-  .report-list,
-  .report-pill-group,
-  .report-score {
-    padding: 9px;
-  }
-
-  .report-insight strong {
-    font-size: 11px;
-  }
-
-  .report-list ul {
-    font-size: 8px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .processing-wave > i,
-  .report-explore-hint i b {
-    animation: none !important;
-  }
-}
-
-
-/* =========================================================
-DISCOVERY ENGINE — PRODUCT UI V4.1
-Mobile report fit + stable field focus
-========================================================= */
-
-/* New overview card keeps the long AI output out of the headline slot. */
-.report-moment-card {
-  grid-column: 2 / 4;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  border: 1px solid var(--cxty-border-light);
-  border-radius: 15px;
-  background: #fff;
-}
-
-.report-moment-card > span {
-  color: #8b9098;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-
-.report-moment-card > strong {
-  margin-top: 9px;
-  color: #17181b;
-  font-size: clamp(15px, 1.65vw, 21px);
-  line-height: 1.18;
-  font-weight: 600;
-  letter-spacing: -.025em;
-}
-
-/* Prevent grid children from forcing horizontal overflow. */
-.report-slide *,
-.report-dashboard-grid > *,
-.report-three > *,
-.report-two > *,
-.report-score-grid > *,
-.report-audience-layout > * {
-  min-width: 0;
-}
-
-@media (max-width: 640px) {
-  /*
-  Mobile report should behave like an app viewport, not a set of
-  narrow cards sitting inside a horizontally oversized canvas.
-  */
-  .report-main {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .report-track {
-    width: 100%;
-    max-width: 100%;
-    gap: 0;
-    padding: 0;
-    scroll-padding-left: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .report-slide {
-    flex: 0 0 100%;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    padding: 0 10px 6px;
-    scroll-snap-align: start;
-  }
-
-  .report-slide:last-child {
-    margin-right: 0;
-  }
-
-  .report-slide-inner {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .report-slide-head h1 {
-    max-width: 100%;
-    font-size: clamp(25px, 7.1vw, 31px);
-    line-height: .98;
-    overflow-wrap: anywhere;
-  }
-
-  .report-dashboard-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto minmax(0, 1fr);
-    gap: 7px;
-  }
-
-  .report-moment-card {
-    grid-column: 1 / 3;
-    padding: 12px;
-  }
-
-  .report-moment-card > strong {
-    font-size: 13px;
-    line-height: 1.22;
-  }
-
-  .report-primary-score {
-    grid-column: 1 / 2;
-    grid-row: auto;
-    min-height: 0;
-    padding: 12px;
-  }
-
-  .report-primary-score > strong {
-    font-size: 48px;
-  }
-
-  .report-dashboard-grid > .report-stat {
-    min-height: 0;
-  }
-
-  .report-quote.compact {
-    grid-column: 1 / 3;
-    min-height: 0;
-    padding: 12px;
-  }
-
-  .report-quote.compact strong {
-    font-size: 17px;
-    line-height: 1.08;
-  }
-
-  /*
-  The permanent bottom nav is the primary carousel affordance.
-  Keep the hint compact instead of consuming another large row.
-  */
-  .report-explore-hint {
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .report-explore-hint i {
-    width: 28px;
-    flex: 0 0 auto;
-  }
-
-  /* iOS input focus should not create giant browser zoom/position jumps. */
-  .composer-input,
-  .composer-textarea,
-  .session-meta .composer-input {
-    font-size: 16px !important;
-  }
-
-  .field-shell,
-  .link-shell,
-  .lyrics-shell {
-    scroll-margin-top: 110px;
-    scroll-margin-bottom: 110px;
-  }
-}
-
-
-/* =========================================================
-DISCOVERY ENGINE — NEXT MOVE VISUAL V4.2
-Replaces dead black space with a restrained live intelligence visual.
-========================================================= */
-
-.next-move-copy {
-  position: relative;
-  overflow: hidden;
-  justify-content: space-between;
-}
-
-.next-move-copy::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 50% 38%, rgba(255,59,48,.10), transparent 28%),
-    radial-gradient(circle at 78% 18%, rgba(255,255,255,.04), transparent 23%);
-}
-
-.next-move-visual {
-  position: relative;
-  width: min(360px, 78%);
-  aspect-ratio: 1;
-  margin: 8px auto 10px;
-  display: grid;
-  place-items: center;
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.next-orbit {
-  position: absolute;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 50%;
-}
-
-.next-orbit::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--cxty-red);
-  box-shadow:
-    0 0 10px rgba(255,59,48,.58),
-    0 0 24px rgba(255,59,48,.18);
-}
-
-.next-orbit-a {
-  width: 82%;
-  height: 82%;
-  animation: cxtyNextOrbit 13s linear infinite;
-}
-
-.next-orbit-a::after {
-  top: 8%;
-  left: 22%;
-}
-
-.next-orbit-b {
-  width: 61%;
-  height: 61%;
-  animation: cxtyNextOrbitReverse 9s linear infinite;
-}
-
-.next-orbit-b::after {
-  right: 4%;
-  top: 43%;
-  width: 5px;
-  height: 5px;
-}
-
-.next-orbit-c {
-  width: 41%;
-  height: 41%;
-  border-color: rgba(255,59,48,.14);
-  animation: cxtyNextPulseRing 3.8s ease-in-out infinite;
-}
-
-.next-core {
-  position: relative;
-  z-index: 2;
-  width: 35%;
-  aspect-ratio: 1;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 45% 35%, rgba(255,59,48,.09), transparent 44%),
-    rgba(10,11,14,.88);
-  box-shadow:
-    0 0 28px rgba(255,59,48,.06),
-    inset 0 1px 0 rgba(255,255,255,.025);
-}
-
-.next-core span {
-  color: #777e88;
-  font-size: 6px;
-  letter-spacing: .08em;
-}
-
-.next-core b {
-  margin-top: 5px;
-  color: #fff;
-  font-size: clamp(25px, 4vw, 40px);
-  line-height: .9;
-  font-weight: 500;
-  letter-spacing: -.05em;
-}
-
-.next-core small {
-  color: #676e78;
-  font-size: 8px;
-}
-
-.next-wave {
-  position: absolute;
-  left: 7%;
-  right: 7%;
-  bottom: 3%;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  opacity: .72;
-}
-
-.next-wave i {
-  flex: 1 1 0;
-  min-width: 1px;
-  height: var(--next-height);
-  border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    rgba(255,59,48,.32),
-    rgba(255,255,255,.82),
-    rgba(255,59,48,.46)
+function AnalysisLoader() {
+  const steps = [
+    "Reading structure and creative context",
+    "Mapping story and audience",
+    "Finding the creative angle",
+    "Building rollout direction",
+  ];
+
+  return (
+    <section className="analysis-loader">
+      <div className="analysis-loader-top">
+        <div>
+          <span>Discovery Engine</span>
+          <strong>Analyzing track</strong>
+        </div>
+        <span className="analysis-live">LIVE</span>
+      </div>
+
+      <div className="analysis-wave" aria-hidden="true">
+        {Array.from({ length: 52 }).map((_, index) => (
+          <i
+            key={index}
+            style={
+              {
+                "--bar-delay": `${index * 24}ms`,
+                "--bar-height": `${22 + ((index * 37) % 68)}%`,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+
+      <div className="analysis-steps">
+        {steps.map((step, index) => (
+          <span key={step}>
+            <i>{String(index + 1).padStart(2, "0")}</i>
+            {step}
+          </span>
+        ))}
+      </div>
+    </section>
   );
-  transform: scaleY(.25);
-  animation: cxtyNextWave 1.35s ease-in-out var(--next-delay) infinite alternate;
 }
 
-.next-move-copy-text {
-  position: relative;
-  z-index: 3;
-  flex: 0 0 auto;
+function ReportView({
+  report,
+  onReset,
+  onBuildMyRolloutClick,
+}: {
+  report: Report;
+  onReset: () => void;
+  onBuildMyRolloutClick: () => void;
+}) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const scores = [
+    ["Discovery", report.scores.discoveryScore],
+    ["Viral", report.scores.viralPotentialScore],
+    ["Hook", report.scores.hookStrengthScore],
+    ["Playlist", report.scores.playlistFitScore],
+    ["UGC", report.scores.ugcTikTokScore],
+    ["Emotion", report.scores.emotionalResonanceScore],
+    ["Brand", report.scores.brandFitScore],
+    ["Rollout", report.scores.rolloutReadinessScore],
+  ] as const;
+
+  const slides = [
+    {
+      id: "overview",
+      label: "Overview",
+      eyebrow: "The discovery moment",
+      title: "Why this song connects.",
+      content: (
+        <div className="report-dashboard-grid">
+          <div className="report-moment-card">
+            <span>Core discovery moment</span>
+            <strong>{report.strategy.discoveryMoment}</strong>
+          </div>
+
+          <div className="report-primary-score">
+            <span>Discovery score</span>
+            <strong>{report.scores.discoveryScore}</strong>
+            <small>/100</small>
+            <i
+              style={{
+                width: `${Math.max(
+                  0,
+                  Math.min(100, report.scores.discoveryScore)
+                )}%`,
+              }}
+            />
+          </div>
+
+          <ReportStat
+            label="Archetype"
+            value={report.strategy.artistArchetype}
+          />
+          <ReportStat
+            label="Rollout"
+            value={report.strategy.rolloutType}
+          />
+
+          <div className="report-quote compact">
+            <span>The line that carries the rollout</span>
+            <strong>
+              “{cleanQuote(report.evidence.mostShareableLyric)}”
+            </strong>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "release",
+      label: "Release",
+      eyebrow: "If released today",
+      title: "What happens next.",
+      content: (
+        <div className="report-three">
+          <ReportInsight
+            label="Likely outcome"
+            value={report.strategy.ifReleasedToday?.likelyOutcome}
+          />
+          <ReportInsight
+            label="The unlock"
+            value={report.strategy.ifReleasedToday?.theUnlock}
+          />
+          <ReportInsight
+            label="Content trigger"
+            value={report.strategy.ifReleasedToday?.contentTrigger}
+          />
+          <ReportInsight
+            label="Future rollout prediction"
+            value={report.strategy.futureRolloutPrediction}
+            wide
+          />
+        </div>
+      ),
+    },
+    {
+      id: "audience",
+      label: "Audience",
+      eyebrow: "Fanbase match",
+      title: "Where this song could live.",
+      content: (
+        <div className="report-audience-layout">
+          <div>
+            <p className="report-lede">{report.fanbaseMatch?.fanbaseReason}</p>
+            <div className="report-three">
+              <ReportList
+                title="Closest artist lanes"
+                items={report.fanbaseMatch?.closestArtists || []}
+              />
+              <ReportList
+                title="Similar song energy"
+                items={report.fanbaseMatch?.similarSongs || []}
+              />
+              <ReportList
+                title="Playlist lanes"
+                items={report.fanbaseMatch?.playlistLanes || []}
+              />
+            </div>
+          </div>
+          <SpotifyRail report={report} />
+        </div>
+      ),
+    },
+    {
+      id: "scorecard",
+      label: "Scorecard",
+      eyebrow: "Discovery scorecard",
+      title: "How the record is positioned.",
+      content: (
+        <div className="report-score-grid">
+          {scores.map(([label, value]) => (
+            <div className="report-score" key={label}>
+              <span>{label}</span>
+              <strong>
+                {value}
+                <small>/100</small>
+              </strong>
+              <i>
+                <b
+                  style={{
+                    width: `${Math.max(0, Math.min(100, Number(value) || 0))}%`,
+                  }}
+                />
+              </i>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "strategy",
+      label: "Strategy",
+      eyebrow: "Angle + audience",
+      title: "The strategy underneath the song.",
+      content: (
+        <div className="report-two">
+          <ReportInsight
+            label="The angle"
+            value={report.strategy.discoveryAngle}
+            body={report.strategy.archetypeExplanation}
+          />
+          <ReportInsight
+            label="The audience"
+            value={report.strategy.audienceMap}
+            body="The listeners most likely to hear themselves inside the record."
+          />
+          <ReportInsight
+            label="If it connects"
+            value={`“${cleanQuote(report.evidence.listenerComment)}”`}
+            body="The emotional response the rollout should be built to trigger."
+          />
+          <ReportInsight
+            label="What it's really selling"
+            value={report.evidence.strongestMessage}
+            body="The feeling people need to recognize in themselves."
+          />
+        </div>
+      ),
+    },
+    {
+      id: "evidence",
+      label: "Evidence",
+      eyebrow: "Inside the record",
+      title: "The emotional material we found.",
+      content: (
+        <div className="report-two">
+          <ReportPills title="Themes" items={report.evidence.coreThemes} />
+          <ReportPills
+            title="Emotions"
+            items={report.evidence.emotionalStates}
+          />
+          <ReportPills title="Imagery" items={report.evidence.imagery} />
+          <ReportPills
+            title="Repeated ideas"
+            items={report.evidence.repeatedIdeas}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "content",
+      label: "Content",
+      eyebrow: "Creative system",
+      title: "What to make around the song.",
+      content: (
+        <div className="report-three">
+          <ReportList title="Content pillars" items={report.rollout.contentPillars} />
+          <ReportList title="Video ideas" items={report.rollout.videoIdeas} />
+          <ReportInsight
+            label="Platform priority"
+            value={report.rollout.platformPriority}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "timeline",
+      label: "Timeline",
+      eyebrow: "Rollout sequence",
+      title: "How to move the record.",
+      content: (
+        <div className="report-three timeline">
+          <ReportList title="Pre-release" items={report.rollout.preReleasePlan} />
+          <ReportList
+            title="Release week"
+            items={report.rollout.releaseWeekPlan}
+          />
+          <ReportList
+            title="30 days after"
+            items={report.rollout.postReleasePlan}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "final",
+      label: "Final read",
+      eyebrow: "Creative direction",
+      title: "The final read.",
+      content: (
+        <div className="report-two final-read">
+          <ReportInsight
+            label="Recommendation"
+            value={report.creative.finalRecommendation}
+          />
+          <ReportInsight
+            label="Visual world"
+            value={report.creative.visualDirection}
+          />
+          <ReportInsight
+            label="Biggest opportunity"
+            value={report.creative.biggestOpportunity}
+          />
+          <ReportInsight
+            label="Biggest risk"
+            value={report.creative.biggestRisk}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "next",
+      label: "Next move",
+      eyebrow: "Your next move",
+      title: "We found the story. Now build the world.",
+      content: (
+        <div className="report-next-move">
+          <div className="next-move-copy">
+            <div className="next-move-visual" aria-hidden="true">
+              <div className="next-orbit next-orbit-a" />
+              <div className="next-orbit next-orbit-b" />
+              <div className="next-orbit next-orbit-c" />
+              <div className="next-core">
+                <span>DISCOVERY</span>
+                <b>{report.scores.discoveryScore}</b>
+                <small>/100</small>
+              </div>
+
+              <div className="next-wave">
+                {Array.from({ length: 34 }).map((_, index) => (
+                  <i
+                    key={index}
+                    style={
+                      {
+                        "--next-delay": `${index * 34}ms`,
+                        "--next-height": `${18 + ((index * 31) % 68)}%`,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="next-move-copy-text">
+              <span>CXTY LIMITS</span>
+              <p>
+                Turn the discovery report into a release world, or clear the
+                session and analyze another record.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="next-move-primary"
+            onClick={onBuildMyRolloutClick}
+          >
+            <span>Build the world around this song</span>
+            <b>↗</b>
+          </button>
+
+          <button
+            type="button"
+            className="next-move-secondary"
+            onClick={onReset}
+          >
+            <span>Analyze another track</span>
+            <b>＋</b>
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  function goToSlide(index: number) {
+    const next = Math.max(0, Math.min(slides.length - 1, index));
+    setActiveSlide(next);
+
+    const track = trackRef.current;
+    if (!track) return;
+
+    const slide = track.children[next] as HTMLElement | undefined;
+    slide?.scrollIntoView({
+      behavior: "smooth",
+      inline: "start",
+      block: "nearest",
+    });
+  }
+
+  function handleTrackScroll() {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const children = Array.from(track.children) as HTMLElement[];
+    if (!children.length) return;
+
+    const center = track.scrollLeft + track.clientWidth / 2;
+
+    let closest = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    children.forEach((child, index) => {
+      const childCenter = child.offsetLeft + child.offsetWidth / 2;
+      const distance = Math.abs(center - childCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = index;
+      }
+    });
+
+    if (closest !== activeSlide) {
+      setActiveSlide(closest);
+    }
+  }
+
+  return (
+    <main className="report-app">
+      <header className="report-topbar">
+        <div>
+          <p className="product-brand dark">CXTY LIMITS</p>
+          <p className="report-product-name">Discovery Engine / Report</p>
+        </div>
+
+        <div className="report-topbar-meta">
+          <span>
+            {String(activeSlide + 1).padStart(2, "0")} /{" "}
+            {String(slides.length).padStart(2, "0")}
+          </span>
+          <button type="button" onClick={onReset}>
+            New analysis
+          </button>
+        </div>
+      </header>
+
+      <div className="report-layout">
+        <aside className="report-nav">
+          <div className="report-nav-title">Discovery report</div>
+
+          <nav>
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                className={index === activeSlide ? "active" : ""}
+                onClick={() => goToSlide(index)}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {slide.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <section className="report-main">
+          <div className="report-explore-hint">
+            <span className="desktop-hint">Use arrows or swipe/trackpad to explore</span>
+            <span className="mobile-hint">Swipe to explore the report</span>
+            <i>
+              <b />
+            </i>
+            <strong>→</strong>
+          </div>
+
+          <div
+            className="report-track"
+            ref={trackRef}
+            onScroll={handleTrackScroll}
+          >
+            {slides.map((slide, index) => (
+              <article className="report-slide" key={slide.id}>
+                <div className="report-slide-inner">
+                  <div className="report-slide-head">
+                    <div>
+                      <span className="report-eyebrow">{slide.eyebrow}</span>
+                      <h1>{slide.title}</h1>
+                    </div>
+
+                    <span className="report-slide-index">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="report-slide-content">{slide.content}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="report-controls">
+            <button
+              type="button"
+              onClick={() => goToSlide(activeSlide - 1)}
+              disabled={activeSlide === 0}
+              aria-label="Previous report slide"
+            >
+              <b>←</b>
+              <span>Previous</span>
+            </button>
+
+            <div className="report-progress-center">
+              <div className="report-dots">
+                {slides.map((slide, index) => (
+                  <button
+                    type="button"
+                    aria-label={`Go to ${slide.label}`}
+                    key={slide.id}
+                    className={index === activeSlide ? "active" : ""}
+                    onClick={() => goToSlide(index)}
+                  />
+                ))}
+              </div>
+              <span>{slides[activeSlide]?.label}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => goToSlide(activeSlide + 1)}
+              disabled={activeSlide === slides.length - 1}
+              aria-label="Next report slide"
+            >
+              <span>Next</span>
+              <b>→</b>
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 }
 
-.next-move-copy-text span {
-  color: var(--cxty-red);
-  font-size: 8px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255,59,48,.17);
+function ReportStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="report-stat">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
 }
 
-.next-move-copy-text p {
-  max-width: 580px;
-  margin: 14px 0 0;
-  color: #a5abb4;
-  font-size: 14px;
-  line-height: 1.5;
+function ReportInsight({
+  label,
+  value,
+  body,
+  wide,
+}: {
+  label: string;
+  value?: string;
+  body?: string;
+  wide?: boolean;
+}) {
+  return (
+    <section className={`report-insight ${wide ? "wide" : ""}`}>
+      <span>{label}</span>
+      <strong>{value || "—"}</strong>
+      {body ? <p>{body}</p> : null}
+    </section>
+  );
 }
 
-@keyframes cxtyNextOrbit {
-  to { transform: rotate(360deg); }
+function ReportList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="report-list">
+      <span>{title}</span>
+      <ul>
+        {items?.slice(0, 5).map((item, index) => (
+          <li key={`${title}-${index}`}>{item}</li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
-@keyframes cxtyNextOrbitReverse {
-  to { transform: rotate(-360deg); }
+function ReportPills({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="report-pill-group">
+      <span>{title}</span>
+      <div>
+        {items?.slice(0, 6).map((item, index) => (
+          <b key={`${title}-${index}`}>{item}</b>
+        ))}
+      </div>
+    </section>
+  );
 }
 
-@keyframes cxtyNextPulseRing {
-  0%,100% {
-    transform: scale(.96);
-    opacity: .45;
-    box-shadow: 0 0 0 rgba(255,59,48,0);
-  }
-  50% {
-    transform: scale(1.04);
-    opacity: .92;
-    box-shadow: 0 0 26px rgba(255,59,48,.08);
-  }
+function SpotifyRail({ report }: { report: Report }) {
+  const submitted = report.spotify?.submittedTrack;
+  const artists = report.spotify?.artists || [];
+  const tracks = report.spotify?.tracks || [];
+
+  if (!submitted && !artists.length && !tracks.length) return null;
+
+  return (
+    <div className="spotify-rail">
+      {submitted ? (
+        <a
+          href={submitted.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference submitted"
+        >
+          {submitted.image ? (
+            <img src={submitted.image} alt={submitted.name} />
+          ) : null}
+          <div>
+            <span>Submitted track</span>
+            <strong>{submitted.name}</strong>
+            <p>{submitted.artist}</p>
+          </div>
+        </a>
+      ) : null}
+
+      {artists.slice(0, 3).map((artist, index) => (
+        <a
+          href={artist.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference"
+          key={`artist-${index}`}
+        >
+          {artist.image ? <img src={artist.image} alt={artist.name} /> : null}
+          <div>
+            <span>Artist lane</span>
+            <strong>{artist.name}</strong>
+            <p>Open in Spotify</p>
+          </div>
+        </a>
+      ))}
+
+      {tracks.slice(0, 3).map((track, index) => (
+        <a
+          href={track.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="spotify-reference"
+          key={`track-${index}`}
+        >
+          {track.image ? <img src={track.image} alt={track.name} /> : null}
+          <div>
+            <span>Song reference</span>
+            <strong>{track.name}</strong>
+            <p>{track.artist}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
 }
 
-@keyframes cxtyNextWave {
-  to {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
-
-@media (max-width: 640px) {
-  .next-move-copy {
-    min-height: 0;
-    padding: 15px 16px 16px;
-  }
-
-  .next-move-visual {
-    width: min(245px, 70%);
-    max-height: 230px;
-    margin: 0 auto 4px;
-  }
-
-  .next-wave {
-    height: 25px;
-  }
-
-  .next-move-copy-text p {
-    margin-top: 8px;
-    font-size: 10.5px;
-    line-height: 1.42;
-  }
-}
-
-@media (max-height: 760px) and (max-width: 640px) {
-  .next-move-visual {
-    width: min(190px, 58%);
-    max-height: 175px;
-  }
-
-  .next-wave {
-    height: 20px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .next-orbit-a,
-  .next-orbit-b,
-  .next-orbit-c,
-  .next-wave i {
-    animation: none !important;
-  }
-}
-
-
-/* =========================================================
-DISCOVERY ENGINE — V4.3 STABILITY LOCK
-- Full-width, non-skewed report slides
-- No horizontal page drift
-- Compact mobile form journey
-- Active step / processing stays in focus
-========================================================= */
-
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden !important;
-  overscroll-behavior-x: none;
-}
-
-.engine-shell,
-.engine-workspace,
-.report-app,
-.report-layout,
-.report-main,
-.report-track {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-/* REPORT: remove the previous "peek" layout completely. */
-.report-track {
-  gap: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  scroll-padding-left: 0 !important;
-}
-
-.report-slide {
-  flex: 0 0 100% !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
-  margin-right: 0 !important;
-}
-
-.report-slide:last-child {
-  margin-right: 0 !important;
-}
-
-.report-slide-inner {
-  width: calc(100% - 32px) !important;
-  max-width: calc(100% - 32px) !important;
-  margin: 0 16px !important;
-}
-
-/* Make the report feel like one full SaaS workspace, not skinny cards. */
-.report-app {
-  overflow: hidden !important;
-}
-
-.report-layout,
-.report-main {
-  overflow: hidden !important;
-}
-
-.report-slide-content,
-.report-slide-head,
-.report-dashboard-grid,
-.report-three,
-.report-two,
-.report-score-grid,
-.report-audience-layout,
-.report-next-move {
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-/* Processing state is a real focus state, not something added below the fold. */
-.processing-panel {
-  scroll-margin-top: 90px;
-  scroll-margin-bottom: 90px;
-}
-
-/* =========================================================
-MOBILE
-========================================================= */
-@media (max-width: 640px) {
-  /*
-  The mobile journey should fit as a guided screen, not a long stacked form.
-  */
-  .engine-grid {
-    padding-top: 18px !important;
-    padding-bottom: 16px !important;
-    gap: 18px !important;
-  }
-
-  .engine-intro {
-    margin-bottom: 0 !important;
-  }
-
-  .composer-panel {
-    padding: 14px !important;
-    border-radius: 15px !important;
-  }
-
-  .mobile-intake-progress {
-    margin-top: 10px !important;
-  }
-
-  .mobile-swipe-hint {
-    min-height: 22px !important;
-    margin-bottom: 1px !important;
-  }
-
-  .mobile-intake-slide.active {
-    scroll-margin-top: 78px;
-    scroll-margin-bottom: 78px;
-  }
-
-  /* Details = compact 2x2 grid. No giant vertical form stack. */
-  .session-meta {
-    padding: 12px !important;
-  }
-
-  .session-meta .composer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-  }
-
-  .session-meta .field-shell {
-    min-width: 0 !important;
-  }
-
-  .session-meta .composer-input {
-    min-height: 44px !important;
-    height: 44px !important;
-    padding: 0 10px !important;
-    font-size: 16px !important;
-  }
-
-  .session-meta-head {
-    margin-bottom: 2px !important;
-  }
-
-  .track-source-hero {
-    padding: 12px !important;
-  }
-
-  .upload-shell {
-    min-height: 102px !important;
-  }
-
-  .link-shell-hero {
-    min-height: 74px !important;
-    padding: 10px !important;
-  }
-
-  .lyrics-shell .composer-textarea {
-    min-height: 118px !important;
-    max-height: 150px !important;
-  }
-
-  .mobile-step-actions {
-    min-height: 48px !important;
-    margin-top: 9px !important;
-  }
-
-  .mobile-step-actions button {
-    min-height: 42px !important;
-  }
-
-  .composer-actions {
-    margin-top: 10px !important;
-  }
-
-  .composer-actions .analyze-button {
-    min-height: 50px !important;
-  }
-
-  .processing-panel {
-    margin-top: 8px !important;
-    scroll-margin-top: 70px;
-    scroll-margin-bottom: 70px;
-  }
-
-  /*
-  REPORT: absolutely full-width slide. No next-card peek, no skew,
-  no accidental horizontal canvas beyond the viewport.
-  */
-  .report-track {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    scroll-padding: 0 !important;
-  }
-
-  .report-slide {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-  }
-
-  .report-slide-inner {
-    width: calc(100% - 20px) !important;
-    max-width: calc(100% - 20px) !important;
-    margin: 0 10px !important;
-    padding: 14px !important;
-    border-radius: 16px !important;
-  }
-
-  .report-slide-head h1 {
-    max-width: 100% !important;
-    font-size: clamp(24px, 7vw, 31px) !important;
-    line-height: .98 !important;
-    overflow-wrap: break-word !important;
-  }
-
-  .report-explore-hint {
-    justify-content: center !important;
-  }
-
-  .report-dashboard-grid,
-  .report-three,
-  .report-two,
-  .report-score-grid,
-  .report-next-move {
-    max-width: 100% !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .session-meta .composer-grid {
-    grid-template-columns: 1fr !important;
-  }
+function cleanQuote(text: string) {
+  return String(text || "").replace(/^["“]+|["”]+$/g, "");
 }
