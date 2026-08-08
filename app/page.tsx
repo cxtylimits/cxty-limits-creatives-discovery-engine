@@ -311,7 +311,7 @@ export default function Home() {
 
         <div className="engine-grid">
           <section className="engine-intro">
-            <p className="engine-kicker">Creative intelligence for music</p>
+            <p className="engine-kicker live-red">Creative intelligence for music</p>
 
             <h1 className="engine-title">
               What are we
@@ -335,99 +335,111 @@ export default function Home() {
           <form onSubmit={handleSubmit} className="composer-panel">
             <div className="composer-header">
               <div>
-                <span className="composer-label">New analysis</span>
+                <span className="composer-label live-red">New analysis</span>
                 <strong>Start with the track.</strong>
               </div>
               <span className="composer-step">01</span>
             </div>
 
-            <div className="composer-grid">
-              <label className="field-shell">
-                <span>Artist</span>
-                <input
-                  name="artistName"
-                  required
-                  placeholder="Artist name"
-                  className="composer-input"
-                />
-              </label>
-
-              <label className="field-shell">
-                <span>Email</span>
-                <input
-                  name="email"
-                  required
-                  placeholder="Email address"
-                  type="email"
-                  className="composer-input"
-                />
-              </label>
-
-              <label className="field-shell">
-                <span>Song title</span>
-                <input
-                  name="songTitle"
-                  placeholder="Optional"
-                  className="composer-input"
-                />
-              </label>
-
-              <label className="field-shell">
-                <span>Release status</span>
-                <select
-                  name="releaseStatus"
-                  defaultValue=""
-                  className="composer-input"
-                >
-                  <option value="" disabled>
-                    Select
-                  </option>
-                  <option value="Unreleased">Unreleased</option>
-                  <option value="Already Released">Already Released</option>
-                  <option value="Not Sure">Not Sure</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="track-source">
+            <div className="track-source track-source-hero">
               <div className="track-source-head">
                 <div>
-                  <span className="composer-label">Track source</span>
-                  <strong>Upload audio or paste a link.</strong>
+                  <span className="composer-label live-red">Track source</span>
+                  <strong>Feed the engine.</strong>
                 </div>
                 <span className="source-note">Best results: audio upload</span>
               </div>
 
-              <label className="link-shell">
-                <span>Song link</span>
-                <input
-                  name="songLink"
-                  placeholder="Spotify, YouTube, or SoundCloud"
-                  className="composer-input composer-link"
-                />
-              </label>
-
-              <div className="upload-shell">
-                <div>
-                  <span className="upload-icon">＋</span>
+              <div className="source-grid">
+                <div className="upload-shell">
                   <div>
-                    <strong>Upload track</strong>
-                    <p>MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB</p>
+                    <span className="upload-icon">＋</span>
+                    <div>
+                      <strong>Upload track</strong>
+                      <p>MP3, WAV, M4A, AAC, OGG or FLAC · max 50 MB</p>
+                      <span className="upload-life" aria-hidden="true">
+                        <i /><i /><i /><i /><i /><i /><i /><i /><i />
+                      </span>
+                    </div>
                   </div>
+
+                  <input
+                    name="songFile"
+                    type="file"
+                    accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
+                    className="upload-input"
+                  />
                 </div>
 
-                <input
-                  name="songFile"
-                  type="file"
-                  accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac"
-                  className="upload-input"
-                />
+                <label className="link-shell link-shell-hero">
+                  <span>Or paste a song link</span>
+                  <input
+                    name="songLink"
+                    placeholder="Spotify, YouTube, or SoundCloud"
+                    className="composer-input composer-link"
+                  />
+                </label>
               </div>
 
               <p className="track-source-note">
                 Links are used for context only and may be less accurate. For
                 Spotify links, add lyrics or key context for a stronger report.
               </p>
+            </div>
+
+            <div className="session-meta">
+              <div className="session-meta-head">
+                <span className="composer-label">Session details</span>
+                <span>Required metadata</span>
+              </div>
+
+              <div className="composer-grid">
+                <label className="field-shell">
+                  <span>Artist</span>
+                  <input
+                    name="artistName"
+                    required
+                    placeholder="Artist name"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Email</span>
+                  <input
+                    name="email"
+                    required
+                    placeholder="Email address"
+                    type="email"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Song title</span>
+                  <input
+                    name="songTitle"
+                    placeholder="Optional"
+                    className="composer-input"
+                  />
+                </label>
+
+                <label className="field-shell">
+                  <span>Release status</span>
+                  <select
+                    name="releaseStatus"
+                    defaultValue=""
+                    className="composer-input"
+                  >
+                    <option value="" disabled>
+                      Select
+                    </option>
+                    <option value="Unreleased">Unreleased</option>
+                    <option value="Already Released">Already Released</option>
+                    <option value="Not Sure">Not Sure</option>
+                  </select>
+                </label>
+              </div>
             </div>
 
             <label className="lyrics-shell">
