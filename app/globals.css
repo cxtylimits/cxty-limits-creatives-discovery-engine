@@ -3437,8 +3437,12 @@ Only reflows the INSIDE of slides on phones.
     gap: 7px !important;
   }
 
-  .spotify-reference:nth-child(n + 3) {
+  .spotify-reference:nth-child(n + 4) {
     display: none !important;
+  }
+
+  .spotify-reference:nth-child(3) {
+    grid-column: 1 / -1 !important;
   }
 
   .spotify-reference img {
@@ -3575,97 +3579,304 @@ Only reflows the INSIDE of slides on phones.
 
 
 /* =========================================================
-DISCOVERY REPORT — AUDIENCE REFERENCE GRID V5.1
-Five compact references on mobile without breaking the slide.
+DISCOVERY REPORT — DESKTOP VIEWPORT FIT V5.5
+LOCKED SHELL. ONLY COMPACTS REPORT INTERNALS ON SHORT DESKTOPS.
+No Squarespace / iframe / intake changes.
 ========================================================= */
 
-@media (max-width: 640px) {
+@media (min-width: 641px) and (max-height: 920px) {
+
+  .report-app {
+    grid-template-rows: 58px minmax(0, 1fr) !important;
+  }
+
+  .report-topbar {
+    height: 58px !important;
+    min-height: 58px !important;
+    padding: 0 18px !important;
+  }
+
+  .report-main {
+    grid-template-rows: 28px minmax(0, 1fr) 50px !important;
+  }
+
+  .report-explore-hint {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 18px !important;
+    font-size: 7px !important;
+  }
+
+  .report-track {
+    gap: 10px !important;
+    padding: 0 18px 6px !important;
+    overflow-y: hidden !important;
+  }
+
+  .report-slide {
+    flex-basis: calc(100% - 34px) !important;
+    min-width: calc(100% - 34px) !important;
+    overflow: hidden !important;
+  }
+
+  .report-slide-inner {
+    padding: 18px 20px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .report-slide-head {
+    padding-bottom: 11px !important;
+  }
+
+  .report-slide-head h1 {
+    margin-top: 6px !important;
+    font-size: clamp(34px, 3.25vw, 48px) !important;
+    line-height: .95 !important;
+  }
+
+  .report-slide-index {
+    font-size: 8px !important;
+  }
+
+  .report-slide-content {
+    padding-top: 11px !important;
+    overflow: hidden !important;
+  }
+
+  /* OVERVIEW */
+  .report-dashboard-grid {
+    gap: 8px !important;
+    grid-template-columns: 1.08fr .9fr .9fr !important;
+  }
+
+  .report-primary-score {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .report-primary-score > strong {
+    font-size: clamp(58px, 6.6vw, 88px) !important;
+  }
+
+  .report-primary-score > i {
+    margin-top: 12px !important;
+  }
+
+  .report-moment-card,
+  .report-stat,
+  .report-insight,
+  .report-list,
+  .report-pill-group,
+  .report-score,
+  .report-quote.compact {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .report-moment-card > strong {
+    margin-top: 6px !important;
+    font-size: clamp(13px, 1.35vw, 17px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .report-quote.compact strong {
+    margin-top: 6px !important;
+    font-size: clamp(17px, 1.7vw, 24px) !important;
+    line-height: 1.05 !important;
+  }
+
+  /* GENERIC SLIDES */
+  .report-three,
+  .report-two,
+  .report-score-grid,
+  .report-audience-layout,
+  .report-next-move,
+  .final-read {
+    gap: 8px !important;
+  }
+
+  .report-insight strong {
+    font-size: clamp(12px, 1.15vw, 15px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .report-insight p,
+  .report-lede {
+    font-size: 9.5px !important;
+    line-height: 1.32 !important;
+  }
+
+  .report-list ul {
+    margin-top: 7px !important;
+    font-size: 9px !important;
+    line-height: 1.28 !important;
+  }
+
+  .report-pill-group > div {
+    margin-top: 7px !important;
+    gap: 5px !important;
+  }
+
+  .report-pill-group b {
+    padding: 5px 7px !important;
+    font-size: 7.5px !important;
+  }
+
+  .report-score strong {
+    margin-top: 8px !important;
+    font-size: clamp(21px, 2.25vw, 30px) !important;
+  }
+
+  .report-score > i {
+    margin-top: 8px !important;
+  }
+
+  /* AUDIENCE / SPOTIFY */
+  .report-audience-layout {
+    grid-template-rows: minmax(0, 1fr) 58px !important;
+  }
 
   .spotify-rail {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 5px !important;
-
-    width: 100% !important;
-    margin-top: 6px !important;
-
-    overflow: visible !important;
-  }
-
-  /* Restore up to five references. */
-  .spotify-reference:nth-child(n + 3) {
-    display: flex !important;
-  }
-
-  .spotify-reference:nth-child(n + 6) {
-    display: none !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    margin-top: 0 !important;
   }
 
   .spotify-reference,
   .spotify-reference.submitted {
-    min-width: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-
-    min-height: 40px !important;
-    padding: 5px 6px !important;
-    gap: 6px !important;
-
-    border-radius: 9px !important;
-  }
-
-  /* Fifth item gets the full final row so nothing becomes too narrow. */
-  .spotify-reference:nth-child(5) {
-    grid-column: 1 / -1 !important;
+    padding: 6px !important;
   }
 
   .spotify-reference img {
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 6px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
 
-  .spotify-reference > div {
-    min-width: 0 !important;
+  /* NEXT MOVE */
+  .report-next-move {
+    grid-template-columns: minmax(0, 1.05fr) minmax(240px, .78fr) !important;
+    grid-template-rows: 1fr 1fr !important;
   }
 
-  .spotify-reference span {
-    font-size: 5.5px !important;
-    line-height: 1 !important;
+  .next-move-copy {
+    padding: 18px !important;
+    border-radius: 14px !important;
   }
 
-  .spotify-reference strong {
-    margin-top: 2px !important;
-
-    font-size: 7.7px !important;
-    line-height: 1.04 !important;
-
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+  .next-move-visual {
+    width: min(360px, 29vw) !important;
+    max-height: 250px !important;
+    margin: 0 auto !important;
   }
 
-  .spotify-reference p {
-    margin-top: 2px !important;
+  .next-core b {
+    font-size: clamp(34px, 3vw, 48px) !important;
+  }
 
-    font-size: 5.8px !important;
-    line-height: 1 !important;
+  .next-wave {
+    height: 24px !important;
+  }
 
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+  .next-move-copy p {
+    margin-top: 8px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .next-move-primary,
+  .next-move-secondary {
+    min-height: 0 !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .next-move-primary span,
+  .next-move-secondary span {
+    font-size: clamp(13px, 1.25vw, 16px) !important;
+  }
+
+  .report-controls {
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 18px !important;
   }
 }
 
-@media (max-width: 640px) and (max-height: 760px) {
-  .spotify-reference,
-  .spotify-reference.submitted {
-    min-height: 36px !important;
-    padding: 4px 5px !important;
+/* Extra compression for laptop-height browsers. */
+@media (min-width: 641px) and (max-height: 760px) {
+
+  .report-app {
+    grid-template-rows: 54px minmax(0, 1fr) !important;
   }
 
-  .spotify-reference img {
-    width: 25px !important;
-    height: 25px !important;
+  .report-topbar {
+    height: 54px !important;
+    min-height: 54px !important;
+  }
+
+  .report-main {
+    grid-template-rows: 24px minmax(0, 1fr) 46px !important;
+  }
+
+  .report-explore-hint {
+    height: 24px !important;
+    min-height: 24px !important;
+  }
+
+  .report-slide-inner {
+    padding: 14px 16px !important;
+  }
+
+  .report-slide-head {
+    padding-bottom: 8px !important;
+  }
+
+  .report-slide-head h1 {
+    font-size: clamp(30px, 2.9vw, 42px) !important;
+  }
+
+  .report-slide-content {
+    padding-top: 8px !important;
+  }
+
+  .report-primary-score {
+    padding: 13px !important;
+  }
+
+  .report-primary-score > strong {
+    font-size: clamp(50px, 5.8vw, 76px) !important;
+  }
+
+  .report-moment-card,
+  .report-stat,
+  .report-insight,
+  .report-list,
+  .report-pill-group,
+  .report-score,
+  .report-quote.compact {
+    padding: 10px !important;
+  }
+
+  .report-quote.compact strong {
+    font-size: clamp(15px, 1.55vw, 21px) !important;
+  }
+
+  .next-move-copy {
+    padding: 14px !important;
+  }
+
+  .next-move-visual {
+    width: min(300px, 25vw) !important;
+    max-height: 205px !important;
+  }
+
+  .next-move-copy p {
+    font-size: 10px !important;
+  }
+
+  .report-controls {
+    height: 46px !important;
+    min-height: 46px !important;
   }
 }
