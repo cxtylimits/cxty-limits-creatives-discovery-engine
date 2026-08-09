@@ -3437,8 +3437,13 @@ Only reflows the INSIDE of slides on phones.
     gap: 7px !important;
   }
 
-  .spotify-reference:nth-child(n + 3) {
+  .spotify-reference:nth-child(n + 4) {
     display: none !important;
+  }
+
+  /* Third reference gets its own full-width row. */
+  .spotify-reference:nth-child(3) {
+    grid-column: 1 / -1 !important;
   }
 
   .spotify-reference img {
