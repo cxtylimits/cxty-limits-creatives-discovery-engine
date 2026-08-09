@@ -3669,3 +3669,141 @@ Five compact references on mobile without breaking the slide.
     height: 25px !important;
   }
 }
+
+
+/* =========================================================
+DISCOVERY ENGINE — V5.2 STABILITY FIX
+1) Intake shell always fills the embedded app height on desktop.
+2) Mobile audience returns to 3 compact reference cards.
+3) Report sizing/layout remains untouched.
+========================================================= */
+
+/* -----------------------------
+INTAKE / ENGINE BACKGROUND FILL
+----------------------------- */
+
+html,
+body {
+  min-height: 100%;
+  background: var(--cxty-black);
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.engine-shell {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(255, 59, 48, 0.09), transparent 26%),
+    var(--cxty-black);
+}
+
+.engine-workspace {
+  min-height: calc(100vh - 48px);
+  min-height: calc(100dvh - 48px);
+}
+
+@media (min-width: 641px) {
+  body {
+    background: var(--cxty-black) !important;
+  }
+
+  .engine-shell {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+  }
+
+  .engine-workspace {
+    min-height: calc(100vh - 48px) !important;
+    min-height: calc(100dvh - 48px) !important;
+  }
+}
+
+/* -----------------------------
+AUDIENCE — BACK TO 3 REFERENCES
+----------------------------- */
+
+@media (max-width: 640px) {
+
+  .spotify-rail {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    width: 100% !important;
+    margin-top: 6px !important;
+    overflow: visible !important;
+  }
+
+  .spotify-reference {
+    display: flex !important;
+  }
+
+  .spotify-reference:nth-child(n + 4) {
+    display: none !important;
+  }
+
+  .spotify-reference,
+  .spotify-reference.submitted {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 40px !important;
+    padding: 5px 6px !important;
+    gap: 6px !important;
+    border-radius: 9px !important;
+  }
+
+  .spotify-reference:nth-child(3) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .spotify-reference img {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 6px !important;
+  }
+
+  .spotify-reference > div {
+    min-width: 0 !important;
+  }
+
+  .spotify-reference span {
+    font-size: 5.5px !important;
+    line-height: 1 !important;
+  }
+
+  .spotify-reference strong {
+    margin-top: 2px !important;
+    font-size: 7.7px !important;
+    line-height: 1.04 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .spotify-reference p {
+    margin-top: 2px !important;
+    font-size: 5.8px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+@media (max-width: 640px) and (max-height: 760px) {
+  .spotify-reference,
+  .spotify-reference.submitted {
+    min-height: 36px !important;
+    padding: 4px 5px !important;
+  }
+
+  .spotify-reference img {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}
