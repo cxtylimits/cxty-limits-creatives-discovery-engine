@@ -1082,7 +1082,6 @@ function ReportView({
             title="Emotions"
             items={report.evidence.emotionalStates}
           />
-          <ReportPills title="Imagery" items={report.evidence.imagery} />
           <ReportPills
             title="Repeated ideas"
             items={report.evidence.repeatedIdeas}
