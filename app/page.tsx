@@ -170,11 +170,7 @@ export default function Home() {
       document.body.scrollTop = 0;
 
       window.parent.postMessage(
-        {
-          type: "CXTY_DISCOVERY_REPORT_READY",
-          mode: "report",
-          fullscreen: true,
-        },
+        { type: "CXTY_DISCOVERY_REPORT_READY" },
         "*"
       );
     };
