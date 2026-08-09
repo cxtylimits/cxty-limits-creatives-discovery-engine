@@ -3238,3 +3238,337 @@ Replaces dead black space with a restrained live intelligence visual.
     animation: none !important;
   }
 }
+
+/* =========================================================
+DISCOVERY REPORT — MOBILE CONTENT FIT V5
+Keeps the full-width report shell.
+Only reflows the INSIDE of slides on phones.
+========================================================= */
+
+@media (max-width: 640px) {
+
+  /* Give content the full available slide width without desktop-style crowding. */
+  .report-slide-inner {
+    padding: 14px !important;
+  }
+
+  .report-slide-head {
+    padding-bottom: 10px !important;
+  }
+
+  .report-slide-head h1 {
+    margin-top: 6px !important;
+    font-size: clamp(24px, 7vw, 29px) !important;
+    line-height: .98 !important;
+    letter-spacing: -.045em !important;
+  }
+
+  .report-slide-content {
+    padding-top: 10px !important;
+  }
+
+  /* ---------------------------------------------------------
+  OVERVIEW
+  Stop the score card from becoming a skinny vertical sliver.
+  --------------------------------------------------------- */
+
+  .report-dashboard-grid {
+    min-height: 0 !important;
+    height: auto !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
+    gap: 7px !important;
+  }
+
+  .report-moment-card {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+
+    padding: 11px !important;
+  }
+
+  .report-moment-card > strong {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .report-primary-score {
+    grid-column: 1 / 2 !important;
+    grid-row: auto !important;
+
+    min-height: 112px !important;
+    padding: 11px !important;
+
+    justify-content: flex-end !important;
+  }
+
+  .report-primary-score > strong {
+    margin-top: 12px !important;
+    font-size: 42px !important;
+    line-height: .86 !important;
+  }
+
+  .report-primary-score > i {
+    margin-top: 10px !important;
+  }
+
+  .report-dashboard-grid > .report-stat {
+    min-height: 112px !important;
+    padding: 11px !important;
+  }
+
+  .report-dashboard-grid > .report-stat strong {
+    font-size: 12px !important;
+    line-height: 1.16 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .report-quote.compact {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+
+    min-height: 0 !important;
+    padding: 11px !important;
+  }
+
+  .report-quote.compact strong {
+    margin-top: 7px !important;
+    font-size: 15px !important;
+    line-height: 1.08 !important;
+  }
+
+  /* ---------------------------------------------------------
+  GENERAL REPORT CARDS
+  Slightly tighter type so generated AI copy stays inside.
+  --------------------------------------------------------- */
+
+  .report-stat,
+  .report-insight,
+  .report-list,
+  .report-pill-group,
+  .report-score {
+    padding: 10px !important;
+  }
+
+  .report-insight strong {
+    margin-top: 7px !important;
+    font-size: 11px !important;
+    line-height: 1.17 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .report-insight p,
+  .report-lede {
+    font-size: 9px !important;
+    line-height: 1.34 !important;
+  }
+
+  .report-list ul {
+    margin-top: 7px !important;
+    padding-left: 12px !important;
+    font-size: 8.4px !important;
+    line-height: 1.27 !important;
+  }
+
+  .report-list li + li {
+    margin-top: 3px !important;
+  }
+
+  .report-three,
+  .report-three.timeline,
+  .report-two {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .report-three > .wide {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* ---------------------------------------------------------
+  AUDIENCE
+  Use a compact 2-column card grid, then stack Spotify refs.
+  --------------------------------------------------------- */
+
+  .report-audience-layout {
+    min-height: 0 !important;
+    height: auto !important;
+
+    display: block !important;
+  }
+
+  .report-audience-layout > div:first-child {
+    min-width: 0 !important;
+  }
+
+  .report-audience-layout .report-three {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .report-audience-layout .report-three > .report-list:nth-child(3) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .spotify-rail {
+    width: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin-top: 7px !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+
+    overflow: visible !important;
+  }
+
+  .spotify-reference,
+  .spotify-reference.submitted {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    padding: 6px !important;
+    gap: 7px !important;
+  }
+
+  .spotify-reference:nth-child(n + 3) {
+    display: none !important;
+  }
+
+  .spotify-reference img {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 7px !important;
+  }
+
+  .spotify-reference span {
+    font-size: 6px !important;
+  }
+
+  .spotify-reference strong {
+    margin-top: 2px !important;
+    font-size: 8.5px !important;
+    line-height: 1.08 !important;
+  }
+
+  .spotify-reference p {
+    margin-top: 2px !important;
+    font-size: 6.5px !important;
+  }
+
+  /* ---------------------------------------------------------
+  NEXT MOVE
+  Compress the live graphic so BOTH CTAs fit in the viewport.
+  --------------------------------------------------------- */
+
+  .report-next-move {
+    min-height: 0 !important;
+    height: auto !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 7px !important;
+  }
+
+  .next-move-copy {
+    grid-row: auto !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    padding: 12px 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .next-move-visual {
+    width: min(168px, 48vw) !important;
+    height: 150px !important;
+    aspect-ratio: auto !important;
+
+    flex: 0 0 auto !important;
+
+    margin: -2px auto 2px !important;
+  }
+
+  .next-core {
+    width: 39% !important;
+  }
+
+  .next-core b {
+    font-size: 29px !important;
+  }
+
+  .next-wave {
+    left: 8% !important;
+    right: 8% !important;
+    bottom: 1% !important;
+    height: 18px !important;
+  }
+
+  .next-move-copy-text p {
+    margin-top: 6px !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+  }
+
+  .next-move-primary,
+  .next-move-secondary {
+    min-height: 50px !important;
+    height: 50px !important;
+
+    padding: 0 12px !important;
+
+    border-radius: 12px !important;
+  }
+
+  .next-move-primary span,
+  .next-move-secondary span {
+    font-size: 10.5px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Do not make the whole slide scroll just because one generated answer is long. */
+  .report-slide-content {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+  }
+}
+
+/* Extra tightening for short iPhone viewports. */
+@media (max-width: 640px) and (max-height: 760px) {
+
+  .report-slide-inner {
+    padding: 11px !important;
+  }
+
+  .report-slide-head h1 {
+    font-size: 23px !important;
+  }
+
+  .report-slide-content {
+    padding-top: 7px !important;
+  }
+
+  .next-move-visual {
+    width: min(138px, 42vw) !important;
+    height: 122px !important;
+  }
+
+  .next-move-copy-text p {
+    font-size: 8.5px !important;
+  }
+
+  .next-move-primary,
+  .next-move-secondary {
+    min-height: 46px !important;
+    height: 46px !important;
+  }
+}
