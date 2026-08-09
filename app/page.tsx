@@ -162,73 +162,6 @@ export default function Home() {
   }, [loading, report, error]);
 
   useEffect(() => {
-    if (report) return;
-
-    const activeSlide = document.querySelector(
-      ".mobile-intake-slide.active"
-    ) as HTMLElement | null;
-
-    if (!activeSlide) return;
-
-    const timer = window.setTimeout(() => {
-      activeSlide.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "nearest",
-      });
-
-      if (window.matchMedia("(max-width: 640px)").matches) {
-        const focusTarget =
-          mobileStep === 1
-            ? (activeSlide.querySelector(
-                'input[name="artistName"]'
-              ) as HTMLInputElement | null)
-            : mobileStep === 2
-            ? (activeSlide.querySelector(
-                'textarea[name="lyrics"]'
-              ) as HTMLTextAreaElement | null)
-            : null;
-
-        /*
-        Focus only after the panel has moved. preventScroll keeps Safari from
-        undoing our controlled snap and jumping the document somewhere else.
-        */
-        focusTarget?.focus({ preventScroll: true });
-      }
-
-      window.parent.postMessage(
-        { type: "CXTY_DISCOVERY_ACTIVE_STEP" },
-        "*"
-      );
-    }, 180);
-
-    return () => window.clearTimeout(timer);
-  }, [mobileStep, report]);
-
-  useEffect(() => {
-    if (!loading || report) return;
-
-    const timer = window.setTimeout(() => {
-      const processing = document.querySelector(
-        ".processing-panel"
-      ) as HTMLElement | null;
-
-      processing?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "nearest",
-      });
-
-      window.parent.postMessage(
-        { type: "CXTY_DISCOVERY_PROCESSING" },
-        "*"
-      );
-    }, 100);
-
-    return () => window.clearTimeout(timer);
-  }, [loading, processingPhase, report]);
-
-  useEffect(() => {
     if (!report) return;
 
     const scrollToReportTop = () => {
@@ -239,7 +172,8 @@ export default function Home() {
       window.parent.postMessage(
         {
           type: "CXTY_DISCOVERY_REPORT_READY",
-          mode: "report"
+          mode: "report",
+          fullscreen: true,
         },
         "*"
       );
@@ -273,42 +207,10 @@ export default function Home() {
       window.parent.postMessage(
         {
           type: "CXTY_DISCOVERY_FOCUS_FIELD",
-          field: field.getAttribute("name") || "",
         },
         "*"
       );
     }, 120);
-  }
-
-  function handleFieldKeyDown(
-    event: React.KeyboardEvent<
-      HTMLInputElement | HTMLTextAreaElement
-    >
-  ) {
-    if (event.key !== "Enter") return;
-    if (event.currentTarget instanceof HTMLTextAreaElement) return;
-
-    const form = event.currentTarget.closest("form");
-    if (!form) return;
-
-    const order = ["artistName", "email", "songTitle"];
-    const currentName = event.currentTarget.getAttribute("name") || "";
-    const currentIndex = order.indexOf(currentName);
-
-    if (currentIndex === -1) return;
-
-    event.preventDefault();
-
-    const nextName = order[currentIndex + 1];
-
-    if (nextName) {
-      const next = form.elements.namedItem(nextName) as HTMLElement | null;
-      next?.focus();
-      return;
-    }
-
-    const release = form.elements.namedItem("releaseStatus") as HTMLElement | null;
-    release?.focus();
   }
 
   function handleSongFileChange(
@@ -432,11 +334,6 @@ export default function Home() {
     setError("");
     setUploadProgress(0);
     setAnalysisProgress(0);
-
-    window.parent.postMessage(
-      { type: "CXTY_DISCOVERY_PROCESSING" },
-      "*"
-    );
 
     let analysisTimer: number | null = null;
 
@@ -1185,7 +1082,6 @@ function ReportView({
             title="Emotions"
             items={report.evidence.emotionalStates}
           />
-          <ReportPills title="Imagery" items={report.evidence.imagery} />
           <ReportPills
             title="Repeated ideas"
             items={report.evidence.repeatedIdeas}
