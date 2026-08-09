@@ -125,13 +125,45 @@ export default function Home() {
 
     const postHeight = () => {
       cancelAnimationFrame(raf);
+
       raf = requestAnimationFrame(() => {
-        const height = Math.max(
-          document.documentElement.scrollHeight,
-          document.body.scrollHeight,
-          document.documentElement.offsetHeight,
-          document.body.offsetHeight
-        );
+        let height: number;
+
+        if (report) {
+          /*
+          The report is a fixed fullscreen app view.
+          Report the actual viewport, not document scrollHeight.
+          */
+          height = Math.ceil(window.innerHeight);
+        } else {
+          /*
+          The intake must shrink the parent iframe to the REAL engine content.
+          Measuring document/body here creates a feedback loop because the
+          document can inherit the iframe's previous report height.
+          */
+          const shell = document.querySelector(
+            ".engine-shell"
+          ) as HTMLElement | null;
+
+          if (shell) {
+            const rect = shell.getBoundingClientRect();
+
+            height = Math.ceil(
+              Math.max(
+                shell.scrollHeight,
+                shell.offsetHeight,
+                rect.height
+              )
+            );
+          } else {
+            height = Math.ceil(
+              Math.max(
+                document.body.scrollHeight,
+                document.body.offsetHeight
+              )
+            );
+          }
+        }
 
         window.parent.postMessage(
           {
@@ -160,6 +192,47 @@ export default function Home() {
       window.removeEventListener("resize", postHeight);
     };
   }, [loading, report, error]);
+
+  useEffect(() => {
+    if (report) return;
+
+    const resendIntakeHeight = () => {
+      const shell = document.querySelector(
+        ".engine-shell"
+      ) as HTMLElement | null;
+
+      if (!shell) return;
+
+      const rect = shell.getBoundingClientRect();
+
+      const height = Math.ceil(
+        Math.max(
+          shell.scrollHeight,
+          shell.offsetHeight,
+          rect.height
+        )
+      );
+
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_HEIGHT",
+          height,
+          mode: "intake",
+        },
+        "*"
+      );
+    };
+
+    const first = window.setTimeout(resendIntakeHeight, 80);
+    const second = window.setTimeout(resendIntakeHeight, 320);
+    const third = window.setTimeout(resendIntakeHeight, 800);
+
+    return () => {
+      window.clearTimeout(first);
+      window.clearTimeout(second);
+      window.clearTimeout(third);
+    };
+  }, [report]);
 
   useEffect(() => {
     if (!report) return;
