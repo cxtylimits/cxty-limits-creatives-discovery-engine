@@ -3880,3 +3880,40 @@ No Squarespace / iframe / intake changes.
     min-height: 46px !important;
   }
 }
+/* =========================================================
+DISCOVERY ENGINE — DESKTOP INTRO WIDTH FIX
+Surgical desktop-only correction.
+Mobile, intake behavior, processing, report and tracking untouched.
+========================================================= */
+
+@media (min-width: 1181px) {
+
+  .engine-grid {
+    grid-template-columns:
+      minmax(520px, 0.9fr)
+      minmax(0, 1.1fr);
+
+    gap: clamp(36px, 3vw, 52px);
+  }
+
+  .engine-intro {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .engine-title {
+    width: 100%;
+    max-width: 600px;
+
+    font-size: clamp(
+      58px,
+      5.35vw,
+      88px
+    );
+  }
+
+  .composer-panel {
+    width: 100%;
+    max-width: 720px;
+  }
+}
