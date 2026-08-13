@@ -121,45 +121,131 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    let raf = 0;
+  let raf = 0;
 
-    const postHeight = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const height = Math.max(
-          document.documentElement.scrollHeight,
-          document.body.scrollHeight,
-          document.documentElement.offsetHeight,
-          document.body.offsetHeight
-        );
+  const postHeight = () => {
+    cancelAnimationFrame(raf);
 
-        window.parent.postMessage(
-          {
-            type: "CXTY_DISCOVERY_HEIGHT",
-            height,
-            mode: report ? "report" : "intake",
-          },
-          "*"
-        );
-      });
-    };
+    raf = requestAnimationFrame(() => {
+      let height: number;
 
-    postHeight();
+      if (report) {
+        /*
+        Report is intended to occupy the viewport.
+        Do not use document scrollHeight because the iframe
+        can inherit its previously assigned parent height.
+        */
+        height = Math.ceil(window.innerHeight);
+      } else {
+        /*
+        Measure the actual Discovery Engine intake shell,
+        not the iframe document surrounding it.
+        */
+        const shell = document.querySelector(
+          ".engine-shell"
+        ) as HTMLElement | null;
 
-    const observer = new ResizeObserver(postHeight);
-    observer.observe(document.documentElement);
+        if (shell) {
+          const rect = shell.getBoundingClientRect();
+
+          height = Math.ceil(
+            Math.max(
+              rect.height,
+              shell.offsetHeight,
+              shell.scrollHeight
+            )
+          );
+        } else {
+          /*
+          Fallback only. Normally .engine-shell exists
+          whenever we're in intake mode.
+          */
+          height = Math.ceil(
+            document.body.scrollHeight
+          );
+        }
+      }
+
+      window.parent.postMessage(
+        {
+          type: "CXTY_DISCOVERY_HEIGHT",
+          height,
+          mode: report ? "report" : "intake",
+        },
+        "*"
+      );
+    });
+  };
+
+  postHeight();
+
+  const observer = new ResizeObserver(
+    postHeight
+  );
+
+  const shell = document.querySelector(
+    ".engine-shell"
+  ) as HTMLElement | null;
+
+  if (shell) {
+    observer.observe(shell);
+  } else {
     observer.observe(document.body);
+  }
 
-    window.addEventListener("load", postHeight);
-    window.addEventListener("resize", postHeight);
+  /*
+  Re-measure after fonts/layout have had time to settle.
+  These do not change the UI — they only correct the
+  iframe height if initial layout timing differs.
+  */
+  const firstCheck =
+    window.setTimeout(
+      postHeight,
+      100
+    );
 
-    return () => {
-      cancelAnimationFrame(raf);
-      observer.disconnect();
-      window.removeEventListener("load", postHeight);
-      window.removeEventListener("resize", postHeight);
-    };
-  }, [loading, report, error]);
+  const secondCheck =
+    window.setTimeout(
+      postHeight,
+      400
+    );
+
+  const thirdCheck =
+    window.setTimeout(
+      postHeight,
+      900
+    );
+
+  window.addEventListener(
+    "load",
+    postHeight
+  );
+
+  window.addEventListener(
+    "resize",
+    postHeight
+  );
+
+  return () => {
+    cancelAnimationFrame(raf);
+
+    observer.disconnect();
+
+    window.clearTimeout(firstCheck);
+    window.clearTimeout(secondCheck);
+    window.clearTimeout(thirdCheck);
+
+    window.removeEventListener(
+      "load",
+      postHeight
+    );
+
+    window.removeEventListener(
+      "resize",
+      postHeight
+    );
+  };
+}, [loading, report, error]);
 
   useEffect(() => {
     if (!report) return;
